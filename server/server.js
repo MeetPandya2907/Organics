@@ -40,7 +40,7 @@ if (process.env.NODE_ENV === 'production') {
   const clientDistPath = path.join(__dirname, '../client/dist');
   app.use(express.static(clientDistPath));
 
-  app.get('*', (req, res, next) => {
+  app.use((req, res, next) => {
     if (req.originalUrl.startsWith('/api')) {
       return next();
     }
