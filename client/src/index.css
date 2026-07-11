@@ -1,0 +1,111 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-primary: #064E3B; /* Deep Forest Green */
+    --color-primary-light: #10B981;
+    --color-accent: #F59E0B; /* Turmeric */
+    
+    --color-bg-light: #F8F9FA; /* Paper */
+    --color-text-dark: #0F172A;
+    --color-text-muted: #64748B;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-paper text-ink font-sans antialiased selection:bg-leaf/30 selection:text-forest;
+    /* subtle noise texture for premium feel */
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display tracking-tight text-forest;
+  }
+
+  .bg-ink h1, .bg-ink h2, .bg-ink h3, .bg-ink h4, .bg-ink h5, .bg-ink h6,
+  .bg-forest h1, .bg-forest h2, .bg-forest h3, .bg-forest h4, .bg-forest h5, .bg-forest h6 {
+    @apply text-white;
+  }
+
+  h1 { @apply text-5xl md:text-6xl lg:text-7xl font-bold leading-tight; }
+  h2 { @apply text-4xl md:text-5xl lg:text-6xl font-semibold leading-tight; }
+  h3 { @apply text-3xl md:text-4xl font-semibold; }
+  h4 { @apply text-2xl md:text-3xl font-medium; }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center px-8 py-3.5 rounded-full font-semibold transition-all duration-300 transform hover:-translate-y-1 active:scale-95 shadow-md hover:shadow-xl tracking-wide text-[15px];
+  }
+  
+  .btn-primary {
+    @apply bg-forest text-white hover:bg-[#0a664e] border border-transparent;
+  }
+  
+  .btn-accent {
+    @apply bg-turmeric text-white hover:bg-turmeric-dark border border-transparent;
+  }
+  
+  .btn-outline {
+    @apply bg-transparent border-2 border-forest text-forest hover:bg-forest hover:text-white;
+  }
+  
+  .btn-glass {
+    @apply bg-white/20 backdrop-blur-md border border-white/30 text-white hover:bg-white/30;
+  }
+
+  .glass-card {
+    @apply bg-glass-bg backdrop-blur-xl border border-glass-border shadow-glass rounded-[2rem];
+  }
+  
+  .glass-card-dark {
+    @apply bg-glass-dark-bg backdrop-blur-xl border border-glass-dark-border shadow-glass-dark rounded-[2rem] text-white;
+  }
+
+  .product-card {
+    @apply bg-white rounded-[2rem] overflow-hidden shadow-sm border border-gray-100 transition-all duration-500 hover:shadow-soft hover:-translate-y-2 relative group;
+  }
+
+  .form-group {
+    @apply mb-6;
+  }
+
+  .form-label {
+    @apply block text-sm font-medium text-slate-700 mb-2 ml-1 tracking-wide;
+  }
+
+  .form-input {
+    @apply w-full px-5 py-4 rounded-2xl border border-slate-200 bg-white/50 backdrop-blur-sm focus:bg-white focus:ring-2 focus:ring-leaf focus:border-transparent transition-all duration-300 outline-none text-ink placeholder-slate-400 shadow-sm;
+  }
+}
+
+/* Custom Premium Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #F8F9FA; 
+}
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1; 
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #10B981; 
+}
+
+/* Hide scrollbar for clean carousels */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
