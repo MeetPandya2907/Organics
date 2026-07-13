@@ -58,7 +58,18 @@ const Header = () => {
 
           {/* Actions */}
           <div className="flex items-center gap-3">
-            <button className="w-10 h-10 rounded-full flex items-center justify-center text-ink hover:bg-forest/5 hover:text-forest transition-colors">
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              const formData = new FormData(e.target);
+              const keyword = formData.get('q');
+              if (keyword.trim()) navigate(`/search/${keyword}`);
+              else navigate('/products');
+            }} className="relative hidden md:block">
+              <Search size={16} strokeWidth={2} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input type="text" name="q" placeholder="Search..." className="w-32 lg:w-48 h-10 pl-9 pr-4 rounded-full bg-slate-50 border border-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-forest focus:bg-white transition-all" />
+            </form>
+            
+            <button className="md:hidden w-10 h-10 rounded-full flex items-center justify-center text-ink hover:bg-forest/5 hover:text-forest transition-colors">
               <Search size={20} strokeWidth={2} />
             </button>
             

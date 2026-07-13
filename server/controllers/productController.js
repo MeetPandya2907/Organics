@@ -7,26 +7,52 @@ const myCache = new NodeCache({ stdTTL: 300, checkperiod: 320 }); // Cache for 5
 // @route   GET /api/products
 // @access  Public
 const getProducts = async (req, res) => {
-  const pageSize = 8;
+  const pageSize = Number(req.query.pageSize) || 8;
   const page = Number(req.query.pageNumber) || 1;
   const keywordString = req.query.keyword || '';
+  const category = req.query.category || '';
+  const minPrice = req.query.minPrice ? Number(req.query.minPrice) : 0;
+  const maxPrice = req.query.maxPrice ? Number(req.query.maxPrice) : 0;
+  const sort = req.query.sort || 'newest'; // newest, price_asc, price_desc, toprated
 
-  const cacheKey = `products_${page}_${keywordString}`;
+  const cacheKey = `products_${page}_${pageSize}_${keywordString}_${category}_${minPrice}_${maxPrice}_${sort}`;
   if (myCache.has(cacheKey)) {
     return res.json(myCache.get(cacheKey));
   }
 
-  const keyword = req.query.keyword
-    ? {
-        name: {
-          $regex: req.query.keyword,
-          $options: 'i',
-        },
-      }
-    : {};
+  const query = {};
 
-  const count = await Product.countDocuments({ ...keyword });
-  const products = await Product.find({ ...keyword })
+  if (keywordString) {
+    query.name = {
+      $regex: keywordString,
+      $options: 'i',
+    };
+  }
+
+  if (category && category !== 'All' && category !== 'ALL') {
+    query.category = { $regex: new RegExp(`^${category}$`, 'i') };
+  }
+
+  if (minPrice > 0 || maxPrice > 0) {
+    query.price = {};
+    if (minPrice > 0) query.price.$gte = minPrice;
+    if (maxPrice > 0) query.price.$lte = maxPrice;
+  }
+
+  let sortOrder = {};
+  if (sort === 'price_asc') {
+    sortOrder = { price: 1 };
+  } else if (sort === 'price_desc') {
+    sortOrder = { price: -1 };
+  } else if (sort === 'toprated') {
+    sortOrder = { rating: -1 };
+  } else {
+    sortOrder = { createdAt: -1 }; // newest
+  }
+
+  const count = await Product.countDocuments(query);
+  const products = await Product.find(query)
+    .sort(sortOrder)
     .limit(pageSize)
     .skip(pageSize * (page - 1));
 
@@ -76,6 +102,7 @@ const createProduct = async (req, res) => {
     price: 0,
     user: req.user._id,
     image: 'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=800',
+    images: [],
     category: 'SPICES',
     countInStock: 0,
     numReviews: 0,
@@ -91,7 +118,7 @@ const createProduct = async (req, res) => {
 // @route   PUT /api/products/:id
 // @access  Private/Admin
 const updateProduct = async (req, res) => {
-  const { name, price, description, image, category, countInStock } = req.body;
+  const { name, price, description, image, images, category, countInStock } = req.body;
 
   const product = await Product.findById(req.params.id);
 
@@ -100,6 +127,7 @@ const updateProduct = async (req, res) => {
     product.price = price;
     product.description = description;
     product.image = image;
+    if (images !== undefined) product.images = images;
     product.category = category;
     product.countInStock = countInStock;
 

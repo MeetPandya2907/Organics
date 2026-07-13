@@ -5,6 +5,7 @@ import { ShoppingCart, Star, SlidersHorizontal, Leaf, Search as SearchIcon, X } 
 import { motion, AnimatePresence } from 'framer-motion';
 import Paginate from '../components/Paginate';
 import SearchBox from '../components/SearchBox';
+import ProductSkeleton from '../components/ProductSkeleton';
 
 const categories = [
   'All',
@@ -20,26 +21,55 @@ const ProductListPage = () => {
   const navigate = useNavigate();
   const { keyword, pageNumber } = useParams();
   
-  const [filter, setFilter] = useState('All');
+  const [filter, setFilter] = useState('All'); // Category
   const [showFilters, setShowFilters] = useState(false);
-
-  useEffect(() => {
-    fetchProducts(keyword, pageNumber);
-  }, [fetchProducts, keyword, pageNumber]);
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
+  const [sort, setSort] = useState('newest');
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    const categoryQuery = params.get('category');
-    if (categoryQuery) {
-      setFilter(categoryQuery.toUpperCase());
-    } else {
-      setFilter('All');
-    }
-  }, [location]);
+    const categoryQuery = params.get('category') || 'All';
+    const minPriceQuery = params.get('minPrice') || '';
+    const maxPriceQuery = params.get('maxPrice') || '';
+    const sortQuery = params.get('sort') || 'newest';
 
-  const filteredProducts = products.filter(p => {
-    return filter === 'All' || p.category === filter;
-  });
+    setFilter(categoryQuery);
+    setMinPrice(minPriceQuery);
+    setMaxPrice(maxPriceQuery);
+    setSort(sortQuery);
+
+    fetchProducts(keyword, pageNumber, categoryQuery, minPriceQuery, maxPriceQuery, sortQuery);
+  }, [fetchProducts, keyword, pageNumber, location.search]);
+
+  const applyFilters = () => {
+    const params = new URLSearchParams();
+    if (filter !== 'All') params.append('category', filter);
+    if (minPrice) params.append('minPrice', minPrice);
+    if (maxPrice) params.append('maxPrice', maxPrice);
+    if (sort !== 'newest') params.append('sort', sort);
+    
+    // Maintain keyword if exists
+    if (keyword) {
+      navigate(`/search/${keyword}?${params.toString()}`);
+    } else {
+      navigate(`/products?${params.toString()}`);
+    }
+    setShowFilters(false);
+  };
+
+  const clearFilters = () => {
+    setFilter('All');
+    setMinPrice('');
+    setMaxPrice('');
+    setSort('newest');
+    if (keyword) navigate(`/search/${keyword}`);
+    else navigate('/products');
+    setShowFilters(false);
+  };
+
+  // We don't filter locally anymore, since the backend handles it.
+  const filteredProducts = products;
 
   return (
     <div className="bg-paper min-h-screen pb-24">
@@ -83,18 +113,95 @@ const ProductListPage = () => {
             <SearchBox />
             <button 
               onClick={() => setShowFilters(!showFilters)}
-              className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center text-ink hover:bg-forest/10 hover:text-forest transition-colors shrink-0 border border-slate-100"
+              className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors shrink-0 border ${showFilters ? 'bg-forest text-white border-forest' : 'bg-slate-50 text-ink border-slate-100 hover:bg-forest/10 hover:text-forest'}`}
             >
               <SlidersHorizontal size={20} />
             </button>
           </div>
         </div>
 
+        {/* Filter Panel */}
+        <AnimatePresence>
+          {showFilters && (
+            <motion.div 
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              className="overflow-hidden mb-12"
+            >
+              <div className="bg-white rounded-[2rem] shadow-sm border border-slate-100 p-8">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                  {/* Category Filter */}
+                  <div>
+                    <label className="block text-sm font-bold text-ink mb-3 uppercase tracking-widest">Category</label>
+                    <div className="space-y-2">
+                      {categories.map(cat => (
+                        <label key={cat} className="flex items-center gap-3 cursor-pointer group">
+                          <input 
+                            type="radio" 
+                            name="category"
+                            checked={filter.toUpperCase() === cat.toUpperCase()}
+                            onChange={() => setFilter(cat === 'All' ? 'All' : cat.toUpperCase())}
+                            className="w-4 h-4 text-forest focus:ring-forest border-gray-300"
+                          />
+                          <span className="text-gray-600 group-hover:text-ink">{cat}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Price Range */}
+                  <div>
+                    <label className="block text-sm font-bold text-ink mb-3 uppercase tracking-widest">Price Range (₹)</label>
+                    <div className="flex items-center gap-4">
+                      <input 
+                        type="number" 
+                        placeholder="Min" 
+                        value={minPrice}
+                        onChange={(e) => setMinPrice(e.target.value)}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 focus:ring-2 focus:ring-forest outline-none"
+                      />
+                      <span className="text-gray-400">-</span>
+                      <input 
+                        type="number" 
+                        placeholder="Max" 
+                        value={maxPrice}
+                        onChange={(e) => setMaxPrice(e.target.value)}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 focus:ring-2 focus:ring-forest outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Sort By */}
+                  <div>
+                    <label className="block text-sm font-bold text-ink mb-3 uppercase tracking-widest">Sort By</label>
+                    <select 
+                      value={sort}
+                      onChange={(e) => setSort(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 focus:ring-2 focus:ring-forest outline-none"
+                    >
+                      <option value="newest">Newest Arrivals</option>
+                      <option value="price_asc">Price: Low to High</option>
+                      <option value="price_desc">Price: High to Low</option>
+                      <option value="toprated">Top Rated</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="mt-8 pt-8 border-t border-slate-100 flex justify-end gap-4">
+                  <button onClick={clearFilters} className="px-6 py-2 rounded-xl font-medium text-gray-500 hover:bg-gray-100 transition-colors">Clear All</button>
+                  <button onClick={applyFilters} className="btn bg-forest text-white px-8 py-2 rounded-xl shadow-lg shadow-forest/20 hover:bg-forest/90">Apply Filters</button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Product Grid */}
         <div className="bg-white p-6 md:p-12 rounded-[3rem] shadow-sm border border-slate-100 min-h-[500px]">
           {loading ? (
-             <div className="flex justify-center items-center py-32">
-               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-forest"></div>
+             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+               {[1, 2, 3, 4, 5, 6, 7, 8].map(i => <ProductSkeleton key={i} />)}
              </div>
           ) : error ? (
             <div className="bg-red-50 text-red-600 p-8 rounded-3xl text-center border border-red-100 font-medium">
@@ -131,25 +238,6 @@ const ProductListPage = () => {
                         alt={product.name} 
                         className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out mix-blend-multiply"
                       />
-                      <div className="absolute inset-0 bg-ink/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center z-20">
-                        <button 
-                          onClick={(e) => { 
-                            e.preventDefault(); 
-                            if (!userInfo) { navigate('/login'); } 
-                            else { 
-                              addToCart({
-                                ...product,
-                                name: `${product.name} (250g - Eco Pouch)`,
-                                _id: `${product._id}-250g-Eco Pouch`,
-                                originalId: product._id
-                              }, 1); 
-                            } 
-                          }}
-                          className="translate-y-4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300 bg-white text-ink font-bold px-6 py-3 rounded-full shadow-lg hover:bg-forest hover:text-white flex items-center gap-2"
-                        >
-                          <ShoppingCart size={18} /> Quick Add
-                        </button>
-                      </div>
                     </div>
                     <div className="p-6 flex flex-col flex-1 border-t border-slate-100 bg-white">
                       <div className="flex items-center gap-1 text-turmeric mb-3">
@@ -164,6 +252,22 @@ const ProductListPage = () => {
                           <span className="text-xs text-slate-400 font-medium mb-0.5">Starting at</span>
                           <span className="text-xl font-bold text-forest">₹{product.price}</span>
                         </div>
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            if (!userInfo) navigate('/login');
+                            else addToCart({
+                              ...product,
+                              name: `${product.name} (250g - Eco Pouch)`,
+                              _id: `${product._id}-250g-Eco Pouch`,
+                              originalId: product._id
+                            }, 1);
+                          }}
+                          className="w-10 h-10 rounded-full bg-forest/10 flex items-center justify-center text-forest hover:bg-forest hover:text-white transition-colors"
+                          title="Quick Add"
+                        >
+                          <ShoppingCart size={18} />
+                        </button>
                       </div>
                     </div>
                   </motion.div>

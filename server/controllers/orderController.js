@@ -106,6 +106,23 @@ const updateOrderToDelivered = async (req, res) => {
   }
 };
 
+// @desc    Update order to shipped
+// @route   PUT /api/orders/:id/ship
+// @access  Private/Admin
+const updateOrderToShipped = async (req, res) => {
+  const order = await Order.findById(req.params.id);
+
+  if (order) {
+    order.isShipped = true;
+    order.shippedAt = Date.now();
+
+    const updatedOrder = await order.save();
+    res.json(updatedOrder);
+  } else {
+    res.status(404).json({ message: 'Order not found' });
+  }
+};
+
 export {
   addOrderItems,
   getOrderById,
@@ -113,4 +130,5 @@ export {
   getMyOrders,
   getOrders,
   updateOrderToDelivered,
+  updateOrderToShipped,
 };

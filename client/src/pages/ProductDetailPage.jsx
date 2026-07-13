@@ -4,10 +4,12 @@ import { ChevronRight, Minus, Plus, ShoppingCart, Star, ShieldCheck, Leaf, Arrow
 import { useStore } from '../store/useStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
+import Meta from '../components/Meta';
+import toast from 'react-hot-toast';
 
 const ProductDetailPage = () => {
   const { id } = useParams();
-  const { addToCart, userInfo, createReview } = useStore();
+  const { addToCart, userInfo, createReview, products, fetchProducts } = useStore();
   const navigate = useNavigate();
   
   const [product, setProduct] = useState(null);
@@ -18,11 +20,10 @@ const ProductDetailPage = () => {
   const [size, setSize] = useState('250g');
   const [packaging, setPackaging] = useState('Eco Pouch');
   const [activeTab, setActiveTab] = useState('description');
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
   
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
-  const [reviewError, setReviewError] = useState('');
-  const [reviewSuccess, setReviewSuccess] = useState('');
 
   const fetchProduct = async () => {
     try {
@@ -37,6 +38,7 @@ const ProductDetailPage = () => {
 
   useEffect(() => {
     fetchProduct();
+    if (products.length === 0) fetchProducts();
   }, [id]);
 
   const submitReviewHandler = async (e) => {
@@ -47,12 +49,12 @@ const ProductDetailPage = () => {
     }
     const res = await createReview(id, { rating, comment });
     if (res.success) {
-      setReviewSuccess('Review submitted successfully!');
+      toast.success('Review submitted successfully!');
       setComment('');
       setRating(5);
       fetchProduct();
     } else {
-      setReviewError(res.message);
+      toast.error(res.message);
     }
   };
 
@@ -83,8 +85,14 @@ const ProductDetailPage = () => {
   const packagingPrices = { 'Eco Pouch': 0, 'Glass Jar': 50 };
   const finalPrice = Math.round((product.price * sizeMultipliers[size]) + packagingPrices[packaging]);
 
+  const galleryImages = product ? [product.image, ...(product.images || [])] : [];
+  const relatedProducts = products
+    .filter(p => p.category === product.category && p._id !== product._id)
+    .slice(0, 4);
+
   return (
     <div className="bg-paper min-h-screen pb-24 pt-24">
+      <Meta title={`${product.name} | Organics`} description={product.description} />
       <div className="max-w-[1400px] mx-auto px-6 py-8">
         
         {/* Breadcrumbs */}
@@ -101,17 +109,39 @@ const ProductDetailPage = () => {
           {/* Left: Image Gallery */}
           <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="w-full lg:w-[45%] relative">
             <div className="sticky top-32">
-              <div className="relative aspect-[4/5] bg-white rounded-[3rem] flex items-center justify-center p-12 overflow-hidden border border-slate-100 shadow-sm group">
-                <span className="absolute top-8 left-8 bg-paper text-ink px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest z-10 border border-slate-200 shadow-sm">
+              <div className="relative aspect-square bg-white rounded-[3rem] flex items-center justify-center p-8 overflow-hidden border border-slate-100 shadow-sm group">
+                <span className="absolute top-6 left-6 bg-paper text-ink px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest z-10 border border-slate-200 shadow-sm">
                   {product.category || 'Organic'}
                 </span>
-                <img 
-                  src={product.image} 
-                  alt={product.name} 
-                  onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=800&auto=format&fit=crop' }}
-                  className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-1000 ease-out mix-blend-multiply drop-shadow-xl"
-                />
+                <AnimatePresence mode="wait">
+                  <motion.img 
+                    key={activeImageIndex}
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 1.05 }}
+                    transition={{ duration: 0.3 }}
+                    src={galleryImages[activeImageIndex]} 
+                    alt={`${product.name} - view ${activeImageIndex + 1}`} 
+                    onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=800&auto=format&fit=crop' }}
+                    className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-1000 ease-out mix-blend-multiply drop-shadow-xl"
+                  />
+                </AnimatePresence>
               </div>
+
+              {/* Thumbnails */}
+              {galleryImages.length > 1 && (
+                <div className="flex gap-4 mt-6 overflow-x-auto pb-2 custom-scrollbar">
+                  {galleryImages.map((img, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setActiveImageIndex(idx)}
+                      className={`relative w-24 h-24 rounded-2xl overflow-hidden border-2 flex-shrink-0 transition-all ${activeImageIndex === idx ? 'border-forest shadow-md scale-105' : 'border-slate-100 opacity-60 hover:opacity-100'}`}
+                    >
+                      <img src={img} alt={`Thumbnail ${idx + 1}`} className="w-full h-full object-cover mix-blend-multiply bg-white" />
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </motion.div>
 
@@ -302,9 +332,6 @@ const ProductDetailPage = () => {
                       <div className="absolute -top-20 -right-20 w-64 h-64 bg-forest/30 rounded-full blur-[60px]"></div>
                       <h3 className="text-2xl font-display font-bold mb-8 relative z-10">Write a Review</h3>
                       
-                      {reviewError && <div className="bg-red-500/10 text-red-400 p-4 rounded-xl mb-6 text-sm border border-red-500/20 font-medium relative z-10">{reviewError}</div>}
-                      {reviewSuccess && <div className="bg-leaf/10 text-leaf p-4 rounded-xl mb-6 text-sm border border-leaf/20 font-medium relative z-10">{reviewSuccess}</div>}
-                      
                       {userInfo ? (
                         <form onSubmit={submitReviewHandler} className="space-y-6 relative z-10">
                           <div>
@@ -347,6 +374,28 @@ const ProductDetailPage = () => {
             )}
           </div>
         </motion.div>
+
+        {/* Related Products */}
+        {relatedProducts.length > 0 && (
+          <div className="mt-32 max-w-7xl mx-auto">
+            <h2 className="text-4xl font-display font-bold text-ink mb-12 text-center">You might also like</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+              {relatedProducts.map(rp => (
+                <Link to={`/product/${rp._id}`} key={rp._id} className="group flex flex-col bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+                  <div className="relative aspect-square bg-slate-50 overflow-hidden flex items-center justify-center p-6">
+                    <img src={rp.image} alt={rp.name} className="w-full h-full object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-700" />
+                  </div>
+                  <div className="p-6 flex flex-col flex-1 border-t border-slate-100">
+                    <h3 className="font-bold text-[17px] text-ink group-hover:text-forest transition-colors line-clamp-2">{rp.name}</h3>
+                    <div className="mt-auto pt-4 flex justify-between items-end">
+                      <span className="text-xl font-bold text-forest">₹{rp.price}</span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
 
       </div>
     </div>

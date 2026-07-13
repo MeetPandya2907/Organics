@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import axios from 'axios';
+import toast from 'react-hot-toast';
 
 export const useStore = create((set, get) => ({
   products: [],
@@ -12,10 +13,18 @@ export const useStore = create((set, get) => ({
   shippingAddress: localStorage.getItem('shippingAddress') ? JSON.parse(localStorage.getItem('shippingAddress')) : {},
   paymentMethod: localStorage.getItem('paymentMethod') ? JSON.parse(localStorage.getItem('paymentMethod')) : 'Razorpay',
 
-  fetchProducts: async (keyword = '', pageNumber = '') => {
+  fetchProducts: async (keyword = '', pageNumber = '', category = '', minPrice = '', maxPrice = '', sort = '') => {
     set({ loading: true });
     try {
-      const { data } = await axios.get(`/api/products?keyword=${keyword}&pageNumber=${pageNumber}`);
+      const query = new URLSearchParams();
+      if (keyword) query.append('keyword', keyword);
+      if (pageNumber) query.append('pageNumber', pageNumber);
+      if (category && category !== 'All') query.append('category', category);
+      if (minPrice) query.append('minPrice', minPrice);
+      if (maxPrice) query.append('maxPrice', maxPrice);
+      if (sort) query.append('sort', sort);
+
+      const { data } = await axios.get(`/api/products?${query.toString()}`);
       set({ products: data.products, page: data.page, pages: data.pages, loading: false, error: null });
     } catch (error) {
       set({ 

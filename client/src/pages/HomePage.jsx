@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useStore } from '../store/useStore';
 import { ShoppingCart, ArrowRight, Star, ShieldCheck, Truck, Leaf, Award, Quote, CheckCircle, ChevronRight, Play } from 'lucide-react';
 import { motion, useScroll, useTransform } from 'framer-motion';
+import Meta from '../components/Meta';
+import ProductSkeleton from '../components/ProductSkeleton';
 
 const HomePage = () => {
   const { products, fetchProducts, loading, addToCart, userInfo } = useStore();
@@ -16,6 +18,7 @@ const HomePage = () => {
 
   return (
     <div className="bg-paper min-h-screen font-sans selection:bg-turmeric/30 selection:text-ink pb-20 overflow-hidden">
+      <Meta />
 
       {/* 1. PREMIUM HERO SECTION */}
       <section className="relative w-full h-[95vh] min-h-[700px] flex items-center justify-center pt-24 overflow-hidden">
@@ -146,7 +149,9 @@ const HomePage = () => {
           </div>
 
           {loading ? (
-            <div className="flex justify-center py-20"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-forest"></div></div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+              {[1, 2, 3, 4].map(i => <ProductSkeleton key={i} />)}
+            </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
               {products.slice(0, 4).map((product, idx) => (
@@ -167,25 +172,6 @@ const HomePage = () => {
                       alt={product.name}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out mix-blend-multiply"
                     />
-                    
-                    {/* Hover Overlay Action */}
-                    <div className="absolute inset-0 bg-ink/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                       <button
-                        onClick={(e) => {
-                          e.preventDefault();
-                          if (!userInfo) navigate('/login');
-                          else addToCart({
-                            ...product,
-                            name: `${product.name} (250g - Eco Pouch)`,
-                            _id: `${product._id}-250g-Eco Pouch`,
-                            originalId: product._id
-                          }, 1);
-                        }}
-                        className="translate-y-4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300 bg-white text-ink font-bold px-6 py-3 rounded-full shadow-lg hover:bg-forest hover:text-white flex items-center gap-2"
-                      >
-                        <ShoppingCart size={18} /> Quick Add
-                      </button>
-                    </div>
                   </div>
                   
                   <div className="p-6 flex flex-col flex-1 bg-white">
@@ -201,6 +187,22 @@ const HomePage = () => {
                         <span className="text-xs text-slate-400 font-medium mb-0.5">Starting at</span>
                         <span className="text-xl font-bold text-forest">₹{product.price}</span>
                       </div>
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          if (!userInfo) navigate('/login');
+                          else addToCart({
+                            ...product,
+                            name: `${product.name} (250g - Eco Pouch)`,
+                            _id: `${product._id}-250g-Eco Pouch`,
+                            originalId: product._id
+                          }, 1);
+                        }}
+                        className="w-10 h-10 rounded-full bg-forest/10 flex items-center justify-center text-forest hover:bg-forest hover:text-white transition-colors"
+                        title="Quick Add"
+                      >
+                        <ShoppingCart size={18} />
+                      </button>
                     </div>
                   </div>
                 </motion.div>

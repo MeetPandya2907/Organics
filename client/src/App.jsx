@@ -23,6 +23,7 @@ import OrderListScreen from './pages/OrderListScreen';
 import UserListScreen from './pages/UserListScreen';
 import AdminLogin from './pages/AdminLogin';
 import ScrollToTop from './components/ScrollToTop';
+import { Toaster } from 'react-hot-toast';
 
 import FAQPage from './pages/FAQPage';
 import TermsPage from './pages/TermsPage';
@@ -32,6 +33,13 @@ function App() {
   return (
     <Router>
       <ScrollToTop />
+      <Toaster position="bottom-right" toastOptions={{
+        style: {
+          background: '#1A2F24',
+          color: '#fff',
+          borderRadius: '1rem',
+        }
+      }}/>
       <div className="min-h-screen flex flex-col bg-paper text-ink">
         <Header />
         <main className="flex-1">

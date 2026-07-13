@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useStore } from '../store/useStore';
 import { motion } from 'framer-motion';
-import { CheckCircle, MapPin, CreditCard, ShoppingBag, AlertCircle, Clock, Truck, ShieldCheck, ArrowRight } from 'lucide-react';
+import { CheckCircle, MapPin, CreditCard, ShoppingBag, AlertCircle, Clock, Truck, ShieldCheck, ArrowRight, Package, Home, ShoppingCart } from 'lucide-react';
 import axios from 'axios';
+import toast from 'react-hot-toast';
 
 const OrderPage = () => {
   const { id: orderId } = useParams();
@@ -103,6 +104,36 @@ const OrderPage = () => {
     setPaymentLoading(false);
   };
 
+  const shipOrderHandler = async () => {
+    const previousOrder = { ...order };
+    setOrder({ ...order, isShipped: true, shippedAt: new Date().toISOString() });
+    
+    try {
+      const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
+      await axios.put(`/api/orders/${order._id}/ship`, {}, config);
+      toast.success('Order marked as shipped');
+    } catch (err) {
+      setOrder(previousOrder);
+      toast.error(err.response && err.response.data.message ? err.response.data.message : err.message);
+    }
+  };
+
+  const deliverOrderHandler = async () => {
+    // Optimistic update
+    const previousOrder = { ...order };
+    setOrder({ ...order, isDelivered: true, deliveredAt: new Date().toISOString() });
+    
+    try {
+      const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
+      await axios.put(`/api/orders/${order._id}/deliver`, {}, config);
+      toast.success('Order marked as delivered');
+    } catch (err) {
+      // Revert on error
+      setOrder(previousOrder);
+      toast.error(err.response && err.response.data.message ? err.response.data.message : err.message);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex justify-center items-center bg-paper">
@@ -153,6 +184,63 @@ const OrderPage = () => {
         
         {/* Left: Order Details */}
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="lg:w-2/3 space-y-6">
+          
+          {/* Interactive Tracking Timeline */}
+          <div className="bg-white p-8 md:p-10 rounded-[2.5rem] shadow-glass border border-slate-100">
+            <h2 className="text-2xl text-ink font-display font-bold mb-8">Order Status</h2>
+            <div className="relative">
+              <div className="absolute top-6 left-6 bottom-6 w-1 bg-slate-100 md:top-1/2 md:-translate-y-1/2 md:left-6 md:right-6 md:h-1 md:w-auto"></div>
+              
+              <div className="flex flex-col md:flex-row justify-between gap-6 md:gap-0 relative z-10">
+                {/* 1. Placed */}
+                <div className="flex md:flex-col items-center gap-4 md:gap-3 text-center w-full md:w-1/4">
+                  <div className="w-12 h-12 rounded-full bg-forest text-white flex items-center justify-center shadow-lg shadow-forest/20 shrink-0 border-4 border-white">
+                    <ShoppingCart size={20} />
+                  </div>
+                  <div>
+                    <p className="font-bold text-ink text-sm">Order Placed</p>
+                    <p className="text-xs text-slate-400 font-medium">{new Date(order.createdAt).toLocaleDateString()}</p>
+                  </div>
+                </div>
+
+                {/* 2. Paid */}
+                <div className="flex md:flex-col items-center gap-4 md:gap-3 text-center w-full md:w-1/4">
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 border-4 border-white ${order.isPaid || order.paymentMethod === 'CashOnDelivery' ? 'bg-forest text-white shadow-lg shadow-forest/20' : 'bg-slate-100 text-slate-400'}`}>
+                    <CreditCard size={20} />
+                  </div>
+                  <div>
+                    <p className={`font-bold text-sm ${order.isPaid || order.paymentMethod === 'CashOnDelivery' ? 'text-ink' : 'text-slate-400'}`}>Payment Confirmed</p>
+                    {order.isPaid && <p className="text-xs text-slate-400 font-medium">{new Date(order.paidAt).toLocaleDateString()}</p>}
+                    {!order.isPaid && order.paymentMethod === 'CashOnDelivery' && <p className="text-xs text-slate-400 font-medium">COD Confirmed</p>}
+                  </div>
+                </div>
+
+                {/* 3. Shipped */}
+                <div className="flex md:flex-col items-center gap-4 md:gap-3 text-center w-full md:w-1/4">
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 border-4 border-white ${order.isShipped ? 'bg-forest text-white shadow-lg shadow-forest/20' : 'bg-slate-100 text-slate-400'}`}>
+                    <Package size={20} />
+                  </div>
+                  <div>
+                    <p className={`font-bold text-sm ${order.isShipped ? 'text-ink' : 'text-slate-400'}`}>Shipped</p>
+                    {order.isShipped && <p className="text-xs text-slate-400 font-medium">{new Date(order.shippedAt).toLocaleDateString()}</p>}
+                  </div>
+                </div>
+
+                {/* 4. Delivered */}
+                <div className="flex md:flex-col items-center gap-4 md:gap-3 text-center w-full md:w-1/4">
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 border-4 border-white ${order.isDelivered ? 'bg-forest text-white shadow-lg shadow-forest/20' : 'bg-slate-100 text-slate-400'}`}>
+                    <Home size={20} />
+                  </div>
+                  <div>
+                    <p className={`font-bold text-sm ${order.isDelivered ? 'text-ink' : 'text-slate-400'}`}>Delivered</p>
+                    {order.isDelivered && <p className="text-xs text-slate-400 font-medium">{new Date(order.deliveredAt).toLocaleDateString()}</p>}
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
           <div className="bg-white p-8 md:p-10 rounded-[2.5rem] shadow-glass border border-slate-100 group">
             <div className="flex items-center gap-4 mb-6">
               <div className="w-12 h-12 bg-forest/5 text-forest rounded-full flex items-center justify-center shrink-0">
@@ -283,6 +371,24 @@ const OrderPage = () => {
                      <ShieldCheck size={20} strokeWidth={2.5} /> Pay with Razorpay
                   </>
                 )}
+              </button>
+            )}
+
+            {userInfo && userInfo.isAdmin && order.isPaid && !order.isShipped && (
+              <button 
+                onClick={shipOrderHandler} 
+                className="btn bg-turmeric text-ink border-none w-full py-5 text-lg flex justify-center items-center gap-3 group relative z-10 hover:bg-turmeric-light hover:shadow-xl hover:shadow-turmeric/20 font-bold mt-4"
+              >
+                <Package size={20} strokeWidth={2.5} /> Mark As Shipped
+              </button>
+            )}
+
+            {userInfo && userInfo.isAdmin && order.isShipped && !order.isDelivered && (
+              <button 
+                onClick={deliverOrderHandler} 
+                className="btn bg-leaf text-white border-none w-full py-5 text-lg flex justify-center items-center gap-3 group relative z-10 hover:bg-forest hover:shadow-xl hover:shadow-leaf/20 font-bold mt-4"
+              >
+                <Truck size={20} strokeWidth={2.5} /> Mark As Delivered
               </button>
             )}
           </div>

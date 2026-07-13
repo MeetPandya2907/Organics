@@ -4,6 +4,8 @@ import { useStore } from '../store/useStore';
 import { AlertCircle, CheckCircle, XCircle } from 'lucide-react';
 import axios from 'axios';
 
+import toast from 'react-hot-toast';
+
 const OrderListScreen = () => {
   const { userInfo } = useStore();
   const navigate = useNavigate();
@@ -13,14 +15,32 @@ const OrderListScreen = () => {
   const [error, setError] = useState(null);
 
   const deliverOrderHandler = async (id) => {
+    // Optimistic update
+    setOrders(prev => prev.map(o => o._id === id ? { ...o, isDelivered: true, deliveredAt: new Date().toISOString() } : o));
+    
     try {
       const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
       await axios.put(`/api/orders/${id}/deliver`, {}, config);
-      // refetch orders
-      const { data } = await axios.get('/api/orders', config);
-      setOrders(data);
+      toast.success('Order marked as delivered');
     } catch (err) {
-      alert(err.response && err.response.data.message ? err.response.data.message : err.message);
+      // Revert optimistic update
+      setOrders(prev => prev.map(o => o._id === id ? { ...o, isDelivered: false, deliveredAt: null } : o));
+      toast.error(err.response && err.response.data.message ? err.response.data.message : err.message);
+    }
+  };
+
+  const shipOrderHandler = async (id) => {
+    // Optimistic update
+    setOrders(prev => prev.map(o => o._id === id ? { ...o, isShipped: true, shippedAt: new Date().toISOString() } : o));
+    
+    try {
+      const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
+      await axios.put(`/api/orders/${id}/ship`, {}, config);
+      toast.success('Order marked as shipped');
+    } catch (err) {
+      // Revert optimistic update
+      setOrders(prev => prev.map(o => o._id === id ? { ...o, isShipped: false, shippedAt: null } : o));
+      toast.error(err.response && err.response.data.message ? err.response.data.message : err.message);
     }
   };
 
@@ -47,7 +67,7 @@ const OrderListScreen = () => {
 
   return (
     <div className="bg-paper min-h-screen pb-24">
-      <div className="bg-forest pt-12 pb-24 px-6 rounded-b-[3rem] shadow-soft mb-[-80px]">
+      <div className="bg-forest pt-32 pb-24 px-6 rounded-b-[3rem] shadow-soft mb-[-80px]">
         <div className="max-w-[1200px] mx-auto">
           <h1 className="text-4xl text-white">Manage Orders</h1>
         </div>
@@ -69,6 +89,7 @@ const OrderListScreen = () => {
                     <th className="py-4 px-4 text-text-muted font-medium">DATE</th>
                     <th className="py-4 px-4 text-text-muted font-medium">TOTAL</th>
                     <th className="py-4 px-4 text-text-muted font-medium text-center">PAID</th>
+                    <th className="py-4 px-4 text-text-muted font-medium text-center">SHIPPED</th>
                     <th className="py-4 px-4 text-text-muted font-medium text-center">DELIVERED</th>
                     <th className="py-4 px-4 text-text-muted font-medium text-right">ACTIONS</th>
                   </tr>
@@ -88,6 +109,13 @@ const OrderListScreen = () => {
                         )}
                       </td>
                       <td className="py-4 px-4 text-center">
+                        {order.isShipped ? (
+                          <div className="w-8 h-8 mx-auto bg-green-50 text-green-500 rounded-full flex items-center justify-center"><CheckCircle size={16} /></div>
+                        ) : (
+                          <div className="w-8 h-8 mx-auto bg-amber-50 text-amber-500 rounded-full flex items-center justify-center"><XCircle size={16} /></div>
+                        )}
+                      </td>
+                      <td className="py-4 px-4 text-center">
                         {order.isDelivered ? (
                           <div className="w-8 h-8 mx-auto bg-green-50 text-green-500 rounded-full flex items-center justify-center"><CheckCircle size={16} /></div>
                         ) : (
@@ -96,11 +124,15 @@ const OrderListScreen = () => {
                       </td>
                       <td className="py-4 px-4 text-right">
                         <div className="flex justify-end gap-3 items-center">
-                          {!order.isDelivered && (
-                            <button onClick={() => deliverOrderHandler(order._id)} className="text-xs bg-leaf text-white px-3 py-1 rounded-full hover:bg-forest transition-colors">
+                          {!order.isShipped ? (
+                            <button onClick={() => shipOrderHandler(order._id)} className="text-xs bg-turmeric text-ink font-bold px-3 py-1.5 rounded-full hover:bg-turmeric-light transition-colors">
+                              Mark Shipped
+                            </button>
+                          ) : !order.isDelivered ? (
+                            <button onClick={() => deliverOrderHandler(order._id)} className="text-xs bg-leaf text-white font-bold px-3 py-1.5 rounded-full hover:bg-forest transition-colors">
                               Mark Delivered
                             </button>
-                          )}
+                          ) : null}
                           <Link to={`/order/${order._id}`} className="inline-flex items-center gap-1 bg-paper hover:bg-gray-200 text-forest px-4 py-2 rounded-full text-sm font-medium transition-colors">
                             Details
                           </Link>
