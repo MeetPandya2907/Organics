@@ -39,7 +39,7 @@ function App() {
           color: '#fff',
           borderRadius: '1rem',
         }
-      }}/>
+      }} />
       <div className="min-h-screen flex flex-col bg-paper text-ink">
         <Header />
         <main className="flex-1">

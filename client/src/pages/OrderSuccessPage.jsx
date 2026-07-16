@@ -55,7 +55,7 @@ const OrderSuccessPage = () => {
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ delay: 0.2, type: 'spring', bounce: 0.6 }}
-          className="w-24 h-24 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-8 border-4 border-white shadow-soft"
+          className="w-24 h-24 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-8 border-4 border-white shadow-2xl shadow-black/5"
         >
           <CheckCircle size={48} className="text-forest" strokeWidth={1.5} />
         </motion.div>

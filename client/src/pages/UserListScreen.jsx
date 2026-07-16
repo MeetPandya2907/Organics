@@ -66,7 +66,7 @@ const UserListScreen = () => {
 
   return (
     <div className="bg-paper min-h-screen pb-24">
-      <div className="bg-forest pt-32 pb-24 px-6 rounded-b-[3rem] shadow-soft mb-[-80px]">
+      <div className="bg-forest pt-32 pb-24 px-6 rounded-b-[3rem] shadow-2xl shadow-black/5 mb-[-80px]">
         <div className="max-w-[1200px] mx-auto">
           <h1 className="text-4xl text-white">Manage Users</h1>
         </div>

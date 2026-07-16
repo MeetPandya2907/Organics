@@ -17,13 +17,13 @@ const SearchBox = () => {
 
   return (
     <form onSubmit={submitHandler} className="relative flex-1 md:w-64">
-      <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+      <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-fittree-text-light" size={16} strokeWidth={2} />
       <input
         type="text"
         name="q"
         onChange={(e) => setKeyword(e.target.value)}
         placeholder="Search products..."
-        className="w-full bg-paper border-none rounded-full py-3 pl-12 pr-4 focus:ring-2 focus:ring-leaf outline-none"
+        className="w-full bg-white border border-fittree-border rounded-full py-2.5 pl-10 pr-4 focus:border-fittree-primary outline-none transition-all placeholder-fittree-text-light text-fittree-text text-sm font-medium shadow-sm"
       />
     </form>
   );

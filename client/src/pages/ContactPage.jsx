@@ -5,7 +5,7 @@ const ContactPage = () => {
   return (
     <div className="bg-paper min-h-screen pb-24">
       {/* Header */}
-      <div className="bg-ink pt-32 pb-48 px-6 text-center shadow-soft relative overflow-hidden">
+      <div className="bg-ink pt-32 pb-48 px-6 text-center shadow-2xl shadow-black/5 relative overflow-hidden">
         <div className="absolute inset-0 bg-forest/20 mix-blend-overlay"></div>
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-turmeric/10 rounded-full blur-[100px] pointer-events-none"></div>
         <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-forest/20 rounded-full blur-[80px] pointer-events-none"></div>

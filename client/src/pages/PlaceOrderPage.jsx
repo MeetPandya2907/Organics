@@ -72,7 +72,7 @@ const PlaceOrderPage = () => {
   return (
     <div className="bg-paper min-h-screen pb-24">
       {/* Checkout Steps Header */}
-      <div className="bg-ink pt-32 pb-32 px-6 shadow-soft relative overflow-hidden">
+      <div className="bg-ink pt-32 pb-32 px-6 shadow-2xl shadow-black/5 relative overflow-hidden">
         <div className="absolute inset-0 bg-forest/20 mix-blend-overlay"></div>
         <div className="max-w-[800px] mx-auto text-center relative z-10">
           <h1 className="text-4xl md:text-5xl font-display text-white mb-10 font-bold">Checkout</h1>

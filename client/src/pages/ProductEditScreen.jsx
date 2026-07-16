@@ -118,7 +118,7 @@ const ProductEditScreen = () => {
 
   return (
     <div className="bg-paper min-h-screen pb-24">
-      <div className="bg-forest pt-32 pb-24 px-6 rounded-b-[3rem] shadow-soft mb-[-80px]">
+      <div className="bg-forest pt-32 pb-24 px-6 rounded-b-[3rem] shadow-2xl shadow-black/5 mb-[-80px]">
         <div className="max-w-[800px] mx-auto flex items-center gap-4 text-white">
           <Link to="/admin/products" className="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-colors">
             <ArrowLeft size={20} />

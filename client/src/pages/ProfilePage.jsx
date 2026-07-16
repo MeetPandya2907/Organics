@@ -60,7 +60,7 @@ const ProfilePage = () => {
   return (
     <div className="bg-paper min-h-screen pb-24">
       {/* Profile Header */}
-      <div className="bg-ink pt-32 pb-32 px-6 shadow-soft relative overflow-hidden">
+      <div className="bg-ink pt-32 pb-32 px-6 shadow-2xl shadow-black/5 relative overflow-hidden">
         <div className="absolute inset-0 bg-forest/20 mix-blend-overlay"></div>
         <div className="max-w-[1200px] mx-auto relative z-10 flex flex-col md:flex-row items-center md:items-end justify-between gap-6">
           <div className="flex items-center gap-6">

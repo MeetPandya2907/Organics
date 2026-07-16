@@ -157,7 +157,7 @@ const OrderPage = () => {
   return (
     <div className="bg-paper min-h-screen pb-24">
       {/* Header */}
-      <div className="bg-ink pt-32 pb-32 px-6 shadow-soft relative overflow-hidden">
+      <div className="bg-ink pt-32 pb-32 px-6 shadow-2xl shadow-black/5 relative overflow-hidden">
         <div className="absolute inset-0 bg-forest/20 mix-blend-overlay"></div>
         <div className="max-w-[1200px] mx-auto flex flex-col md:flex-row items-center justify-between relative z-10 gap-6">
           <div className="text-center md:text-left">
