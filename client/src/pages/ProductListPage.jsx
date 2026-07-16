@@ -1,12 +1,20 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useStore } from '../store/useStore';
-import { ShoppingCart, Search as SearchIcon, SlidersHorizontal, ChevronDown } from 'lucide-react';
+import { ShoppingCart, Search as SearchIcon, SlidersHorizontal, ChevronDown, Star, Flame, Wheat, Sprout, PackageOpen, LayoutGrid } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Meta from '../components/Meta';
 import Paginate from '../components/Paginate';
 import ProductSkeleton from '../components/ProductSkeleton';
 import { getBaseUnit } from '../utils/units';
+
+const CATEGORY_ICONS = {
+  All: LayoutGrid,
+  SPICES: Flame,
+  PULSES: Wheat,
+  SEEDS: Sprout,
+  'DEHYDRATED PRODUCTS': PackageOpen,
+};
 
 const ProductListPage = () => {
   const { keyword, pageNumber } = useParams();
@@ -33,21 +41,42 @@ const ProductListPage = () => {
   const categories = ['All', 'SPICES', 'PULSES', 'SEEDS', 'DEHYDRATED PRODUCTS'];
 
   return (
-    <div className="bg-fittree-bg min-h-screen font-sans pb-20 pt-32">
+    <div className="bg-fittree-bg min-h-screen font-sans pb-20 pt-[104px] md:pt-[112px]">
       <Meta title="FitTree Organics | Shop All" />
 
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6">
 
         {/* Page Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 pt-2">
           <div>
-            <h1 className="text-4xl md:text-5xl font-display font-bold text-fittree-dark mb-4">
+            <span className="eyebrow text-fittree-pink mb-2">The pantry shelf</span>
+            <h1 className="text-4xl md:text-5xl font-display font-bold text-fittree-dark mb-3">
               {category === 'All' ? 'Shop All Products' : category}
             </h1>
             <p className="text-fittree-text-light max-w-2xl">
               Whole spices, pulses and seeds sourced directly from Indian farms — packed the week you order.
             </p>
           </div>
+        </div>
+
+        {/* Quick category pills */}
+        <div className="flex gap-2.5 overflow-x-auto pb-2 mb-8 -mx-1 px-1">
+          {categories.map((c) => {
+            const Icon = CATEGORY_ICONS[c];
+            return (
+              <button
+                key={c}
+                onClick={() => setCategory(c)}
+                className={`shrink-0 inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-bold border-2 transition-colors ${
+                  category === c
+                    ? 'bg-fittree-primary border-fittree-primary text-white'
+                    : 'bg-white border-fittree-border text-fittree-text hover:border-fittree-primary/50'
+                }`}
+              >
+                <Icon size={15} /> {c === 'DEHYDRATED PRODUCTS' ? 'Dehydrated' : c.charAt(0) + c.slice(1).toLowerCase()}
+              </button>
+            );
+          })}
         </div>
 
         <div className="flex flex-col lg:flex-row gap-8">
@@ -57,12 +86,12 @@ const ProductListPage = () => {
             className="lg:hidden flex items-center justify-between p-4 bg-white rounded-xl shadow-fittree-sm border border-fittree-border text-fittree-dark font-semibold"
           >
             <div className="flex items-center gap-2">
-              <SlidersHorizontal size={18} /> Filters & Sorting
+              <SlidersHorizontal size={18} /> Sort
             </div>
             <ChevronDown size={18} className={`transition-transform duration-300 ${showFilters ? 'rotate-180' : ''}`} />
           </button>
 
-          {/* Sidebar / Filters */}
+          {/* Sidebar / Sort */}
           <AnimatePresence>
             {(showFilters || window.innerWidth >= 1024) && (
               <motion.div
@@ -71,44 +100,25 @@ const ProductListPage = () => {
                 exit={{ height: 0, opacity: 0 }}
                 className="lg:w-1/4 flex-shrink-0 lg:block overflow-hidden lg:overflow-visible"
               >
-                <div className="bg-white rounded-3xl shadow-fittree-sm border border-white p-7 sticky top-32">
+                <div className="bg-white rounded-3xl shadow-fittree-sm border border-fittree-border p-7 sticky top-32">
+                  <h3 className="text-lg font-bold text-fittree-dark mb-4 border-b border-fittree-border pb-3">Sort By</h3>
+                  <select
+                    value={sort}
+                    onChange={(e) => setSort(e.target.value)}
+                    className="w-full p-3 bg-fittree-bg border border-fittree-border rounded-lg text-sm text-fittree-text focus:outline-none focus:border-fittree-primary"
+                  >
+                    <option value="">Featured</option>
+                    <option value="lowest">Price: Low to High</option>
+                    <option value="highest">Price: High to Low</option>
+                    <option value="toprated">Customer Rating</option>
+                  </select>
 
-                  <div className="mb-8">
-                    <h3 className="text-lg font-bold text-fittree-dark mb-4 border-b border-fittree-border pb-2">Categories</h3>
-                    <ul className="flex flex-col gap-2">
-                      {categories.map((c, i) => (
-                        <li key={i}>
-                          <button
-                            onClick={() => {
-                              setCategory(c);
-                              if (window.innerWidth < 1024) setShowFilters(false);
-                            }}
-                            className={`w-full text-left py-2 px-3 rounded-lg transition-colors text-sm font-medium ${category === c
-                                ? 'bg-fittree-primary/10 text-fittree-primary'
-                                : 'text-fittree-text hover:bg-fittree-bg hover:text-fittree-dark'
-                              }`}
-                          >
-                            {c}
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
+                  <div className="mt-7 pt-6 border-t border-fittree-border">
+                    <div className="flex items-center gap-3 text-fittree-text-light text-xs font-semibold">
+                      <span className="w-8 h-8 rounded-full bg-fittree-light flex items-center justify-center text-fittree-primary shrink-0">✓</span>
+                      FSSAI licensed, lab-tested batches
+                    </div>
                   </div>
-
-                  <div>
-                    <h3 className="text-lg font-bold text-fittree-dark mb-4 border-b border-fittree-border pb-2">Sort By</h3>
-                    <select
-                      value={sort}
-                      onChange={(e) => setSort(e.target.value)}
-                      className="w-full p-3 bg-fittree-bg border border-fittree-border rounded-lg text-sm text-fittree-text focus:outline-none focus:border-fittree-primary"
-                    >
-                      <option value="">Featured</option>
-                      <option value="lowest">Price: Low to High</option>
-                      <option value="highest">Price: High to Low</option>
-                      <option value="toprated">Customer Rating</option>
-                    </select>
-                  </div>
-
                 </div>
               </motion.div>
             )}
@@ -144,9 +154,9 @@ const ProductListPage = () => {
                       key={product._id}
                       className="group product-card"
                     >
-                      <div className="relative aspect-[4/3] rounded-t-3xl rounded-b-xl overflow-hidden mb-5 bg-[#FAFAF8] p-4 flex items-center justify-center">
+                      <div className="relative aspect-[4/3] rounded-t-3xl rounded-b-xl overflow-hidden mb-5 bg-fittree-light p-4 flex items-center justify-center">
                         {product.countInStock === 0 && (
-                          <span className="absolute top-3 left-3 bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold z-10 shadow-sm border border-red-200">
+                          <span className="absolute top-3 left-3 bg-fittree-pink/10 text-fittree-pink-dark px-3 py-1 rounded-full text-xs font-bold z-10 border border-fittree-pink/20">
                             Out of Stock
                           </span>
                         )}
@@ -163,6 +173,11 @@ const ProductListPage = () => {
                           <h3 className="text-[17px] font-bold text-fittree-dark group-hover:text-fittree-primary transition-colors leading-tight mb-2 line-clamp-2">{product.name}</h3>
                         </Link>
 
+                        <div className="flex items-center gap-1 text-fittree-orange mb-3">
+                          {[1, 2, 3, 4, 5].map(i => <Star key={i} size={12} fill="currentColor" stroke="none" />)}
+                          <span className="text-fittree-text-light text-xs ml-1 font-semibold">({product.numReviews})</span>
+                        </div>
+
                         <p className="text-[15px] font-bold text-fittree-text mb-5 mt-auto">₹{product.price}<span className="text-[11px] font-normal text-fittree-text-light ml-1">/{getBaseUnit(product)}</span></p>
 
                         <div className="pt-2 border-t border-fittree-border/50">
@@ -173,12 +188,12 @@ const ProductListPage = () => {
                               if (!userInfo) navigate('/login');
                               else addToCart({ ...product, qty: 1 }, 1);
                             }}
-                            className={`w-full py-2.5 text-sm font-semibold rounded-lg transition-colors ${product.countInStock === 0
+                            className={`w-full py-2.5 text-sm font-semibold rounded-lg transition-colors flex items-center justify-center gap-2 ${product.countInStock === 0
                                 ? 'bg-fittree-bg text-fittree-text-light cursor-not-allowed border border-fittree-border'
                                 : 'btn-primary'
                               }`}
                           >
-                            {product.countInStock === 0 ? 'Out of Stock' : 'Add to Cart'}
+                            {product.countInStock === 0 ? 'Out of Stock' : (<><ShoppingCart size={14} /> Add to Cart</>)}
                           </button>
                         </div>
                       </div>

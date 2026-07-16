@@ -45,7 +45,7 @@
   }
 
   .btn-primary {
-    @apply bg-fittree-primary text-white shadow-2xl shadow-black/5 hover:-translate-y-1 hover:shadow-fittree-md hover:bg-[#253f25] active:translate-y-0 active:shadow-sm;
+    @apply bg-fittree-primary text-white shadow-2xl shadow-black/5 hover:-translate-y-1 hover:shadow-fittree-md hover:bg-[#565A38] active:translate-y-0 active:shadow-sm;
   }
 
   .btn-accent {
@@ -96,16 +96,16 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #FCFEFB;
+  background: #F6EFDF;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1FAE5C;
+  background: #CC9A34;
   border-radius: 999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #0F2818;
+  background: #362A1D;
 }
 
 /* Hide scrollbar for clean carousels */
