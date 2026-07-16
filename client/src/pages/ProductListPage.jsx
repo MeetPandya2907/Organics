@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Meta from '../components/Meta';
 import Paginate from '../components/Paginate';
 import ProductSkeleton from '../components/ProductSkeleton';
+import { getBaseUnit } from '../utils/units';
 
 const ProductListPage = () => {
   const { keyword, pageNumber } = useParams();
@@ -162,7 +163,7 @@ const ProductListPage = () => {
                           <h3 className="text-[17px] font-bold text-fittree-dark group-hover:text-fittree-primary transition-colors leading-tight mb-2 line-clamp-2">{product.name}</h3>
                         </Link>
 
-                        <p className="text-[15px] font-bold text-fittree-text mb-5 mt-auto">₹{product.price}<span className="text-[11px] font-normal text-fittree-text-light ml-1">/unit</span></p>
+                        <p className="text-[15px] font-bold text-fittree-text mb-5 mt-auto">₹{product.price}<span className="text-[11px] font-normal text-fittree-text-light ml-1">/{getBaseUnit(product)}</span></p>
 
                         <div className="pt-2 border-t border-fittree-border/50">
                           <button

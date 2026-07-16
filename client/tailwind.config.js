@@ -7,45 +7,46 @@ export default {
   theme: {
     extend: {
       colors: {
-        // FitTree Organics — Premium Earthy Palette
-        'fittree-bg': '#FAFAF8',        // Warm, light stone/beige for a natural feel
-        'fittree-primary': '#2F4F2F',   // Deep sophisticated forest green (was bright leaf green)
-        'fittree-dark': '#1C2920',      // Very dark moss, almost black, elegant text
-        'fittree-light': '#F2F4ED',     // Soft sage tint for sections
-        'fittree-text': '#2D332F',      // Soft dark grey-green for readable text
-        'fittree-text-light': '#737D76',// Muted natural grey for secondary text
-        'fittree-border': '#E4E8E1',    // Very subtle warm border
-        'fittree-orange': '#D47B4A',    // Terracotta orange — earthy accent
-        'fittree-orange-dark': '#B56033', // Deep terracotta
-        'fittree-pink': '#C26A7A',      // Muted berry rose
-        'fittree-pink-dark': '#9A4B5A',
-        'fittree-yellow': '#D4A373',    // Soft warm ochre/sunshine
+        // FitTree Organics — palette drawn from the product photography itself:
+        // turmeric gold, masoor-red rust, muted cardamom-olive, roasted-cumin brown.
+        'fittree-bg': '#F6EFDF',        // Besan (chickpea flour) ivory — warm, not grey-cream
+        'fittree-primary': '#6B6F45',   // Muted cardamom-olive — replaces bright forest green
+        'fittree-dark': '#362A1D',      // Roasted cumin brown — headers/footer/dark sections
+        'fittree-light': '#EEE3C8',     // Warm ivory-tan section tint
+        'fittree-text': '#2B2013',      // Ink — warm near-black
+        'fittree-text-light': '#8A7B65',// Muted warm grey-brown for secondary copy
+        'fittree-border': '#E3D6B8',    // Warm tan border
+        'fittree-orange': '#CC9A34',    // Turmeric gold — primary accent
+        'fittree-orange-dark': '#A87B22',
+        'fittree-pink': '#A3402B',      // Masoor-red / rust — secondary accent
+        'fittree-pink-dark': '#812F1D',
+        'fittree-yellow': '#E4C169',    // Lighter turmeric highlight
 
-        // Legacy token names (re-mapped to elegant palette)
-        paper: '#FAFAF8',
-        ink: '#2D332F',
-        turmeric: '#D4A373',
-        'turmeric-light': '#E5B98D',
-        'turmeric-dark': '#BA8757',
-        forest: '#2F4F2F',
-        leaf: '#4A704A',
-        charcoal: '#1C2920',
-        'glass-bg': 'rgba(250, 250, 248, 0.85)',
-        'glass-border': 'rgba(255, 255, 255, 0.6)',
-        'glass-dark-bg': 'rgba(28, 41, 32, 0.85)',
+        // Legacy token names (still referenced across the app) — same palette
+        paper: '#F6EFDF',
+        ink: '#2B2013',
+        turmeric: '#CC9A34',
+        'turmeric-light': '#E4C169',
+        'turmeric-dark': '#A87B22',
+        forest: '#6B6F45',
+        leaf: '#8B9157',
+        charcoal: '#362A1D',
+        'glass-bg': 'rgba(246, 239, 223, 0.85)',
+        'glass-border': 'rgba(255, 255, 255, 0.5)',
+        'glass-dark-bg': 'rgba(54, 42, 29, 0.85)',
         'glass-dark-border': 'rgba(255, 255, 255, 0.1)',
       },
       fontFamily: {
-        display: ['"Outfit"', 'sans-serif'],
+        display: ['"Fraunces"', 'serif'],
         sans: ['"Plus Jakarta Sans"', 'sans-serif'],
       },
       boxShadow: {
-        'fittree-sm': '0 4px 20px rgba(28,41,32,0.03)',
-        'fittree-md': '0 8px 30px rgba(28,41,32,0.05)',
-        'fittree-lg': '0 16px 40px -12px rgba(28,41,32,0.08)',
-        'fittree-xl': '0 24px 50px -12px rgba(28,41,32,0.12)',
-        'glow': '0 0 30px rgba(47,79,47,0.15)',
-        'soft': '0 10px 40px -10px rgba(0,0,0,0.06)',
+        'fittree-sm': '0 4px 20px rgba(54,42,29,0.05)',
+        'fittree-md': '0 8px 30px rgba(54,42,29,0.08)',
+        'fittree-lg': '0 16px 40px -12px rgba(54,42,29,0.14)',
+        'fittree-xl': '0 24px 50px -12px rgba(54,42,29,0.18)',
+        'glow': '0 0 30px rgba(204,154,52,0.25)',
+        'soft': '0 10px 40px -10px rgba(0,0,0,0.08)',
       },
       animation: {
         'float': 'float 8s ease-in-out infinite',

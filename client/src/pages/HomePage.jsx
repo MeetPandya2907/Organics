@@ -8,6 +8,7 @@ import {
 import { motion } from 'framer-motion';
 import Meta from '../components/Meta';
 import ProductSkeleton from '../components/ProductSkeleton';
+import { getBaseUnit } from '../utils/units';
 
 const CATEGORIES = [
   {
@@ -282,7 +283,7 @@ const HomePage = () => {
                       <h3 className="text-[16px] font-bold text-fittree-dark hover:text-fittree-primary transition-colors line-clamp-2 leading-snug">{product.name}</h3>
                     </Link>
                     <div className="flex items-center justify-between mt-auto pt-3">
-                      <span className="font-display font-extrabold text-xl text-fittree-primary">₹{product.price}</span>
+                      <span className="font-display font-extrabold text-xl text-fittree-primary">₹{product.price}<span className="font-sans text-xs font-semibold text-fittree-text-light">/{getBaseUnit(product)}</span></span>
                       <button
                         onClick={(e) => quickAdd(e, product)}
                         className="w-10 h-10 rounded-full bg-fittree-light flex items-center justify-center text-fittree-primary hover:bg-fittree-primary hover:text-white transition-all shadow-sm hover:shadow-fittree-sm"

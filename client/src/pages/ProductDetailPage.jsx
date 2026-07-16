@@ -4,17 +4,20 @@ import { ChevronRight, Minus, Plus, ShoppingCart, Star, ShieldCheck, ArrowLeft, 
 import { useStore } from '../store/useStore';
 import toast from 'react-hot-toast';
 import Meta from '../components/Meta';
+import { getVariants } from '../utils/units';
 
 const ProductDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { products, fetchProducts, addToCart, loading, userInfo, createReview } = useStore();
   const product = products.find((p) => p._id === id);
+  const variants = product ? getVariants(product) : [];
 
   const [qty, setQty] = useState(1);
   const [activeTab, setActiveTab] = useState('description');
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
+  const [selectedVariant, setSelectedVariant] = useState(null);
 
   useEffect(() => {
     if (!products.length) {
@@ -22,12 +25,26 @@ const ProductDetailPage = () => {
     }
   }, [fetchProducts, products.length]);
 
+  useEffect(() => {
+    if (product) {
+      setSelectedVariant(getVariants(product).find((v) => v.isDefault) || getVariants(product)[0]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [product?._id]);
+
   const addToCartHandler = () => {
     if (!userInfo) {
       navigate('/login');
       return;
     }
-    addToCart(product, qty);
+    const variantLabel = selectedVariant?.label;
+    addToCart({
+      ...product,
+      name: variantLabel ? `${product.name} (${variantLabel})` : product.name,
+      price: selectedVariant?.price ?? product.price,
+      _id: variantLabel ? `${product._id}-${variantLabel}` : product._id,
+      originalId: product._id,
+    }, qty);
     toast.success('Added to cart');
   };
 
@@ -115,12 +132,32 @@ const ProductDetailPage = () => {
               </div>
 
               <div className="text-3xl font-bold text-fittree-text mb-8">
-                ₹{product.price}<span className="text-lg font-normal text-fittree-text-light">/unit</span>
+                ₹{selectedVariant?.price ?? product.price}<span className="text-lg font-normal text-fittree-text-light">/{selectedVariant?.label}</span>
               </div>
 
-              <p className="text-fittree-text leading-relaxed mb-10">
+              <p className="text-fittree-text leading-relaxed mb-8">
                 {product.description}
               </p>
+
+              {/* Weight / pack size selector */}
+              <div className="mb-8">
+                <span className="text-sm font-semibold text-fittree-text block mb-3">Pack size</span>
+                <div className="flex flex-wrap gap-2.5">
+                  {variants.map((v) => (
+                    <button
+                      key={v.label}
+                      onClick={() => setSelectedVariant(v)}
+                      className={`px-4 py-2.5 rounded-xl border-2 text-sm font-bold transition-colors ${
+                        selectedVariant?.label === v.label
+                          ? 'border-fittree-primary bg-fittree-primary/10 text-fittree-primary'
+                          : 'border-fittree-border text-fittree-text hover:border-fittree-primary/50'
+                      }`}
+                    >
+                      {v.label} <span className="font-medium opacity-70">· ₹{v.price}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
 
               {/* Add to Cart Area */}
               <div className="p-6 bg-fittree-bg rounded-2xl border border-fittree-border mb-10">
