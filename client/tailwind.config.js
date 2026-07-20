@@ -29,6 +29,17 @@ export default {
         'fittree-orange': '#F97316',
         'fittree-orange-dark': '#C2410C',
         'fittree-yellow': '#FEF08A',
+
+        // Legacy token names still referenced on some older pages — aliased
+        // to the current palette so those pages stay styled correctly.
+        paper: '#F8FAFC',
+        ink: '#111827',
+        forest: '#16A34A',
+        turmeric: '#EA580C',
+        'turmeric-light': '#FFEDD5',
+        'turmeric-dark': '#C2410C',
+        leaf: '#15803D',
+        charcoal: '#111827',
       },
       fontFamily: {
         display: ['"Outfit"', 'sans-serif'],

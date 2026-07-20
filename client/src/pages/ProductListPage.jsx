@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useStore } from '../store/useStore';
-import { ShoppingCart, Search as SearchIcon, SlidersHorizontal, ChevronDown, Star, Flame, Wheat, Sprout, PackageOpen, LayoutGrid } from 'lucide-react';
+import { ShoppingCart, Search as SearchIcon, SlidersHorizontal, ChevronDown, Star, Flame, Wheat, Sprout, PackageOpen, LayoutGrid, Heart } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Meta from '../components/Meta';
 import Paginate from '../components/Paginate';
@@ -18,9 +18,10 @@ const CATEGORY_ICONS = {
 
 const ProductListPage = () => {
   const { keyword, pageNumber } = useParams();
-  const { products, pages, page, fetchProducts, loading, addToCart, userInfo } = useStore();
+  const { products: allProducts, pages, page, fetchProducts, loading, addToCart, userInfo, wishlist, toggleWishlist } = useStore();
   const navigate = useNavigate();
   const location = useLocation();
+  const products = allProducts.filter(p => p.price > 0 && p.name !== 'Sample name');
 
   const [category, setCategory] = useState('All');
   const [sort, setSort] = useState('');
@@ -29,8 +30,12 @@ const ProductListPage = () => {
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const cat = searchParams.get('category');
+    const sortParam = searchParams.get('sort');
     if (cat) {
       setCategory(cat);
+    }
+    if (sortParam) {
+      setSort(sortParam);
     }
   }, [location]);
 
@@ -51,7 +56,7 @@ const ProductListPage = () => {
             {category === 'All' ? 'Shop All Products' : category}
           </h1>
           <p className="text-fittree-text-light text-[15px] max-w-2xl font-medium">
-            Fresh, organic produce delivered straight from the farm to your door in 10 minutes.
+            Whole spices, pulses and seeds sourced directly from Indian farms — packed the week you order, delivered pan-India.
           </p>
         </div>
       </div>
@@ -156,46 +161,54 @@ const ProductListPage = () => {
                       layout
                       initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.4, delay: (idx % 6) * 0.05 }}
                       key={product._id}
-                      className="product-card group p-3 sm:p-4 bg-white hover:border-fittree-primary"
+                      className="product-card group bg-white"
                     >
-                      <span className="absolute top-4 left-4 bg-white/90 backdrop-blur-md border border-white/50 text-fittree-text text-[10px] font-bold px-2 py-1 rounded-md z-10 shadow-sm">{getBaseUnit(product)}</span>
-                      {product.countInStock === 0 ? (
-                        <span className="absolute top-4 right-4 bg-red-500 text-white text-[9px] font-bold uppercase tracking-widest px-2 py-1 rounded-md z-10 shadow-sm">Sold Out</span>
-                      ) : (
-                        <span className="absolute top-4 right-4 bg-fittree-primary/95 text-white text-[9px] font-bold uppercase tracking-widest px-2 py-1 rounded-md z-10 shadow-sm">{getRegion(product)}</span>
-                      )}
-                      
-                      <Link to={`/product/${product._id}`} className="block h-[150px] sm:h-[180px] bg-fittree-sand rounded-xl overflow-hidden mb-3 relative">
-                        <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 mix-blend-multiply" />
-                      </Link>
+                      <div className="relative h-[190px] sm:h-[210px] bg-fittree-sand overflow-hidden">
+                        <span className="absolute top-3 left-3 z-10 bg-white/95 backdrop-blur-sm border border-fittree-border text-fittree-text text-[10px] font-bold px-2 py-1 rounded-md shadow-sm">{getBaseUnit(product)}</span>
+                        {product.countInStock === 0 ? (
+                          <span className="absolute top-3 right-3 z-10 bg-fittree-pink text-white text-[9px] font-bold uppercase tracking-widest px-2 py-1 rounded-md shadow-sm">Sold Out</span>
+                        ) : (
+                          <button
+                            onClick={(e) => { e.preventDefault(); toggleWishlist(product); }}
+                            className={`absolute top-3 right-3 z-10 w-9 h-9 rounded-full bg-white shadow-sm flex items-center justify-center transition-colors ${
+                              wishlist.some(w => w._id === product._id) ? 'text-fittree-pink' : 'text-fittree-text-light hover:text-fittree-pink'
+                            }`}
+                            title="Save to wishlist"
+                          >
+                            <Heart size={16} fill={wishlist.some(w => w._id === product._id) ? 'currentColor' : 'none'} />
+                          </button>
+                        )}
+                        <Link to={`/product/${product._id}`} className="block w-full h-full">
+                          <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                        </Link>
+                      </div>
 
-                      <div className="flex flex-col flex-1">
-                        <div className="flex justify-between items-start mb-1">
-                          <Link to={`/product/${product._id}`} className="flex-1">
-                            <h3 className="text-[13px] sm:text-[14px] font-bold text-fittree-text leading-snug hover:text-fittree-primary transition-colors line-clamp-2 pr-2">{product.name}</h3>
-                          </Link>
-                          <span className="text-[10px] font-bold text-fittree-accent flex items-center gap-1 shrink-0 bg-fittree-bg px-1.5 py-1 rounded">
-                            <Star size={10} fill="currentColor" stroke="none" /> {product.rating?.toFixed(1) || '—'}
+                      <div className="flex flex-col flex-1 p-4">
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className="text-[10px] text-fittree-primary font-bold uppercase tracking-wider">{getRegion(product)}</span>
+                          <span className="flex items-center gap-1 text-[11px] font-bold text-fittree-text-light">
+                            <Star size={11} className="text-fittree-accent fill-fittree-accent" /> {product.rating?.toFixed(1) || '—'}
                           </span>
                         </div>
-                        <p className="text-[11px] text-fittree-text-light font-medium mb-3 line-clamp-1">{product.description}</p>
+                        <Link to={`/product/${product._id}`}>
+                          <h3 className="text-[14.5px] font-bold text-fittree-text leading-snug hover:text-fittree-primary transition-colors line-clamp-2 mb-3">{product.name}</h3>
+                        </Link>
 
-                        <div className="mt-auto flex items-center justify-between">
-                          <span className="text-[15px] font-bold text-fittree-text">₹{product.price} <span className="text-[10px] text-fittree-text-light font-medium block">/{getBaseUnit(product)}</span></span>
-                          
+                        <div className="mt-auto flex items-center justify-between gap-2 pt-3 border-t border-fittree-border">
+                          <span className="text-[16px] font-extrabold text-fittree-text">₹{product.price}<span className="text-[10.5px] text-fittree-text-light font-semibold">/{getBaseUnit(product)}</span></span>
                           <button
                             disabled={product.countInStock === 0}
                             onClick={(e) => {
                               e.preventDefault();
                               addToCart({ ...product, qty: 1 }, 1);
                             }}
-                            className={`px-4 py-1.5 rounded-lg font-bold text-[12px] transition-all flex items-center justify-center gap-1 uppercase tracking-wider ${
+                            className={`px-4 py-2 rounded-lg font-bold text-[12px] transition-all flex items-center gap-1.5 uppercase tracking-wider shrink-0 ${
                               product.countInStock === 0
                                 ? 'bg-fittree-sand text-fittree-text-light cursor-not-allowed'
-                                : 'bg-white border border-fittree-primary text-fittree-primary hover:bg-fittree-primary hover:text-white shadow-sm'
+                                : 'bg-fittree-primary text-white hover:bg-fittree-primary-soft shadow-sm'
                             }`}
                           >
-                            {product.countInStock === 0 ? 'Sold' : 'ADD'}
+                            <ShoppingCart size={13} /> {product.countInStock === 0 ? 'Sold' : 'Add'}
                           </button>
                         </div>
                       </div>

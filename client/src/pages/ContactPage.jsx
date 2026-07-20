@@ -1,9 +1,11 @@
 import { motion } from 'framer-motion';
 import { MapPin, Mail, Phone, Send, Sparkles } from 'lucide-react';
+import Meta from '../components/Meta';
 
 const ContactPage = () => {
   return (
     <div className="bg-paper min-h-screen pb-24">
+      <Meta title="FitTree Organics | Contact Us" />
       {/* Header */}
       <div className="bg-ink pt-32 pb-48 px-6 text-center shadow-2xl shadow-black/5 relative overflow-hidden">
         <div className="absolute inset-0 bg-forest/20 mix-blend-overlay"></div>
@@ -19,7 +21,7 @@ const ContactPage = () => {
           </div>
           <h1 className="text-5xl md:text-7xl font-display font-bold text-white mb-6 leading-tight">Let's Connect</h1>
           <p className="text-xl text-slate-300 font-medium leading-relaxed max-w-lg mx-auto">
-            Have a question about our organic products or want to discuss a bulk order? We'd love to hear from you.
+            Questions about an order, a product, or where your spices come from? We'd love to hear from you.
           </p>
         </motion.div>
       </div>
@@ -35,7 +37,7 @@ const ContactPage = () => {
               </div>
               <div>
                 <h3 className="text-xl font-display font-bold text-ink mb-2">Our Office</h3>
-                <p className="text-slate-500 font-medium leading-relaxed">123 Organic Lane,<br/>Green City, Earth 40001</p>
+                <p className="text-slate-500 font-medium leading-relaxed">Mumbai,<br/>Maharashtra, India</p>
               </div>
             </motion.div>
             
@@ -45,7 +47,7 @@ const ContactPage = () => {
               </div>
               <div>
                 <h3 className="text-xl font-display font-bold text-ink mb-2">Email Us</h3>
-                <p className="text-slate-500 font-medium leading-relaxed">hello@organics.com<br/>support@organics.com</p>
+                <p className="text-slate-500 font-medium leading-relaxed">hello@fittreeorganics.com<br/>support@fittreeorganics.com</p>
               </div>
             </motion.div>
 

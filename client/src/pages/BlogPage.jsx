@@ -8,7 +8,7 @@ const RECIPES = [
     id: 1,
     title: 'The Perfect Golden Milk (Haldi Doodh)',
     excerpt: 'Boost your immunity with this traditional evening drink using our high-curcumin Lakadong turmeric.',
-    image: 'https://images.unsplash.com/photo-1621255855877-2f3b9004d2e8?w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1615485500704-8e990f9900f7?w=800&q=80',
     time: '10 Mins',
     difficulty: 'Easy'
   },

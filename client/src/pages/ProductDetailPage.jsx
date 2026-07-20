@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import { ChevronRight, Minus, Plus, ShoppingCart, Star, ShieldCheck, ArrowLeft, Leaf, Truck } from 'lucide-react';
+import { ChevronRight, Minus, Plus, ShoppingCart, Star, ShieldCheck, ArrowLeft, Leaf, Truck, Heart } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import toast from 'react-hot-toast';
 import Meta from '../components/Meta';
@@ -9,9 +9,10 @@ import { getVariants, getRegion, getBaseUnit } from '../utils/units';
 const ProductDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { products, fetchProducts, addToCart, loading, userInfo, createReview } = useStore();
+  const { products, fetchProducts, addToCart, loading, userInfo, createReview, wishlist, toggleWishlist, addRecentlyViewed } = useStore();
   const product = products.find((p) => p._id === id);
   const variants = product ? getVariants(product) : [];
+  const isWishlisted = product ? wishlist.some((w) => w._id === product._id) : false;
 
   const [qty, setQty] = useState(1);
   const [activeTab, setActiveTab] = useState('description');
@@ -19,7 +20,7 @@ const ProductDetailPage = () => {
   const [comment, setComment] = useState('');
   const [selectedVariant, setSelectedVariant] = useState(null);
 
-  const relatedProducts = product ? products.filter(p => p.category === product.category && p._id !== product._id).slice(0, 4) : [];
+  const relatedProducts = product ? products.filter(p => p.category === product.category && p._id !== product._id && p.price > 0 && p.name !== 'Sample name').slice(0, 4) : [];
 
   const quickAdd = (e, p) => {
     e.preventDefault();
@@ -36,6 +37,7 @@ const ProductDetailPage = () => {
   useEffect(() => {
     if (product) {
       setSelectedVariant(getVariants(product).find((v) => v.isDefault) || getVariants(product)[0]);
+      addRecentlyViewed(product);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product?._id]);
@@ -117,10 +119,21 @@ const ProductDetailPage = () => {
 
             {/* Right: Product Info */}
             <div className="flex flex-col">
-              <div className="mb-4">
+              <div className="mb-4 flex items-center justify-between">
                 <span className="inline-block px-4 py-1.5 bg-fittree-bg text-fittree-primary text-[11px] font-bold uppercase tracking-widest rounded-md border border-fittree-border shadow-sm">
                   {product.category}
                 </span>
+                <button
+                  onClick={() => toggleWishlist(product)}
+                  className={`w-11 h-11 rounded-full border flex items-center justify-center transition-colors shadow-sm ${
+                    isWishlisted
+                      ? 'bg-fittree-pink/10 border-fittree-pink text-fittree-pink'
+                      : 'bg-white border-fittree-border text-fittree-text-light hover:border-fittree-pink hover:text-fittree-pink'
+                  }`}
+                  title={isWishlisted ? 'Remove from wishlist' : 'Save to wishlist'}
+                >
+                  <Heart size={18} fill={isWishlisted ? 'currentColor' : 'none'} />
+                </button>
               </div>
 
               <h1 className="text-[32px] md:text-[44px] font-semibold text-fittree-text mb-4 leading-tight">
@@ -347,48 +360,62 @@ const ProductDetailPage = () => {
           <h3 className="text-[22px] font-bold text-fittree-text mb-8">You May Also Like</h3>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {relatedProducts.map((p) => (
-              <div key={p._id} className="product-card group p-3 sm:p-4 bg-white hover:border-fittree-primary border border-fittree-border rounded-xl shadow-sm hover:shadow-md transition-all">
-                <span className="absolute top-4 left-4 bg-white/90 backdrop-blur-md border border-white/50 text-fittree-text text-[10px] font-bold px-2 py-1 rounded-md z-10 shadow-sm">{getBaseUnit(p)}</span>
-                {p.countInStock === 0 ? (
-                  <span className="absolute top-4 right-4 bg-red-500 text-white text-[9px] font-bold uppercase tracking-widest px-2 py-1 rounded-md z-10 shadow-sm">Sold Out</span>
-                ) : (
-                  <span className="absolute top-4 right-4 bg-fittree-primary/95 text-white text-[9px] font-bold uppercase tracking-widest px-2 py-1 rounded-md z-10 shadow-sm">{getRegion(p)}</span>
-                )}
-                
-                <Link to={`/product/${p._id}`} className="block h-[150px] sm:h-[180px] bg-fittree-sand rounded-xl overflow-hidden mb-3 relative">
-                  <img src={p.image} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 mix-blend-multiply" />
-                </Link>
+              <div key={p._id} className="product-card group bg-white">
+                <div className="relative h-[190px] sm:h-[210px] bg-fittree-sand overflow-hidden">
+                  <span className="absolute top-3 left-3 z-10 bg-white/95 backdrop-blur-sm border border-fittree-border text-fittree-text text-[10px] font-bold px-2 py-1 rounded-md shadow-sm">{getBaseUnit(p)}</span>
+                  {p.countInStock === 0 && (
+                    <span className="absolute top-3 right-3 z-10 bg-fittree-pink text-white text-[9px] font-bold uppercase tracking-widest px-2 py-1 rounded-md shadow-sm">Sold Out</span>
+                  )}
+                  <Link to={`/product/${p._id}`} className="block w-full h-full">
+                    <img src={p.image} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  </Link>
+                </div>
 
-                <div className="flex flex-col flex-1">
-                  <div className="flex justify-between items-start mb-1">
-                    <Link to={`/product/${p._id}`} className="flex-1">
-                      <h3 className="text-[13px] sm:text-[14px] font-bold text-fittree-text leading-snug hover:text-fittree-primary transition-colors line-clamp-2 pr-2">{p.name}</h3>
-                    </Link>
-                    <span className="text-[10px] font-bold text-fittree-accent flex items-center gap-1 shrink-0 bg-fittree-bg px-1.5 py-1 rounded">
-                      <Star size={10} fill="currentColor" stroke="none" /> {p.rating?.toFixed(1) || '—'}
+                <div className="flex flex-col flex-1 p-4">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-[10px] text-fittree-primary font-bold uppercase tracking-wider">{getRegion(p)}</span>
+                    <span className="flex items-center gap-1 text-[11px] font-bold text-fittree-text-light">
+                      <Star size={11} className="text-fittree-accent fill-fittree-accent" /> {p.rating?.toFixed(1) || '—'}
                     </span>
                   </div>
-                  <p className="text-[11px] text-fittree-text-light font-medium mb-3 line-clamp-1">{p.description}</p>
+                  <Link to={`/product/${p._id}`}>
+                    <h3 className="text-[14.5px] font-bold text-fittree-text leading-snug hover:text-fittree-primary transition-colors line-clamp-2 mb-3">{p.name}</h3>
+                  </Link>
 
-                  <div className="mt-auto flex items-center justify-between">
-                    <span className="text-[15px] font-bold text-fittree-text">₹{p.price} <span className="text-[10px] text-fittree-text-light font-medium block">/{getBaseUnit(p)}</span></span>
-                    
+                  <div className="mt-auto flex items-center justify-between gap-2 pt-3 border-t border-fittree-border">
+                    <span className="text-[16px] font-extrabold text-fittree-text">₹{p.price}<span className="text-[10.5px] text-fittree-text-light font-semibold">/{getBaseUnit(p)}</span></span>
                     <button
                       disabled={p.countInStock === 0}
                       onClick={(e) => quickAdd(e, p)}
-                      className={`px-4 py-1.5 rounded-lg font-bold text-[12px] transition-all flex items-center justify-center gap-1 uppercase tracking-wider ${
+                      className={`px-4 py-2 rounded-lg font-bold text-[12px] transition-all flex items-center gap-1.5 uppercase tracking-wider shrink-0 ${
                         p.countInStock === 0
                           ? 'bg-fittree-sand text-fittree-text-light cursor-not-allowed'
-                          : 'bg-white border border-fittree-primary text-fittree-primary hover:bg-fittree-primary hover:text-white shadow-sm'
+                          : 'bg-fittree-primary text-white hover:bg-fittree-primary-soft shadow-sm'
                       }`}
                     >
-                      {p.countInStock === 0 ? 'Sold' : 'ADD'}
+                      <ShoppingCart size={13} /> {p.countInStock === 0 ? 'Sold' : 'Add'}
                     </button>
                   </div>
                 </div>
               </div>
             ))}
           </div>
+        </div>
+      )}
+
+      {/* Sticky mobile add-to-cart bar */}
+      {product.countInStock > 0 && (
+        <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-fittree-border shadow-[0_-8px_24px_rgba(0,0,0,0.06)] p-3 flex items-center gap-3 md:hidden">
+          <div className="shrink-0">
+            <span className="block text-[16px] font-bold text-fittree-text leading-none">₹{selectedVariant?.price ?? product.price}</span>
+            <span className="block text-[10px] text-fittree-text-light font-semibold mt-0.5">/{selectedVariant?.label}</span>
+          </div>
+          <button
+            onClick={addToCartHandler}
+            className="flex-1 btn btn-primary !h-[48px] flex items-center justify-center gap-2 rounded-xl text-[13px] uppercase tracking-wider"
+          >
+            <ShoppingCart size={16} /> Add to Cart
+          </button>
         </div>
       )}
 

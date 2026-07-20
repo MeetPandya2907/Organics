@@ -13,7 +13,7 @@ const Footer = () => {
           </div>
           <div className="flex items-center gap-5 justify-center md:justify-start">
             <div className="w-14 h-14 rounded-2xl bg-fittree-sand flex items-center justify-center text-fittree-primary shrink-0 shadow-sm border border-fittree-border"><Truck size={24} /></div>
-            <div><h4 className="font-bold text-fittree-text text-[15px] mb-0.5">10-Minute Delivery</h4><p className="text-[13px] text-fittree-text-light font-medium">Superfast doorstep delivery</p></div>
+            <div><h4 className="font-bold text-fittree-text text-[15px] mb-0.5">COD Available Pan-India</h4><p className="text-[13px] text-fittree-text-light font-medium">Free shipping over ₹799</p></div>
           </div>
           <div className="flex items-center gap-5 justify-center md:justify-start">
             <div className="w-14 h-14 rounded-2xl bg-fittree-sand flex items-center justify-center text-fittree-primary shrink-0 shadow-sm border border-fittree-border"><Leaf size={24} /></div>
@@ -37,7 +37,7 @@ const Footer = () => {
               </div>
             </Link>
             <p className="text-fittree-text-light text-[14px] leading-relaxed mb-8 font-medium">
-              Your one-stop destination for fresh, organic, and lab-tested grocery essentials delivered straight to your door.
+              Whole spices, pulses and seeds sourced directly from Indian farms — lab-tested, farm-traced, and packed the week you order.
             </p>
             <div className="flex gap-4">
               <a href="#" aria-label="Instagram" className="w-11 h-11 rounded-xl bg-fittree-sand border border-fittree-border flex items-center justify-center text-fittree-text hover:bg-fittree-primary hover:border-fittree-primary hover:text-white transition-all duration-300">
@@ -68,6 +68,7 @@ const Footer = () => {
             <h4 className="text-[15px] font-bold text-fittree-text mb-6">Discover</h4>
             <ul className="flex flex-col gap-4 text-fittree-text-light text-[14px] font-medium">
               <li><Link to="/about" className="hover:text-fittree-primary transition-colors">About Us</Link></li>
+              <li><Link to="/wishlist" className="hover:text-fittree-primary transition-colors">My Wishlist</Link></li>
               <li><Link to="/faq" className="hover:text-fittree-primary transition-colors">Help & FAQ</Link></li>
               <li><Link to="/shipping-policy" className="hover:text-fittree-primary transition-colors">Shipping Details</Link></li>
               <li><Link to="/refund" className="hover:text-fittree-primary transition-colors">Returns Policy</Link></li>
@@ -82,6 +83,7 @@ const Footer = () => {
               <li className="flex items-center gap-3"><Mail size={16} className="text-fittree-primary shrink-0" /> hello@fittreeorganics.com</li>
               <li className="flex items-start gap-3"><MapPin size={16} className="text-fittree-primary shrink-0 mt-0.5" /> Mumbai, Maharashtra, India</li>
             </ul>
+            <p className="text-[13px] text-fittree-text-light font-semibold mb-3">Get 10% off your first order — join our WhatsApp list for restock alerts.</p>
             <form className="relative flex items-center" onSubmit={(e) => e.preventDefault()}>
               <input
                 type="email"

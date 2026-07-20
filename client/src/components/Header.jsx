@@ -1,19 +1,19 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useStore } from '../store/useStore';
-import { ShoppingCart, User, LogOut, Package, Menu, X, Leaf, Search } from 'lucide-react';
+import { ShoppingCart, User, LogOut, Package, Menu, X, Leaf, Heart } from 'lucide-react';
 import SearchBox from './SearchBox';
 
 const NAV_LINKS = [
-  { name: 'Categories', path: '/products' },
-  { name: 'Spices', path: '/products?category=SPICES' },
-  { name: 'Pulses', path: '/products?category=PULSES' },
-  { name: 'Seeds', path: '/products?category=SEEDS' },
-  { name: 'Offers', path: '/offers' },
+  { name: 'Shop All', path: '/products' },
+  { name: 'Best Deals', path: '/products?sort=lowest' },
+  { name: 'Our Story', path: '/about' },
+  { name: 'Recipes', path: '/recipes' },
+  { name: 'Contact', path: '/contact' },
 ];
 
 const Header = () => {
-  const { userInfo, logout, cart } = useStore();
+  const { userInfo, logout, cart, wishlist } = useStore();
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -29,7 +29,7 @@ const Header = () => {
     <div className="fixed w-full top-0 z-50 bg-white border-b border-fittree-border shadow-sm">
       {/* Top promotional bar */}
       <div className="bg-fittree-primary text-white text-center py-1.5 text-[12px] font-medium tracking-wide">
-        ⚡ Superfast Delivery in 10 Minutes! <span className="font-bold underline cursor-pointer ml-1">Order Now</span>
+        🌿 Farm-traced batches, lab-tested for purity · Flat 10% off prepaid, COD available pan-India
       </div>
 
       <header className="w-full">
@@ -93,6 +93,15 @@ const Header = () => {
                 </Link>
               )}
 
+              <Link to="/wishlist" className="relative flex items-center justify-center w-12 h-12 bg-white border border-fittree-border text-fittree-text rounded-xl hover:border-fittree-pink hover:text-fittree-pink transition-colors shadow-sm">
+                <Heart size={20} />
+                {wishlist.length > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-fittree-pink text-white text-[11px] font-bold h-6 w-6 rounded-full flex items-center justify-center shadow-md border-2 border-white">
+                    {wishlist.length}
+                  </span>
+                )}
+              </Link>
+
               <Link to="/cart" className="relative flex items-center justify-center w-12 h-12 bg-fittree-primary text-white rounded-xl hover:bg-fittree-primary-soft transition-colors shadow-md hover:shadow-lg hover:-translate-y-0.5">
                 <ShoppingCart size={22} />
                 {cartItemsCount > 0 && (
@@ -105,6 +114,14 @@ const Header = () => {
 
             {/* Mobile Actions */}
             <div className="flex md:hidden items-center gap-4">
+              <Link to="/wishlist" className="relative text-fittree-text p-2">
+                <Heart size={22} />
+                {wishlist.length > 0 && (
+                  <span className="absolute 0 right-0 bg-fittree-pink text-white text-[10px] font-bold h-5 w-5 rounded-full flex items-center justify-center shadow-md border-2 border-white">
+                    {wishlist.length}
+                  </span>
+                )}
+              </Link>
               <Link to="/cart" className="relative text-fittree-text p-2">
                 <ShoppingCart size={24} />
                 {cartItemsCount > 0 && (
@@ -113,7 +130,7 @@ const Header = () => {
                   </span>
                 )}
               </Link>
-              
+
               <button
                 className="text-fittree-text p-2"
                 onClick={() => setIsOpen(!isOpen)}

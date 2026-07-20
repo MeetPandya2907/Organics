@@ -9,6 +9,8 @@ export const useStore = create((set, get) => ({
   loading: false,
   error: null,
   cart: localStorage.getItem('cart') ? JSON.parse(localStorage.getItem('cart')) : [],
+  wishlist: localStorage.getItem('wishlist') ? JSON.parse(localStorage.getItem('wishlist')) : [],
+  recentlyViewed: localStorage.getItem('recentlyViewed') ? JSON.parse(localStorage.getItem('recentlyViewed')) : [],
   userInfo: localStorage.getItem('userInfo') ? JSON.parse(localStorage.getItem('userInfo')) : null,
   shippingAddress: localStorage.getItem('shippingAddress') ? JSON.parse(localStorage.getItem('shippingAddress')) : {},
   paymentMethod: localStorage.getItem('paymentMethod') ? JSON.parse(localStorage.getItem('paymentMethod')) : 'Razorpay',
@@ -199,6 +201,26 @@ export const useStore = create((set, get) => ({
     set({ cart: newCart });
     localStorage.setItem('cart', JSON.stringify(newCart));
     get().syncCartToDB(newCart);
+  },
+
+  toggleWishlist: (product) => {
+    const wishlist = get().wishlist;
+    const exists = wishlist.find((x) => x._id === product._id);
+    const newWishlist = exists
+      ? wishlist.filter((x) => x._id !== product._id)
+      : [...wishlist, product];
+    set({ wishlist: newWishlist });
+    localStorage.setItem('wishlist', JSON.stringify(newWishlist));
+    toast.success(exists ? 'Removed from wishlist' : 'Saved to wishlist');
+  },
+
+  isWishlisted: (id) => get().wishlist.some((x) => x._id === id),
+
+  addRecentlyViewed: (product) => {
+    const list = get().recentlyViewed.filter((x) => x._id !== product._id);
+    const newList = [product, ...list].slice(0, 8);
+    set({ recentlyViewed: newList });
+    localStorage.setItem('recentlyViewed', JSON.stringify(newList));
   },
 
   saveShippingAddress: (data) => {
