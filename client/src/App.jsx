@@ -28,6 +28,9 @@ import { Toaster } from 'react-hot-toast';
 import FAQPage from './pages/FAQPage';
 import TermsPage from './pages/TermsPage';
 import PrivacyPage from './pages/PrivacyPage';
+import BlogPage from './pages/BlogPage';
+import ShippingPolicyPage from './pages/ShippingPolicyPage';
+import RefundPolicyPage from './pages/RefundPolicyPage';
 
 function App() {
   return (
@@ -57,9 +60,12 @@ function App() {
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/contact" element={<ContactPage />} />
+            <Route path="/recipes" element={<BlogPage />} />
             <Route path="/faq" element={<FAQPage />} />
             <Route path="/terms" element={<TermsPage />} />
             <Route path="/privacy" element={<PrivacyPage />} />
+            <Route path="/shipping-policy" element={<ShippingPolicyPage />} />
+            <Route path="/refund" element={<RefundPolicyPage />} />
             <Route path="/shipping" element={<ShippingPage />} />
             <Route path="/payment" element={<PaymentPage />} />
             <Route path="/placeorder" element={<PlaceOrderPage />} />

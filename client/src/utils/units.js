@@ -71,3 +71,34 @@ export function getVariants(product) {
     price: Math.round(basePrice * v.multiplier),
   }));
 }
+
+// Sourcing region shown on the "farm-traced" chip. Inferred from name,
+// falling back to category.
+const NAME_REGION_MAP = [
+  { match: /turmeric/i, region: 'Nashik' },
+  { match: /cardamom|pepper/i, region: 'Idukki' },
+  { match: /masoor|dal|lentil|toor|chana/i, region: 'Malwa' },
+  { match: /cumin|coriander/i, region: 'Unjha' },
+  { match: /onion|garlic|dehydrated/i, region: 'Gujarat' },
+  { match: /quinoa|chia/i, region: 'Rajasthan' },
+  { match: /honey/i, region: 'Wild' },
+];
+
+const CATEGORY_REGION_MAP = {
+  SPICES: 'Unjha',
+  PULSES: 'Malwa',
+  SEEDS: 'Rajasthan',
+  'DEHYDRATED PRODUCTS': 'Gujarat',
+};
+
+export function getRegion(product) {
+  if (!product) return 'India';
+  const hit = NAME_REGION_MAP.find(({ match }) => match.test(product.name || ''));
+  if (hit) return hit.region;
+  return CATEGORY_REGION_MAP[product.category] || 'India';
+}
+
+// Cashback shown on cards: 10% of price, rounded.
+export function getCashback(product) {
+  return Math.round((product?.price || 0) / 10);
+}

@@ -91,14 +91,12 @@ const ShippingPage = () => {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Country</label>
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Country (Domestic Only)</label>
                 <input 
                   type="text" 
-                  required
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-5 py-4 focus:outline-none focus:border-forest focus:ring-1 focus:ring-forest transition-colors text-ink font-medium placeholder-slate-400" 
-                  placeholder="India"
-                  value={country}
-                  onChange={(e) => setCountry(e.target.value)}
+                  readOnly
+                  className="w-full bg-slate-100 border border-slate-200 rounded-xl px-5 py-4 text-slate-500 font-bold cursor-not-allowed" 
+                  value="India"
                 />
               </div>
               <div>

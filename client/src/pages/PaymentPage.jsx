@@ -54,12 +54,13 @@ const PaymentPage = () => {
           <form onSubmit={submitHandler} className="space-y-6">
             <div className="space-y-4">
               <label 
+                onClick={() => setPaymentMethod('Razorpay')}
                 className={`flex items-center p-6 rounded-2xl border-2 cursor-pointer transition-all ${
-                  paymentMethod === 'Razorpay' ? 'border-forest bg-forest/5 shadow-md shadow-forest/10' : 'border-slate-100 hover:border-slate-300 bg-slate-50 hover:bg-slate-100'
+                  paymentMethod === 'Razorpay' ? 'border-fittree-primary bg-fittree-primary/5 shadow-md shadow-fittree-primary/10' : 'border-slate-100 hover:border-slate-300 bg-slate-50 hover:bg-slate-100'
                 }`}
               >
-                <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 ${paymentMethod === 'Razorpay' ? 'border-forest' : 'border-slate-300'}`}>
-                   {paymentMethod === 'Razorpay' && <div className="w-3 h-3 bg-forest rounded-full"></div>}
+                <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 ${paymentMethod === 'Razorpay' ? 'border-fittree-primary' : 'border-slate-300'}`}>
+                   {paymentMethod === 'Razorpay' && <div className="w-3 h-3 bg-fittree-primary rounded-full"></div>}
                 </div>
                 <div className="ml-4 flex items-center gap-4">
                    <div className={`p-3 rounded-xl ${paymentMethod === 'Razorpay' ? 'bg-forest text-white' : 'bg-white text-slate-400 border border-slate-200 shadow-sm'}`}>
@@ -73,12 +74,13 @@ const PaymentPage = () => {
               </label>
 
               <label 
+                onClick={() => setPaymentMethod('CashOnDelivery')}
                 className={`flex items-center p-6 rounded-2xl border-2 cursor-pointer transition-all ${
-                  paymentMethod === 'CashOnDelivery' ? 'border-forest bg-forest/5 shadow-md shadow-forest/10' : 'border-slate-100 hover:border-slate-300 bg-slate-50 hover:bg-slate-100'
+                  paymentMethod === 'CashOnDelivery' ? 'border-fittree-primary bg-fittree-primary/5 shadow-md shadow-fittree-primary/10' : 'border-slate-100 hover:border-slate-300 bg-slate-50 hover:bg-slate-100'
                 }`}
               >
-                <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 ${paymentMethod === 'CashOnDelivery' ? 'border-forest' : 'border-slate-300'}`}>
-                   {paymentMethod === 'CashOnDelivery' && <div className="w-3 h-3 bg-forest rounded-full"></div>}
+                <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 ${paymentMethod === 'CashOnDelivery' ? 'border-fittree-primary' : 'border-slate-300'}`}>
+                   {paymentMethod === 'CashOnDelivery' && <div className="w-3 h-3 bg-fittree-primary rounded-full"></div>}
                 </div>
                 <div className="ml-4 flex items-center gap-4">
                    <div className={`p-3 rounded-xl ${paymentMethod === 'CashOnDelivery' ? 'bg-forest text-white' : 'bg-white text-slate-400 border border-slate-200 shadow-sm'}`}>

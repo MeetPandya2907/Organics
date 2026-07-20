@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Meta from '../components/Meta';
 import Paginate from '../components/Paginate';
 import ProductSkeleton from '../components/ProductSkeleton';
-import { getBaseUnit } from '../utils/units';
+import { getBaseUnit, getRegion, getCashback } from '../utils/units';
 
 const CATEGORY_ICONS = {
   All: LayoutGrid,
@@ -41,52 +41,49 @@ const ProductListPage = () => {
   const categories = ['All', 'SPICES', 'PULSES', 'SEEDS', 'DEHYDRATED PRODUCTS'];
 
   return (
-    <div className="bg-fittree-bg min-h-screen font-sans pb-20 pt-[104px] md:pt-[112px]">
+    <div className="bg-fittree-bg min-h-screen font-sans pb-24 pt-[100px] selection:bg-fittree-accent selection:text-white">
       <Meta title="FitTree Organics | Shop All" />
 
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6">
-
-        {/* Page Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 pt-2">
-          <div>
-            <span className="eyebrow text-fittree-pink mb-2">The pantry shelf</span>
-            <h1 className="text-4xl md:text-5xl font-display font-bold text-fittree-dark mb-3">
-              {category === 'All' ? 'Shop All Products' : category}
-            </h1>
-            <p className="text-fittree-text-light max-w-2xl">
-              Whole spices, pulses and seeds sourced directly from Indian farms — packed the week you order.
-            </p>
-          </div>
+      {/* D2C Header */}
+      <div className="bg-white border-b border-fittree-border">
+        <div className="max-w-[1400px] mx-auto px-6 py-10">
+          <h1 className="text-[32px] md:text-[42px] font-bold text-fittree-text mb-2 leading-tight">
+            {category === 'All' ? 'Shop All Products' : category}
+          </h1>
+          <p className="text-fittree-text-light text-[15px] max-w-2xl font-medium">
+            Fresh, organic produce delivered straight from the farm to your door in 10 minutes.
+          </p>
         </div>
+      </div>
 
+      <div className="max-w-[1400px] mx-auto px-6 pt-10">
         {/* Quick category pills */}
-        <div className="flex gap-2.5 overflow-x-auto pb-2 mb-8 -mx-1 px-1">
+        <div className="flex gap-3 overflow-x-auto pb-4 mb-8 -mx-1 px-1 hide-scrollbar">
           {categories.map((c) => {
             const Icon = CATEGORY_ICONS[c];
             return (
               <button
                 key={c}
                 onClick={() => setCategory(c)}
-                className={`shrink-0 inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-bold border-2 transition-colors ${
-                  category === c
-                    ? 'bg-fittree-primary border-fittree-primary text-white'
-                    : 'bg-white border-fittree-border text-fittree-text hover:border-fittree-primary/50'
-                }`}
+                className={`shrink-0 inline-flex items-center gap-2.5 px-6 py-3 rounded-full text-[13px] font-semibold tracking-wider transition-all duration-300 ${category === c
+                    ? 'bg-fittree-primary text-white shadow-md'
+                    : 'bg-white border border-fittree-border text-fittree-text hover:border-fittree-primary hover:text-fittree-primary shadow-sm'
+                  }`}
               >
-                <Icon size={15} /> {c === 'DEHYDRATED PRODUCTS' ? 'Dehydrated' : c.charAt(0) + c.slice(1).toLowerCase()}
+                <Icon size={16} /> {c === 'DEHYDRATED PRODUCTS' ? 'Dehydrated' : c}
               </button>
             );
           })}
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-8">
+        <div className="flex flex-col lg:flex-row gap-10">
           {/* Mobile Filter Toggle */}
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className="lg:hidden flex items-center justify-between p-4 bg-white rounded-xl shadow-fittree-sm border border-fittree-border text-fittree-dark font-semibold"
+            className="lg:hidden flex items-center justify-between p-4 bg-white rounded-2xl shadow-sm border border-fittree-border text-fittree-text font-semibold"
           >
             <div className="flex items-center gap-2">
-              <SlidersHorizontal size={18} /> Sort
+              <SlidersHorizontal size={18} /> Sort & Filter
             </div>
             <ChevronDown size={18} className={`transition-transform duration-300 ${showFilters ? 'rotate-180' : ''}`} />
           </button>
@@ -100,23 +97,37 @@ const ProductListPage = () => {
                 exit={{ height: 0, opacity: 0 }}
                 className="lg:w-1/4 flex-shrink-0 lg:block overflow-hidden lg:overflow-visible"
               >
-                <div className="bg-white rounded-3xl shadow-fittree-sm border border-fittree-border p-7 sticky top-32">
-                  <h3 className="text-lg font-bold text-fittree-dark mb-4 border-b border-fittree-border pb-3">Sort By</h3>
-                  <select
-                    value={sort}
-                    onChange={(e) => setSort(e.target.value)}
-                    className="w-full p-3 bg-fittree-bg border border-fittree-border rounded-lg text-sm text-fittree-text focus:outline-none focus:border-fittree-primary"
-                  >
-                    <option value="">Featured</option>
-                    <option value="lowest">Price: Low to High</option>
-                    <option value="highest">Price: High to Low</option>
-                    <option value="toprated">Customer Rating</option>
-                  </select>
+                <div className="bg-white rounded-[2rem] shadow-sm border border-fittree-border p-8 sticky top-32">
+                  <h3 className="text-[18px] font-semibold text-fittree-text mb-6">Sort Collection</h3>
+                  
+                  <div className="space-y-3">
+                    {[
+                      { val: '', label: 'Featured Bestsellers' },
+                      { val: 'lowest', label: 'Price: Low to High' },
+                      { val: 'highest', label: 'Price: High to Low' },
+                      { val: 'toprated', label: 'Customer Rating' },
+                    ].map((opt) => (
+                      <label key={opt.val} className="flex items-center gap-3 cursor-pointer group">
+                        <div className="relative flex items-center justify-center w-5 h-5 rounded-full border border-fittree-border bg-fittree-bg group-hover:border-fittree-primary transition-colors">
+                          {sort === opt.val && <div className="w-2.5 h-2.5 bg-fittree-primary rounded-full"></div>}
+                        </div>
+                        <input
+                          type="radio"
+                          name="sort"
+                          value={opt.val}
+                          checked={sort === opt.val}
+                          onChange={(e) => setSort(e.target.value)}
+                          className="sr-only"
+                        />
+                        <span className={`text-[14px] font-medium transition-colors ${sort === opt.val ? 'text-fittree-primary' : 'text-fittree-text-light group-hover:text-fittree-text'}`}>{opt.label}</span>
+                      </label>
+                    ))}
+                  </div>
 
-                  <div className="mt-7 pt-6 border-t border-fittree-border">
-                    <div className="flex items-center gap-3 text-fittree-text-light text-xs font-semibold">
-                      <span className="w-8 h-8 rounded-full bg-fittree-light flex items-center justify-center text-fittree-primary shrink-0">✓</span>
-                      FSSAI licensed, lab-tested batches
+                  <div className="mt-10 pt-8 border-t border-fittree-border">
+                    <div className="flex items-start gap-4 text-fittree-text text-[13px] font-medium leading-relaxed bg-fittree-bg p-4 rounded-2xl">
+                      <span className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-fittree-accent shrink-0 shadow-sm border border-fittree-border"><Star size={14} fill="currentColor" /></span>
+                      <p>Every batch is <b className="text-fittree-primary">FSSAI licensed</b> and lab-tested for zero residue.</p>
                     </div>
                   </div>
                 </div>
@@ -131,16 +142,11 @@ const ProductListPage = () => {
                 {[1, 2, 3, 4, 5, 6].map(i => <ProductSkeleton key={i} />)}
               </div>
             ) : products.length === 0 ? (
-              <div className="bg-white rounded-2xl shadow-fittree-sm border border-fittree-border p-12 text-center">
-                <SearchIcon size={48} className="mx-auto mb-6 text-fittree-border" />
-                <h3 className="text-2xl font-bold text-fittree-dark mb-3">No products found</h3>
-                <p className="text-fittree-text-light mb-8">We couldn't find any products matching your current filters.</p>
-                <button
-                  onClick={() => { setCategory('All'); setSort(''); }}
-                  className="btn btn-outline"
-                >
-                  Clear Filters
-                </button>
+              <div className="bg-white rounded-[2rem] shadow-sm border border-fittree-border p-16 text-center">
+                <div className="w-20 h-20 bg-fittree-bg rounded-full flex items-center justify-center mx-auto mb-6 text-fittree-text-light"><SearchIcon size={32} /></div>
+                <h3 className="text-[24px] font-semibold text-fittree-text mb-3">No products found</h3>
+                <p className="text-fittree-text-light mb-10 text-[15px]">We couldn't find any products matching your current filters.</p>
+                <button onClick={() => { setCategory('All'); setSort(''); }} className="btn btn-primary">Clear All Filters</button>
               </div>
             ) : (
               <>
@@ -148,52 +154,48 @@ const ProductListPage = () => {
                   {products.map((product, idx) => (
                     <motion.div
                       layout
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ duration: 0.4, delay: idx * 0.05 }}
+                      initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.4, delay: (idx % 6) * 0.05 }}
                       key={product._id}
-                      className="group product-card"
+                      className="product-card group p-3 sm:p-4 bg-white hover:border-fittree-primary"
                     >
-                      <div className="relative aspect-[4/3] rounded-t-3xl rounded-b-xl overflow-hidden mb-5 bg-fittree-light p-4 flex items-center justify-center">
-                        {product.countInStock === 0 && (
-                          <span className="absolute top-3 left-3 bg-fittree-pink/10 text-fittree-pink-dark px-3 py-1 rounded-full text-xs font-bold z-10 border border-fittree-pink/20">
-                            Out of Stock
+                      <span className="absolute top-4 left-4 bg-white/90 backdrop-blur-md border border-white/50 text-fittree-text text-[10px] font-bold px-2 py-1 rounded-md z-10 shadow-sm">{getBaseUnit(product)}</span>
+                      {product.countInStock === 0 ? (
+                        <span className="absolute top-4 right-4 bg-red-500 text-white text-[9px] font-bold uppercase tracking-widest px-2 py-1 rounded-md z-10 shadow-sm">Sold Out</span>
+                      ) : (
+                        <span className="absolute top-4 right-4 bg-fittree-primary/95 text-white text-[9px] font-bold uppercase tracking-widest px-2 py-1 rounded-md z-10 shadow-sm">{getRegion(product)}</span>
+                      )}
+                      
+                      <Link to={`/product/${product._id}`} className="block h-[150px] sm:h-[180px] bg-fittree-sand rounded-xl overflow-hidden mb-3 relative">
+                        <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 mix-blend-multiply" />
+                      </Link>
+
+                      <div className="flex flex-col flex-1">
+                        <div className="flex justify-between items-start mb-1">
+                          <Link to={`/product/${product._id}`} className="flex-1">
+                            <h3 className="text-[13px] sm:text-[14px] font-bold text-fittree-text leading-snug hover:text-fittree-primary transition-colors line-clamp-2 pr-2">{product.name}</h3>
+                          </Link>
+                          <span className="text-[10px] font-bold text-fittree-accent flex items-center gap-1 shrink-0 bg-fittree-bg px-1.5 py-1 rounded">
+                            <Star size={10} fill="currentColor" stroke="none" /> {product.rating?.toFixed(1) || '—'}
                           </span>
-                        )}
-                        <img
-                          src={product.image}
-                          alt={product.name}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
-                      </div>
-
-                      <div className="flex flex-col flex-1 px-5 pb-5">
-                        <span className="text-[10px] uppercase font-bold text-fittree-primary tracking-widest mb-2 opacity-80">{product.category}</span>
-                        <Link to={`/product/${product._id}`}>
-                          <h3 className="text-[17px] font-bold text-fittree-dark group-hover:text-fittree-primary transition-colors leading-tight mb-2 line-clamp-2">{product.name}</h3>
-                        </Link>
-
-                        <div className="flex items-center gap-1 text-fittree-orange mb-3">
-                          {[1, 2, 3, 4, 5].map(i => <Star key={i} size={12} fill="currentColor" stroke="none" />)}
-                          <span className="text-fittree-text-light text-xs ml-1 font-semibold">({product.numReviews})</span>
                         </div>
+                        <p className="text-[11px] text-fittree-text-light font-medium mb-3 line-clamp-1">{product.description}</p>
 
-                        <p className="text-[15px] font-bold text-fittree-text mb-5 mt-auto">₹{product.price}<span className="text-[11px] font-normal text-fittree-text-light ml-1">/{getBaseUnit(product)}</span></p>
-
-                        <div className="pt-2 border-t border-fittree-border/50">
+                        <div className="mt-auto flex items-center justify-between">
+                          <span className="text-[15px] font-bold text-fittree-text">₹{product.price} <span className="text-[10px] text-fittree-text-light font-medium block">/{getBaseUnit(product)}</span></span>
+                          
                           <button
                             disabled={product.countInStock === 0}
                             onClick={(e) => {
                               e.preventDefault();
-                              if (!userInfo) navigate('/login');
-                              else addToCart({ ...product, qty: 1 }, 1);
+                              addToCart({ ...product, qty: 1 }, 1);
                             }}
-                            className={`w-full py-2.5 text-sm font-semibold rounded-lg transition-colors flex items-center justify-center gap-2 ${product.countInStock === 0
-                                ? 'bg-fittree-bg text-fittree-text-light cursor-not-allowed border border-fittree-border'
-                                : 'btn-primary'
-                              }`}
+                            className={`px-4 py-1.5 rounded-lg font-bold text-[12px] transition-all flex items-center justify-center gap-1 uppercase tracking-wider ${
+                              product.countInStock === 0
+                                ? 'bg-fittree-sand text-fittree-text-light cursor-not-allowed'
+                                : 'bg-white border border-fittree-primary text-fittree-primary hover:bg-fittree-primary hover:text-white shadow-sm'
+                            }`}
                           >
-                            {product.countInStock === 0 ? 'Out of Stock' : (<><ShoppingCart size={14} /> Add to Cart</>)}
+                            {product.countInStock === 0 ? 'Sold' : 'ADD'}
                           </button>
                         </div>
                       </div>
@@ -201,7 +203,9 @@ const ProductListPage = () => {
                   ))}
                 </motion.div>
 
-                <Paginate pages={pages} page={page} keyword={keyword ? keyword : ''} />
+                <div className="mt-12">
+                  <Paginate pages={pages} page={page} keyword={keyword ? keyword : ''} />
+                </div>
               </>
             )}
           </div>
@@ -212,3 +216,4 @@ const ProductListPage = () => {
 };
 
 export default ProductListPage;
+

@@ -7,64 +7,69 @@ export default {
   theme: {
     extend: {
       colors: {
-        // FitTree Organics — palette drawn from the product photography itself:
-        // turmeric gold, masoor-red rust, muted cardamom-olive, roasted-cumin brown.
-        'fittree-bg': '#F6EFDF',        // Besan (chickpea flour) ivory — warm, not grey-cream
-        'fittree-primary': '#6B6F45',   // Muted cardamom-olive — replaces bright forest green
-        'fittree-dark': '#362A1D',      // Roasted cumin brown — headers/footer/dark sections
-        'fittree-light': '#EEE3C8',     // Warm ivory-tan section tint
-        'fittree-text': '#2B2013',      // Ink — warm near-black
-        'fittree-text-light': '#8A7B65',// Muted warm grey-brown for secondary copy
-        'fittree-border': '#E3D6B8',    // Warm tan border
-        'fittree-orange': '#CC9A34',    // Turmeric gold — primary accent
-        'fittree-orange-dark': '#A87B22',
-        'fittree-pink': '#A3402B',      // Masoor-red / rust — secondary accent
-        'fittree-pink-dark': '#812F1D',
-        'fittree-yellow': '#E4C169',    // Lighter turmeric highlight
-
-        // Legacy token names (still referenced across the app) — same palette
-        paper: '#F6EFDF',
-        ink: '#2B2013',
-        turmeric: '#CC9A34',
-        'turmeric-light': '#E4C169',
-        'turmeric-dark': '#A87B22',
-        forest: '#6B6F45',
-        leaf: '#8B9157',
-        charcoal: '#362A1D',
-        'glass-bg': 'rgba(246, 239, 223, 0.85)',
-        'glass-border': 'rgba(255, 255, 255, 0.5)',
-        'glass-dark-bg': 'rgba(54, 42, 29, 0.85)',
-        'glass-dark-border': 'rgba(255, 255, 255, 0.1)',
+        // FitTree Organics — Vibrant D2C E-commerce Design
+        'fittree-bg': '#F8FAFC',          // Clean slate background
+        'fittree-surface': '#FFFFFF',     // Pure white surface
+        'fittree-primary': '#16A34A',     // Vibrant Emerald Green
+        'fittree-primary-soft': '#15803D',
+        'fittree-dark': '#111827',        // Sharp dark gray text
+        'fittree-light': '#F0FDF4',       // Soft green background
+        'fittree-sand': '#F3F4F6',        // Clean gray for cards
+        'fittree-cream': '#FFFFFF',       
+        'fittree-text': '#111827',        // High contrast text
+        'fittree-text-light': '#6B7280',  // Legible secondary text
+        'fittree-border': '#E5E7EB',      // Clean borders
+        'fittree-accent': '#EA580C',      // Vibrant Orange for sale tags/badges
+        'fittree-accent-dark': '#C2410C', 
+        'fittree-accent-light': '#FFEDD5',// Soft orange wash
+        'fittree-pink': '#EF4444',        // Red for errors/alerts
+        'fittree-pink-dark': '#B91C1C',
+        
+        // Legacy fallbacks
+        'fittree-orange': '#F97316',
+        'fittree-orange-dark': '#C2410C',
+        'fittree-yellow': '#FEF08A',
       },
       fontFamily: {
-        display: ['"Fraunces"', 'serif'],
-        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+        display: ['"Outfit"', 'sans-serif'],
+        sans: ['"Inter"', 'sans-serif'],
       },
       boxShadow: {
-        'fittree-sm': '0 4px 20px rgba(54,42,29,0.05)',
-        'fittree-md': '0 8px 30px rgba(54,42,29,0.08)',
-        'fittree-lg': '0 16px 40px -12px rgba(54,42,29,0.14)',
-        'fittree-xl': '0 24px 50px -12px rgba(54,42,29,0.18)',
-        'glow': '0 0 30px rgba(204,154,52,0.25)',
-        'soft': '0 10px 40px -10px rgba(0,0,0,0.08)',
+        'fittree-sm': '0 4px 20px -2px rgba(4,47,26,0.03)',
+        'fittree-md': '0 12px 30px -4px rgba(4,47,26,0.06)',
+        'fittree-lg': '0 24px 50px -12px rgba(4,47,26,0.1)',
+        'fittree-xl': '0 35px 80px -15px rgba(4,47,26,0.15)',
+        'glow': '0 0 40px -10px rgba(212,175,55,0.4)',
+        'glass': '0 8px 32px 0 rgba(0,0,0,0.05)',
+      },
+      backgroundImage: {
+        'glass-gradient': 'linear-gradient(135deg, rgba(255,255,255,0.8), rgba(255,255,255,0.4))',
+      },
+      backdropBlur: {
+        'glass': '16px',
       },
       animation: {
         'float': 'float 8s ease-in-out infinite',
-        'marquee': 'marquee 25s linear infinite',
+        'marquee': 'marquee 30s linear infinite',
         'fade-in-up': 'fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+        'reveal': 'reveal 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards',
       },
       keyframes: {
         float: {
           '0%, 100%': { transform: 'translateY(0)' },
-          '50%': { transform: 'translateY(-12px)' },
+          '50%': { transform: 'translateY(-15px)' },
         },
         marquee: {
           '0%': { transform: 'translateX(0)' },
           '100%': { transform: 'translateX(-50%)' },
         },
         fadeInUp: {
-          '0%': { opacity: '0', transform: 'translateY(20px)' },
+          '0%': { opacity: '0', transform: 'translateY(30px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        reveal: {
+          '0%': { opacity: '0', clipPath: 'inset(100% 0 0 0)' },
+          '100%': { opacity: '1', clipPath: 'inset(0 0 0 0)' },
         },
       },
     },

@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,600;0,700;1,500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -10,58 +8,48 @@
   }
 
   body {
-    @apply font-sans antialiased bg-fittree-bg text-fittree-text selection:bg-fittree-yellow selection:text-fittree-dark;
+    @apply font-sans antialiased bg-fittree-bg text-fittree-text;
   }
 
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    @apply font-display text-fittree-dark tracking-tight;
+  ::selection {
+    background-color: #EA580C; /* fittree-accent */
+    color: white;
   }
 
-  h1 {
-    @apply text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.05];
-  }
-
-  h2 {
-    @apply text-3xl md:text-4xl lg:text-5xl font-bold leading-[1.15];
-  }
-
-  h3 {
-    @apply text-2xl md:text-3xl font-bold;
-  }
-
-  h4 {
-    @apply text-xl md:text-2xl font-semibold;
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display text-fittree-text tracking-tight font-bold;
   }
 }
 
 @layer components {
   .btn {
-    @apply inline-flex items-center justify-center px-8 py-3.5 rounded-full font-bold transition-all duration-300 text-[14px] tracking-wide;
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200 text-[15px];
   }
 
   .btn-primary {
-    @apply bg-fittree-primary text-white shadow-2xl shadow-black/5 hover:-translate-y-1 hover:shadow-fittree-md hover:bg-[#565A38] active:translate-y-0 active:shadow-sm;
+    background-color: #16A34A; /* fittree-primary */
+    color: white;
+    @apply hover:shadow-md hover:-translate-y-0.5;
+  }
+  .btn-primary:hover {
+    background-color: #15803D;
   }
 
   .btn-accent {
-    @apply bg-fittree-orange text-white shadow-2xl shadow-black/5 hover:-translate-y-1 hover:shadow-fittree-md hover:bg-fittree-orange-dark active:translate-y-0 active:shadow-sm;
+    background-color: #EA580C; /* fittree-accent */
+    color: white;
+    @apply hover:shadow-md hover:-translate-y-0.5;
+  }
+  .btn-accent:hover {
+    background-color: #C2410C;
   }
 
   .btn-outline {
-    @apply border border-fittree-border text-fittree-text bg-white shadow-sm hover:border-fittree-primary hover:text-fittree-primary hover:shadow-fittree-md hover:-translate-y-1 active:translate-y-0 active:shadow-sm;
-  }
-
-  .fittree-card {
-    @apply bg-white rounded-3xl border border-white shadow-fittree-sm overflow-hidden transition-all duration-500 hover:shadow-fittree-lg hover:-translate-y-1.5;
+    @apply border-2 border-fittree-primary text-fittree-primary bg-white hover:bg-fittree-primary hover:text-white;
   }
 
   .product-card {
-    @apply bg-white rounded-3xl border border-white shadow-fittree-sm overflow-hidden transition-all duration-500 relative flex flex-col hover:shadow-fittree-lg hover:-translate-y-1.5;
+    @apply bg-white rounded-2xl border border-fittree-border overflow-hidden transition-all duration-300 relative flex flex-col hover:shadow-xl hover:border-fittree-primary/30 hover:-translate-y-1;
   }
 
   .form-group {
@@ -69,46 +57,19 @@
   }
 
   .form-label {
-    @apply block text-[13px] font-bold mb-2 text-fittree-text-light;
+    @apply block text-[14px] font-semibold mb-1.5 text-fittree-text;
   }
 
   .form-input {
-    @apply w-full px-4 py-3.5 rounded-2xl border border-fittree-border bg-[#FAFAF8] focus:bg-white focus:border-fittree-primary focus:ring-4 focus:ring-fittree-primary/10 transition-all duration-300 outline-none text-fittree-text;
+    @apply w-full px-4 py-3 rounded-xl border border-fittree-border bg-white focus:outline-none focus:border-fittree-primary focus:ring-4 focus:ring-fittree-primary/10 transition-all duration-200 text-fittree-text placeholder:text-fittree-text-light/70;
   }
 
   .pill-tag {
-    @apply inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[10px] font-extrabold uppercase tracking-widest backdrop-blur-sm;
-  }
-
-  .eyebrow {
-    @apply font-sans text-[12px] font-extrabold uppercase tracking-[0.2em] block text-fittree-text-light;
-  }
-
-  .link-more {
-    @apply text-sm font-bold transition-colors hover:text-fittree-orange;
+    @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-[11px] font-bold uppercase tracking-wider bg-fittree-accent text-white shadow-sm;
   }
 }
 
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: #F6EFDF;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #CC9A34;
-  border-radius: 999px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #362A1D;
-}
-
-/* Hide scrollbar for clean carousels */
+/* Hide scrollbar for carousels */
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
 }
