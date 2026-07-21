@@ -11,6 +11,8 @@ export const useStore = create((set, get) => ({
   cart: localStorage.getItem('cart') ? JSON.parse(localStorage.getItem('cart')) : [],
   wishlist: localStorage.getItem('wishlist') ? JSON.parse(localStorage.getItem('wishlist')) : [],
   recentlyViewed: localStorage.getItem('recentlyViewed') ? JSON.parse(localStorage.getItem('recentlyViewed')) : [],
+  coupon: localStorage.getItem('coupon') ? JSON.parse(localStorage.getItem('coupon')) : null,
+  couponLoading: false,
   userInfo: localStorage.getItem('userInfo') ? JSON.parse(localStorage.getItem('userInfo')) : null,
   shippingAddress: localStorage.getItem('shippingAddress') ? JSON.parse(localStorage.getItem('shippingAddress')) : {},
   paymentMethod: localStorage.getItem('paymentMethod') ? JSON.parse(localStorage.getItem('paymentMethod')) : 'Razorpay',
@@ -234,8 +236,30 @@ export const useStore = create((set, get) => ({
   },
 
   clearCart: () => {
-    set({ cart: [] });
+    set({ cart: [], coupon: null });
     localStorage.removeItem('cart');
+    localStorage.removeItem('coupon');
+  },
+
+  applyCoupon: async (code, subtotal) => {
+    set({ couponLoading: true });
+    try {
+      const config = { headers: { 'Content-Type': 'application/json' } };
+      const { data } = await axios.post('/api/coupons/validate', { code, subtotal }, config);
+      set({ coupon: data, couponLoading: false });
+      localStorage.setItem('coupon', JSON.stringify(data));
+      toast.success(`Coupon ${data.code} applied — you saved ₹${data.discountAmount}`);
+      return true;
+    } catch (error) {
+      set({ couponLoading: false });
+      toast.error(error.response && error.response.data.message ? error.response.data.message : error.message);
+      return false;
+    }
+  },
+
+  removeCoupon: () => {
+    set({ coupon: null });
+    localStorage.removeItem('coupon');
   },
 
   createReview: async (productId, review) => {

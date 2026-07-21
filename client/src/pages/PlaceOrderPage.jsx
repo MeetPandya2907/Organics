@@ -2,12 +2,12 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useStore } from '../store/useStore';
 import { motion } from 'framer-motion';
-import { CheckCircle, MapPin, CreditCard, ShoppingBag, ArrowRight, ShieldCheck, Leaf } from 'lucide-react';
+import { CheckCircle, MapPin, CreditCard, ShoppingBag, ArrowRight, ShieldCheck, Leaf, Tag } from 'lucide-react';
 import axios from 'axios';
 
 const PlaceOrderPage = () => {
   const navigate = useNavigate();
-  const { cart, shippingAddress, paymentMethod, userInfo, clearCart } = useStore();
+  const { cart, shippingAddress, paymentMethod, userInfo, clearCart, coupon } = useStore();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -19,7 +19,8 @@ const PlaceOrderPage = () => {
   const itemsPrice = cart.reduce((acc, item) => acc + item.price * item.qty, 0);
   const shippingPrice = itemsPrice > 1000 ? 0 : 50;
   const taxPrice = addDecimals(Number((0.05 * itemsPrice).toFixed(2))); // 5% tax
-  const totalPrice = (Number(itemsPrice) + Number(shippingPrice) + Number(taxPrice)).toFixed(2);
+  const discountAmount = coupon ? coupon.discountAmount : 0;
+  const totalPrice = Math.max(Number(itemsPrice) + Number(shippingPrice) + Number(taxPrice) - discountAmount, 0).toFixed(2);
 
   useEffect(() => {
     if (!userInfo) {
@@ -57,6 +58,8 @@ const PlaceOrderPage = () => {
           shippingPrice,
           taxPrice,
           totalPrice,
+          couponCode: coupon ? coupon.code : undefined,
+          discountAmount,
         },
         config
       );
@@ -70,18 +73,18 @@ const PlaceOrderPage = () => {
   };
 
   return (
-    <div className="bg-paper min-h-screen pb-24">
+    <div className="bg-white min-h-screen pb-24">
       {/* Checkout Steps Header */}
-      <div className="bg-ink pt-32 pb-32 px-6 shadow-2xl shadow-black/5 relative overflow-hidden">
-        <div className="absolute inset-0 bg-forest/20 mix-blend-overlay"></div>
+      <div className="bg-fittree-primary pt-32 pb-32 px-6 shadow-2xl shadow-black/10 relative overflow-hidden">
+        <div className="absolute inset-0 bg-black/10"></div>
         <div className="max-w-[800px] mx-auto text-center relative z-10">
           <h1 className="text-4xl md:text-5xl font-display text-white mb-10 font-bold">Checkout</h1>
           <div className="flex justify-center items-center gap-2 sm:gap-6 text-[10px] sm:text-xs font-bold uppercase tracking-widest">
-            <div className="flex items-center gap-3 text-slate-300"><div className="w-8 h-8 rounded-full bg-white/10 text-white flex items-center justify-center">1</div> <span className="hidden sm:inline">Shipping</span></div>
-            <div className="w-8 sm:w-16 h-[2px] bg-white/20 rounded-full"></div>
-            <div className="flex items-center gap-3 text-slate-300"><div className="w-8 h-8 rounded-full bg-white/10 text-white flex items-center justify-center">2</div> <span className="hidden sm:inline">Payment</span></div>
-            <div className="w-8 sm:w-16 h-[2px] bg-white/20 rounded-full"></div>
-            <div className="flex items-center gap-3 text-turmeric"><div className="w-8 h-8 rounded-full bg-turmeric text-ink flex items-center justify-center shadow-lg shadow-turmeric/20">3</div> <span className="hidden sm:inline">Review</span></div>
+            <div className="flex items-center gap-3 text-white/50"><div className="w-8 h-8 rounded-full bg-white/10 border border-white/20 text-white flex items-center justify-center">1</div> <span className="hidden sm:inline">Shipping</span></div>
+            <div className="w-8 sm:w-16 h-[2px] bg-white/30 rounded-full"></div>
+            <div className="flex items-center gap-3 text-white/50"><div className="w-8 h-8 rounded-full bg-white/10 border border-white/20 text-white flex items-center justify-center">2</div> <span className="hidden sm:inline">Payment</span></div>
+            <div className="w-8 sm:w-16 h-[2px] bg-white/30 rounded-full"></div>
+            <div className="flex items-center gap-3 text-white"><div className="w-8 h-8 rounded-full bg-white text-fittree-primary flex items-center justify-center shadow-lg">3</div> <span className="hidden sm:inline">Review</span></div>
           </div>
         </div>
       </div>
@@ -172,6 +175,12 @@ const PlaceOrderPage = () => {
                 <span>Tax (5%)</span>
                 <span className="font-bold text-white">₹{taxPrice}</span>
               </div>
+              {coupon && (
+                <div className="flex justify-between text-green-400 font-medium text-[15px]">
+                  <span className="flex items-center gap-1.5"><Tag size={13} /> Coupon ({coupon.code})</span>
+                  <span className="font-bold">−₹{discountAmount.toFixed(2)}</span>
+                </div>
+              )}
             </div>
 
             <div className="flex justify-between items-end mb-10 relative z-10">

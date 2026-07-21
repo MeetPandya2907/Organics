@@ -13,6 +13,8 @@ import orderRoutes from './routes/orderRoutes.js';
 import summaryRoutes from './routes/summaryRoutes.js';
 import paymentRoutes from './routes/paymentRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
+import couponRoutes from './routes/couponRoutes.js';
+import stockAlertRoutes from './routes/stockAlertRoutes.js';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 import morgan from 'morgan';
 
@@ -37,6 +39,8 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/summary', summaryRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/coupons', couponRoutes);
+app.use('/api/stock-alerts', stockAlertRoutes);
 
 app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
 

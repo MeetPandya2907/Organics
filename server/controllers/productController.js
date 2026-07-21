@@ -1,5 +1,6 @@
 import Product from '../models/productModel.js';
 import NodeCache from 'node-cache';
+import { notifyBackInStock } from './stockAlertController.js';
 
 const myCache = new NodeCache({ stdTTL: 300, checkperiod: 320 }); // Cache for 5 minutes
 
@@ -123,6 +124,8 @@ const updateProduct = async (req, res) => {
   const product = await Product.findById(req.params.id);
 
   if (product) {
+    const wasOutOfStock = product.countInStock === 0;
+
     product.name = name;
     product.price = price;
     product.description = description;
@@ -132,6 +135,10 @@ const updateProduct = async (req, res) => {
     product.countInStock = countInStock;
 
     const updatedProduct = await product.save();
+
+    if (wasOutOfStock && updatedProduct.countInStock > 0) {
+      notifyBackInStock(updatedProduct); // fire-and-forget, never blocks the response
+    }
     myCache.flushAll(); // Clear cache
     res.json(updatedProduct);
   } else {

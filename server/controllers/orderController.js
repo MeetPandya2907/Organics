@@ -1,4 +1,5 @@
 import Order from '../models/orderModel.js';
+import Coupon from '../models/couponModel.js';
 
 // @desc    Create new order
 // @route   POST /api/orders
@@ -12,6 +13,8 @@ const addOrderItems = async (req, res) => {
     taxPrice,
     shippingPrice,
     totalPrice,
+    couponCode,
+    discountAmount,
   } = req.body;
 
   if (orderItems && orderItems.length === 0) {
@@ -27,9 +30,17 @@ const addOrderItems = async (req, res) => {
       taxPrice,
       shippingPrice,
       totalPrice,
+      couponCode: couponCode || undefined,
+      discountAmount: discountAmount || 0,
     });
 
     const createdOrder = await order.save();
+
+    if (couponCode) {
+      // Best-effort usage tracking — never blocks order creation.
+      Coupon.updateOne({ code: couponCode.toUpperCase() }, { $inc: { usedCount: 1 } }).catch(() => {});
+    }
+
     res.status(201).json(createdOrder);
   }
 };

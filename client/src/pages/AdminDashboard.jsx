@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../store/useStore';
-import { Package, ShoppingBag, Users, DollarSign, AlertCircle } from 'lucide-react';
+import { Package, ShoppingBag, Users, DollarSign, AlertCircle, Tag } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend
 } from 'recharts';
+import AdminLayout from '../components/AdminLayout';
 
 const AdminDashboard = () => {
   const { userInfo } = useStore();
@@ -41,16 +42,17 @@ const AdminDashboard = () => {
   const COLORS = ['#10B981', '#F59E0B', '#3B82F6', '#EF4444', '#8B5CF6'];
 
   return (
-    <div className="bg-fittree-bg min-h-screen pb-24 pt-32">
-      <div className="max-w-[1200px] mx-auto px-6 flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-        <h1 className="text-3xl font-bold text-fittree-text">Store Analytics</h1>
-        <div className="flex flex-wrap gap-4">
-          <Link to="/admin/orders" className="btn bg-white border border-fittree-border hover:border-fittree-primary text-fittree-text font-bold px-5 py-2.5 rounded-xl shadow-sm transition-all">Manage Orders</Link>
-          <Link to="/admin/products" className="btn bg-white border border-fittree-border hover:border-fittree-primary text-fittree-text font-bold px-5 py-2.5 rounded-xl shadow-sm transition-all">Manage Products</Link>
-        </div>
-      </div>
-
-      <div className="max-w-[1200px] mx-auto px-6 relative z-10">
+    <AdminLayout
+      title="Store Analytics"
+      actions={
+        <>
+          <Link to="/admin/orders" className="bg-white border border-fittree-border hover:border-fittree-primary text-fittree-text font-bold px-4 py-2.5 rounded-xl shadow-sm transition-all text-[13.5px]">Manage Orders</Link>
+          <Link to="/admin/products" className="bg-white border border-fittree-border hover:border-fittree-primary text-fittree-text font-bold px-4 py-2.5 rounded-xl shadow-sm transition-all text-[13.5px]">Manage Products</Link>
+          <Link to="/admin/coupons" className="flex items-center gap-2 bg-fittree-primary text-white font-bold px-4 py-2.5 rounded-xl shadow-sm hover:shadow-md transition-all text-[13.5px]"><Tag size={15} /> Coupons</Link>
+        </>
+      }
+    >
+      <div className="relative z-10">
         {loading ? (
           <div className="bg-white p-12 rounded-2xl shadow-sm border border-fittree-border flex justify-center py-20">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-fittree-primary"></div>
@@ -217,7 +219,7 @@ const AdminDashboard = () => {
           </div>
         )}
       </div>
-    </div>
+    </AdminLayout>
   );
 };
 

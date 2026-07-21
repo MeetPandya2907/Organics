@@ -4,23 +4,23 @@ import Meta from '../components/Meta';
 
 const ContactPage = () => {
   return (
-    <div className="bg-paper min-h-screen pb-24">
+    <div className="bg-white min-h-screen pb-24">
       <Meta title="FitTree Organics | Contact Us" />
       {/* Header */}
-      <div className="bg-ink pt-32 pb-48 px-6 text-center shadow-2xl shadow-black/5 relative overflow-hidden">
-        <div className="absolute inset-0 bg-forest/20 mix-blend-overlay"></div>
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-turmeric/10 rounded-full blur-[100px] pointer-events-none"></div>
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-forest/20 rounded-full blur-[80px] pointer-events-none"></div>
+      <div className="bg-fittree-primary pt-32 pb-48 px-6 text-center shadow-2xl shadow-black/10 relative overflow-hidden">
+        <div className="absolute inset-0 bg-black/10"></div>
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-white/10 rounded-full blur-[100px] pointer-events-none"></div>
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-white/5 rounded-full blur-[80px] pointer-events-none"></div>
         
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl mx-auto relative z-10">
           <div className="flex items-center justify-center gap-2 mb-6">
-            <span className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center border border-white/20 backdrop-blur-md">
-              <Sparkles size={18} className="text-turmeric" />
+            <span className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center border border-white/30 backdrop-blur-md">
+              <Sparkles size={18} className="text-white" />
             </span>
-            <span className="text-turmeric font-bold uppercase tracking-widest text-xs">Get In Touch</span>
+            <span className="text-white/80 font-bold uppercase tracking-widest text-xs">Get In Touch</span>
           </div>
           <h1 className="text-5xl md:text-7xl font-display font-bold text-white mb-6 leading-tight">Let's Connect</h1>
-          <p className="text-xl text-slate-300 font-medium leading-relaxed max-w-lg mx-auto">
+          <p className="text-xl text-white/70 font-medium leading-relaxed max-w-lg mx-auto">
             Questions about an order, a product, or where your spices come from? We'd love to hear from you.
           </p>
         </motion.div>

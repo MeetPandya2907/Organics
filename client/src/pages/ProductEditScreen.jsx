@@ -117,8 +117,8 @@ const ProductEditScreen = () => {
   };
 
   return (
-    <div className="bg-paper min-h-screen pb-24">
-      <div className="bg-forest pt-32 pb-24 px-6 rounded-b-[3rem] shadow-2xl shadow-black/5 mb-[-80px]">
+    <div className="bg-fittree-bg min-h-screen pb-24">
+      <div className="bg-fittree-primary pt-32 pb-24 px-6 rounded-b-[3rem] shadow-2xl shadow-black/5 mb-[-80px]">
         <div className="max-w-[800px] mx-auto flex items-center gap-4 text-white">
           <Link to="/admin/products" className="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-colors">
             <ArrowLeft size={20} />
@@ -128,69 +128,69 @@ const ProductEditScreen = () => {
       </div>
 
       <div className="max-w-[800px] mx-auto px-6 relative z-10">
-        <div className="bg-white p-8 md:p-12 rounded-[2rem] shadow-glass border border-gray-100">
-          {loadingUpdate && <div className="text-leaf mb-4 font-medium">Updating...</div>}
+        <div className="bg-white p-8 md:p-12 rounded-[2rem] shadow-sm border border-gray-100">
+          {loadingUpdate && <div className="text-fittree-primary mb-4 font-medium">Updating...</div>}
           {errorUpdate && <div className="bg-red-50 text-red-600 p-4 rounded-xl mb-4 flex items-center gap-2"><AlertCircle size={16}/> {errorUpdate}</div>}
           
           {loading ? (
-             <div className="flex justify-center py-20"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-leaf"></div></div>
+             <div className="flex justify-center py-20"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-fittree-primary"></div></div>
           ) : error ? (
             <div className="bg-red-50 text-red-600 p-6 rounded-xl flex items-center gap-3"><AlertCircle /> {error}</div>
           ) : (
             <form onSubmit={submitHandler} className="space-y-6">
               
               <div>
-                <label className="block text-sm font-medium text-ink mb-2">Name</label>
+                <label className="block text-sm font-medium text-fittree-text mb-2">Name</label>
                 <input 
                   type="text" 
                   value={name} 
                   onChange={(e) => setName(e.target.value)} 
-                  className="w-full bg-paper border-none rounded-xl py-3 px-4 focus:ring-2 focus:ring-leaf outline-none"
+                  className="w-full bg-fittree-bg border-none rounded-xl py-3 px-4 focus:ring-2 focus:ring-fittree-primary outline-none"
                   required
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-ink mb-2">Price (₹)</label>
+                  <label className="block text-sm font-medium text-fittree-text mb-2">Price (₹)</label>
                   <input 
                     type="number" 
                     value={price} 
                     onChange={(e) => setPrice(e.target.value)} 
-                    className="w-full bg-paper border-none rounded-xl py-3 px-4 focus:ring-2 focus:ring-leaf outline-none"
+                    className="w-full bg-fittree-bg border-none rounded-xl py-3 px-4 focus:ring-2 focus:ring-fittree-primary outline-none"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-ink mb-2">Count In Stock</label>
+                  <label className="block text-sm font-medium text-fittree-text mb-2">Count In Stock</label>
                   <input 
                     type="number" 
                     value={countInStock} 
                     onChange={(e) => setCountInStock(e.target.value)} 
-                    className="w-full bg-paper border-none rounded-xl py-3 px-4 focus:ring-2 focus:ring-leaf outline-none"
+                    className="w-full bg-fittree-bg border-none rounded-xl py-3 px-4 focus:ring-2 focus:ring-fittree-primary outline-none"
                     required
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-ink mb-2">Primary Image URL</label>
+                <label className="block text-sm font-medium text-fittree-text mb-2">Primary Image URL</label>
                 <div className="flex gap-4 items-center mb-6">
                   <input 
                     type="text" 
                     value={image} 
                     onChange={(e) => setImage(e.target.value)} 
-                    className="w-full bg-paper border-none rounded-xl py-3 px-4 focus:ring-2 focus:ring-leaf outline-none"
+                    className="w-full bg-fittree-bg border-none rounded-xl py-3 px-4 focus:ring-2 focus:ring-fittree-primary outline-none"
                     required
                   />
-                  <label className="btn bg-white border border-gray-200 text-ink cursor-pointer hover:bg-gray-50 flex-shrink-0 whitespace-nowrap">
+                  <label className="btn bg-white border border-gray-200 text-fittree-text cursor-pointer hover:bg-gray-50 flex-shrink-0 whitespace-nowrap">
                     {uploading ? 'Uploading...' : 'Upload File'}
                     <input type="file" className="hidden" onChange={uploadFileHandler} />
                   </label>
                 </div>
 
-                <label className="block text-sm font-medium text-ink mb-2">Gallery Images (Optional)</label>
-                <div className="bg-paper p-6 rounded-2xl border border-slate-100 mb-6">
+                <label className="block text-sm font-medium text-fittree-text mb-2">Gallery Images (Optional)</label>
+                <div className="bg-fittree-bg p-6 rounded-2xl border border-slate-100 mb-6">
                   <div className="flex flex-wrap gap-4 mb-4">
                     {images.map((img, index) => (
                       <div key={index} className="relative w-24 h-24 rounded-xl overflow-hidden border border-slate-200 shadow-sm group">
@@ -204,7 +204,7 @@ const ProductEditScreen = () => {
                         </button>
                       </div>
                     ))}
-                    <label className="w-24 h-24 rounded-xl border-2 border-dashed border-slate-300 flex flex-col items-center justify-center text-slate-400 hover:text-leaf hover:border-leaf hover:bg-leaf/5 cursor-pointer transition-colors">
+                    <label className="w-24 h-24 rounded-xl border-2 border-dashed border-slate-300 flex flex-col items-center justify-center text-slate-400 hover:text-fittree-primary hover:border-fittree-primary hover:bg-leaf/5 cursor-pointer transition-colors">
                       <Plus size={24} className="mb-1" />
                       <span className="text-[10px] font-bold uppercase tracking-wider">Add Image</span>
                       <input type="file" className="hidden" onChange={uploadGalleryHandler} />
@@ -215,11 +215,11 @@ const ProductEditScreen = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-ink mb-2">Category</label>
+                <label className="block text-sm font-medium text-fittree-text mb-2">Category</label>
                 <select 
                   value={category} 
                   onChange={(e) => setCategory(e.target.value)}
-                  className="w-full bg-paper border-none rounded-xl py-3 px-4 focus:ring-2 focus:ring-leaf outline-none"
+                  className="w-full bg-fittree-bg border-none rounded-xl py-3 px-4 focus:ring-2 focus:ring-fittree-primary outline-none"
                 >
                   <option value="SPICES">Spices</option>
                   <option value="PULSES">Pulses</option>
@@ -229,11 +229,11 @@ const ProductEditScreen = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-ink mb-2">Description</label>
+                <label className="block text-sm font-medium text-fittree-text mb-2">Description</label>
                 <textarea 
                   value={description} 
                   onChange={(e) => setDescription(e.target.value)} 
-                  className="w-full bg-paper border-none rounded-xl py-3 px-4 focus:ring-2 focus:ring-leaf outline-none min-h-[120px]"
+                  className="w-full bg-fittree-bg border-none rounded-xl py-3 px-4 focus:ring-2 focus:ring-fittree-primary outline-none min-h-[120px]"
                   required
                 ></textarea>
               </div>

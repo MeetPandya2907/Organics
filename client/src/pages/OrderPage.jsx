@@ -342,6 +342,12 @@ const OrderPage = () => {
                 <span>Tax</span>
                 <span className="font-bold">₹{order.taxPrice}</span>
               </div>
+              {order.discountAmount > 0 && (
+                <div className="flex justify-between text-green-600 font-medium text-[15px]">
+                  <span>Coupon {order.couponCode ? `(${order.couponCode})` : ''}</span>
+                  <span className="font-bold">−₹{order.discountAmount}</span>
+                </div>
+              )}
             </div>
 
             <div className="flex justify-between items-end mb-8">

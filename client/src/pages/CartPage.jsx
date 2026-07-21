@@ -1,20 +1,30 @@
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useStore } from '../store/useStore';
-import { Trash2, Minus, Plus, ShoppingBag, ArrowRight, ShieldCheck, Leaf } from 'lucide-react';
+import { Trash2, Minus, Plus, ShoppingBag, ArrowRight, ShieldCheck, Leaf, Tag, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const CartPage = () => {
   const navigate = useNavigate();
-  const { cart, removeFromCart, addToCart } = useStore();
-  
+  const { cart, removeFromCart, addToCart, coupon, applyCoupon, removeCoupon, couponLoading } = useStore();
+  const [couponInput, setCouponInput] = useState('');
+
   const subtotal = cart.reduce((acc, item) => acc + item.price * item.qty, 0);
   const shipping = subtotal > 0 ? (subtotal > 1000 ? 0 : 50) : 0;
-  const total = subtotal + shipping;
+  const discount = coupon ? coupon.discountAmount : 0;
+  const total = Math.max(subtotal + shipping - discount, 0);
 
   const updateQty = (item, newQty) => {
     if (newQty > 0) {
       addToCart(item, newQty);
     }
+  };
+
+  const applyCouponHandler = async (e) => {
+    e.preventDefault();
+    if (!couponInput.trim()) return;
+    const ok = await applyCoupon(couponInput.trim(), subtotal);
+    if (ok) setCouponInput('');
   };
 
   return (
@@ -112,7 +122,7 @@ const CartPage = () => {
                 
                 <h2 className="text-[20px] font-bold text-fittree-text mb-8 relative z-10">Order Summary</h2>
                 
-                <div className="space-y-4 mb-8 relative z-10 border-b border-fittree-border pb-8">
+                <div className="space-y-4 mb-6 relative z-10">
                   <div className="flex justify-between text-fittree-text-light font-medium text-[15px]">
                     <span>Subtotal</span>
                     <span className="font-bold text-fittree-text">₹{subtotal.toFixed(2)}</span>
@@ -121,8 +131,48 @@ const CartPage = () => {
                     <span>Estimated Shipping</span>
                     <span className="font-bold text-fittree-text">{shipping === 0 ? 'Free' : `₹${shipping.toFixed(2)}`}</span>
                   </div>
+                  {coupon && (
+                    <div className="flex justify-between text-green-600 font-medium text-[15px]">
+                      <span>Coupon ({coupon.code})</span>
+                      <span className="font-bold">−₹{discount.toFixed(2)}</span>
+                    </div>
+                  )}
                 </div>
-                
+
+                {/* Coupon input */}
+                <div className="mb-8 pb-8 border-b border-fittree-border relative z-10">
+                  {coupon ? (
+                    <div className="flex items-center justify-between bg-green-50 border border-green-200 rounded-xl px-4 py-3">
+                      <div className="flex items-center gap-2 text-green-700 font-bold text-[13px]">
+                        <Tag size={14} /> {coupon.code} applied
+                      </div>
+                      <button onClick={removeCoupon} className="text-green-700 hover:text-red-600 transition-colors" title="Remove coupon">
+                        <X size={16} />
+                      </button>
+                    </div>
+                  ) : (
+                    <form onSubmit={applyCouponHandler} className="flex gap-2">
+                      <div className="relative flex-1">
+                        <Tag size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-fittree-text-light" />
+                        <input
+                          type="text"
+                          value={couponInput}
+                          onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                          placeholder="Have a coupon code?"
+                          className="w-full pl-10 pr-3 py-3 rounded-xl border border-fittree-border bg-fittree-bg focus:outline-none focus:border-fittree-primary text-[13.5px] text-fittree-text uppercase"
+                        />
+                      </div>
+                      <button
+                        type="submit"
+                        disabled={couponLoading || !couponInput.trim()}
+                        className="px-5 py-3 rounded-xl bg-fittree-text text-white font-bold text-[13px] hover:bg-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+                      >
+                        {couponLoading ? '...' : 'Apply'}
+                      </button>
+                    </form>
+                  )}
+                </div>
+
                 {shipping > 0 && (
                   <div className="mb-8 relative z-10">
                     <div className="bg-fittree-primary/10 border border-fittree-primary/20 p-4 rounded-xl flex items-start gap-3">
@@ -141,6 +191,9 @@ const CartPage = () => {
                   <div className="text-right">
                     <span className="text-[10px] text-fittree-text-light block mb-1 font-bold tracking-widest">INCLUDING GST</span>
                     <span className="text-3xl sm:text-4xl font-bold text-fittree-text leading-none">₹{total.toFixed(2)}</span>
+                    {discount > 0 && (
+                      <span className="block text-[11px] text-green-600 font-bold mt-1">You saved ₹{discount.toFixed(2)}</span>
+                    )}
                   </div>
                 </div>
                 

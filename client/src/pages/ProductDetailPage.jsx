@@ -4,6 +4,7 @@ import { ChevronRight, Minus, Plus, ShoppingCart, Star, ShieldCheck, ArrowLeft, 
 import { useStore } from '../store/useStore';
 import toast from 'react-hot-toast';
 import Meta from '../components/Meta';
+import NotifyMeForm from '../components/NotifyMeForm';
 import { getVariants, getRegion, getBaseUnit } from '../utils/units';
 
 const ProductDetailPage = () => {
@@ -214,6 +215,10 @@ const ProductDetailPage = () => {
                       Add to Cart
                     </button>
                   </div>
+                )}
+
+                {product.countInStock === 0 && (
+                  <NotifyMeForm product={product} />
                 )}
               </div>
 

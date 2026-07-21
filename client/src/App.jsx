@@ -22,6 +22,7 @@ import ProductListScreen from './pages/ProductListScreen';
 import ProductEditScreen from './pages/ProductEditScreen';
 import OrderListScreen from './pages/OrderListScreen';
 import UserListScreen from './pages/UserListScreen';
+import CouponListScreen from './pages/CouponListScreen';
 import AdminLogin from './pages/AdminLogin';
 import ScrollToTop from './components/ScrollToTop';
 import { Toaster } from 'react-hot-toast';
@@ -79,6 +80,7 @@ function App() {
             <Route path="/admin/product/:id/edit" element={<ProductEditScreen />} />
             <Route path="/admin/orders" element={<OrderListScreen />} />
             <Route path="/admin/users" element={<UserListScreen />} />
+            <Route path="/admin/coupons" element={<CouponListScreen />} />
           </Routes>
         </main>
         <Footer />

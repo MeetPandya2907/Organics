@@ -25,18 +25,18 @@ const PaymentPage = () => {
   };
 
   return (
-    <div className="bg-paper min-h-screen pb-24">
+    <div className="bg-white min-h-screen pb-24">
       {/* Checkout Steps Header */}
-      <div className="bg-ink pt-32 pb-32 px-6 shadow-2xl shadow-black/5 relative overflow-hidden">
-        <div className="absolute inset-0 bg-forest/20 mix-blend-overlay"></div>
+      <div className="bg-fittree-primary pt-32 pb-32 px-6 shadow-2xl shadow-black/10 relative overflow-hidden">
+        <div className="absolute inset-0 bg-black/10"></div>
         <div className="max-w-[800px] mx-auto text-center relative z-10">
           <h1 className="text-4xl md:text-5xl font-display text-white mb-10 font-bold">Checkout</h1>
           <div className="flex justify-center items-center gap-2 sm:gap-6 text-[10px] sm:text-xs font-bold uppercase tracking-widest">
-            <div className="flex items-center gap-3 text-slate-300"><div className="w-8 h-8 rounded-full bg-white/10 text-white flex items-center justify-center">1</div> <span className="hidden sm:inline">Shipping</span></div>
-            <div className="w-8 sm:w-16 h-[2px] bg-white/20 rounded-full"></div>
-            <div className="flex items-center gap-3 text-turmeric"><div className="w-8 h-8 rounded-full bg-turmeric text-ink flex items-center justify-center shadow-lg shadow-turmeric/20">2</div> <span className="hidden sm:inline">Payment</span></div>
-            <div className="w-8 sm:w-16 h-[2px] bg-white/20 rounded-full"></div>
-            <div className="flex items-center gap-3 text-slate-500"><div className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">3</div> <span className="hidden sm:inline">Review</span></div>
+            <div className="flex items-center gap-3 text-white/50"><div className="w-8 h-8 rounded-full bg-white/10 border border-white/20 text-white flex items-center justify-center">1</div> <span className="hidden sm:inline">Shipping</span></div>
+            <div className="w-8 sm:w-16 h-[2px] bg-white/30 rounded-full"></div>
+            <div className="flex items-center gap-3 text-white"><div className="w-8 h-8 rounded-full bg-white text-fittree-primary flex items-center justify-center shadow-lg">2</div> <span className="hidden sm:inline">Payment</span></div>
+            <div className="w-8 sm:w-16 h-[2px] bg-white/30 rounded-full"></div>
+            <div className="flex items-center gap-3 text-white/50"><div className="w-8 h-8 rounded-full bg-white/10 border border-white/20 flex items-center justify-center">3</div> <span className="hidden sm:inline">Review</span></div>
           </div>
         </div>
       </div>
