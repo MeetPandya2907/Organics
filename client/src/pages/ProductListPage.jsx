@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Meta from '../components/Meta';
 import Paginate from '../components/Paginate';
 import ProductSkeleton from '../components/ProductSkeleton';
+import ProductCard from '../components/ProductCard';
 import { getBaseUnit, getRegion, getCashback } from '../utils/units';
 
 const CATEGORY_ICONS = {
@@ -161,57 +162,8 @@ const ProductListPage = () => {
                       layout
                       initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.4, delay: (idx % 6) * 0.05 }}
                       key={product._id}
-                      className="product-card group bg-white"
                     >
-                      <div className="relative h-[190px] sm:h-[210px] bg-fittree-sand overflow-hidden">
-                        <span className="absolute top-3 left-3 z-10 bg-white/95 backdrop-blur-sm border border-fittree-border text-fittree-text text-[10px] font-bold px-2 py-1 rounded-md shadow-sm">{getBaseUnit(product)}</span>
-                        {product.countInStock === 0 ? (
-                          <span className="absolute top-3 right-3 z-10 bg-fittree-pink text-white text-[9px] font-bold uppercase tracking-widest px-2 py-1 rounded-md shadow-sm">Sold Out</span>
-                        ) : (
-                          <button
-                            onClick={(e) => { e.preventDefault(); toggleWishlist(product); }}
-                            className={`absolute top-3 right-3 z-10 w-9 h-9 rounded-full bg-white shadow-sm flex items-center justify-center transition-colors ${
-                              wishlist.some(w => w._id === product._id) ? 'text-fittree-pink' : 'text-fittree-text-light hover:text-fittree-pink'
-                            }`}
-                            title="Save to wishlist"
-                          >
-                            <Heart size={16} fill={wishlist.some(w => w._id === product._id) ? 'currentColor' : 'none'} />
-                          </button>
-                        )}
-                        <Link to={`/product/${product._id}`} className="block w-full h-full">
-                          <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                        </Link>
-                      </div>
-
-                      <div className="flex flex-col flex-1 p-4">
-                        <div className="flex items-center justify-between mb-1.5">
-                          <span className="text-[10px] text-fittree-primary font-bold uppercase tracking-wider">{getRegion(product)}</span>
-                          <span className="flex items-center gap-1 text-[11px] font-bold text-fittree-text-light">
-                            <Star size={11} className="text-fittree-accent fill-fittree-accent" /> {product.rating?.toFixed(1) || '—'}
-                          </span>
-                        </div>
-                        <Link to={`/product/${product._id}`}>
-                          <h3 className="text-[14.5px] font-bold text-fittree-text leading-snug hover:text-fittree-primary transition-colors line-clamp-2 mb-3">{product.name}</h3>
-                        </Link>
-
-                        <div className="mt-auto flex items-center justify-between gap-2 pt-3 border-t border-fittree-border">
-                          <span className="text-[16px] font-extrabold text-fittree-text">₹{product.price}<span className="text-[10.5px] text-fittree-text-light font-semibold">/{getBaseUnit(product)}</span></span>
-                          <button
-                            disabled={product.countInStock === 0}
-                            onClick={(e) => {
-                              e.preventDefault();
-                              addToCart({ ...product, qty: 1 }, 1);
-                            }}
-                            className={`px-4 py-2 rounded-lg font-bold text-[12px] transition-all flex items-center gap-1.5 uppercase tracking-wider shrink-0 ${
-                              product.countInStock === 0
-                                ? 'bg-fittree-sand text-fittree-text-light cursor-not-allowed'
-                                : 'bg-fittree-primary text-white hover:bg-fittree-primary-soft shadow-sm'
-                            }`}
-                          >
-                            <ShoppingCart size={13} /> {product.countInStock === 0 ? 'Sold' : 'Add'}
-                          </button>
-                        </div>
-                      </div>
+                      <ProductCard product={product} index={idx} />
                     </motion.div>
                   ))}
                 </motion.div>

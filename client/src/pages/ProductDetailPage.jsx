@@ -20,6 +20,7 @@ const ProductDetailPage = () => {
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
   const [selectedVariant, setSelectedVariant] = useState(null);
+  const [selectedImage, setSelectedImage] = useState(null);
 
   const relatedProducts = product ? products.filter(p => p.category === product.category && p._id !== product._id && p.price > 0 && p.name !== 'Sample name').slice(0, 4) : [];
 
@@ -38,6 +39,7 @@ const ProductDetailPage = () => {
   useEffect(() => {
     if (product) {
       setSelectedVariant(getVariants(product).find((v) => v.isDefault) || getVariants(product)[0]);
+      setSelectedImage(product.image); // reset gallery selection on product change
       addRecentlyViewed(product);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -108,14 +110,44 @@ const ProductDetailPage = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
 
             {/* Left: Image Gallery */}
-            <div className="space-y-6">
-              <div className="aspect-square rounded-[2rem] overflow-hidden bg-fittree-sand relative flex items-center justify-center p-8 group">
+            <div className="space-y-4">
+              {/* Main image viewer */}
+              <div className="aspect-square rounded-[2rem] overflow-hidden bg-fittree-sand relative flex items-center justify-center p-8 group border border-fittree-border">
                 <img
-                  src={product.image}
+                  key={selectedImage || product.image}
+                  src={selectedImage || product.image}
                   alt={product.name}
                   className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-700"
                 />
               </div>
+
+              {/* Thumbnails — only if there are extra images */}
+              {(() => {
+                const extraImages = (product.images || []).filter(img => img && img !== product.image);
+                const allImages = [product.image, ...extraImages];
+                if (allImages.length <= 1) return null;
+                return (
+                  <div className="flex gap-3 overflow-x-auto pb-1 hide-scrollbar">
+                    {allImages.map((img, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setSelectedImage(img)}
+                        className={`shrink-0 w-[72px] h-[72px] rounded-xl overflow-hidden border-2 transition-all duration-200 bg-fittree-sand ${
+                          (selectedImage || product.image) === img
+                            ? 'border-fittree-primary shadow-md scale-105'
+                            : 'border-fittree-border hover:border-fittree-primary/50 opacity-70 hover:opacity-100'
+                        }`}
+                      >
+                        <img
+                          src={img}
+                          alt={`${product.name} view ${i + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      </button>
+                    ))}
+                  </div>
+                );
+              })()}
             </div>
 
             {/* Right: Product Info */}

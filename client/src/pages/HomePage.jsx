@@ -8,6 +8,7 @@ import {
 import { motion } from 'framer-motion';
 import Meta from '../components/Meta';
 import ProductSkeleton from '../components/ProductSkeleton';
+import ProductCard from '../components/ProductCard';
 import { getBaseUnit, getRegion } from '../utils/units';
 
 const CATEGORIES = [
@@ -162,50 +163,12 @@ const HomePage = () => {
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
             {sellableProducts.slice(0, 8).map((product, idx) => (
-              <div key={product._id} className="product-card group bg-white">
-                <div className="relative h-[190px] sm:h-[210px] bg-fittree-sand overflow-hidden">
-                  {idx === 0 && <span className="absolute top-3 left-3 z-10 bg-fittree-accent text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md shadow-sm">Bestseller</span>}
-                  <button
-                    onClick={(e) => { e.preventDefault(); toggleWishlist(product); }}
-                    className={`absolute top-3 right-3 z-10 w-9 h-9 rounded-full bg-white shadow-sm flex items-center justify-center transition-colors ${
-                      isSaved(product._id) ? 'text-fittree-pink' : 'text-fittree-text-light hover:text-fittree-pink'
-                    }`}
-                    title="Save to wishlist"
-                  >
-                    <Heart size={16} fill={isSaved(product._id) ? 'currentColor' : 'none'} />
-                  </button>
-                  <Link to={`/product/${product._id}`} className="block w-full h-full">
-                    <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                  </Link>
-                </div>
-
-                <div className="flex flex-col flex-1 p-4">
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-[10px] text-fittree-primary font-bold uppercase tracking-wider">{getRegion(product)}</span>
-                    <span className="flex items-center gap-1 text-[11px] font-bold text-fittree-text-light">
-                      <Star size={11} className="text-fittree-accent fill-fittree-accent" /> {product.rating?.toFixed(1) || '—'}
-                    </span>
-                  </div>
-                  <Link to={`/product/${product._id}`}>
-                    <h4 className="text-[14.5px] font-bold text-fittree-text leading-snug line-clamp-2 hover:text-fittree-primary transition-colors mb-3">{product.name}</h4>
-                  </Link>
-
-                  <div className="mt-auto flex items-center justify-between gap-2 pt-3 border-t border-fittree-border">
-                    <span className="text-[16px] font-extrabold text-fittree-text">₹{product.price}<span className="text-[10.5px] text-fittree-text-light font-semibold">/{getBaseUnit(product)}</span></span>
-                    <button
-                      onClick={(e) => quickAdd(e, product)}
-                      disabled={product.countInStock === 0}
-                      className={`px-4 py-2 rounded-lg font-bold text-[12px] transition-all flex items-center gap-1.5 uppercase tracking-wider shrink-0 ${
-                        product.countInStock === 0
-                          ? 'bg-fittree-sand text-fittree-text-light cursor-not-allowed'
-                          : 'bg-fittree-primary text-white hover:bg-fittree-primary-soft shadow-sm'
-                      }`}
-                    >
-                      <ShoppingCart size={13} /> {product.countInStock === 0 ? 'Sold' : 'Add'}
-                    </button>
-                  </div>
-                </div>
-              </div>
+              <ProductCard
+                key={product._id}
+                product={product}
+                index={idx}
+                badge={idx === 0 ? 'Bestseller' : idx === 1 ? 'Popular' : null}
+              />
             ))}
           </div>
         )}

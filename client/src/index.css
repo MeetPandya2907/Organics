@@ -5,6 +5,8 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   body {
@@ -12,12 +14,16 @@
   }
 
   ::selection {
-    background-color: #EA580C; /* fittree-accent */
+    background-color: #16A34A; /* fittree-primary */
     color: white;
   }
 
   h1, h2, h3, h4, h5, h6 {
     @apply font-display text-fittree-text tracking-tight font-bold;
+  }
+
+  * {
+    scroll-behavior: smooth;
   }
 }
 
@@ -27,18 +33,18 @@
   }
 
   .btn-primary {
-    background-color: #16A34A; /* fittree-primary */
+    background-color: #16A34A;
     color: white;
-    @apply hover:shadow-md hover:-translate-y-0.5;
+    @apply hover:shadow-lg hover:-translate-y-0.5 active:scale-95;
   }
   .btn-primary:hover {
     background-color: #15803D;
   }
 
   .btn-accent {
-    background-color: #EA580C; /* fittree-accent */
+    background-color: #EA580C;
     color: white;
-    @apply hover:shadow-md hover:-translate-y-0.5;
+    @apply hover:shadow-lg hover:-translate-y-0.5 active:scale-95;
   }
   .btn-accent:hover {
     background-color: #C2410C;
@@ -48,8 +54,13 @@
     @apply border-2 border-fittree-primary text-fittree-primary bg-white hover:bg-fittree-primary hover:text-white;
   }
 
+  /* ── Premium Product Card ── */
   .product-card {
-    @apply bg-white rounded-2xl border border-fittree-border overflow-hidden transition-all duration-300 relative flex flex-col hover:shadow-xl hover:border-fittree-primary/30 hover:-translate-y-1;
+    @apply bg-white rounded-2xl border border-fittree-border overflow-hidden
+           transition-all duration-300 relative flex flex-col
+           hover:shadow-[0_20px_50px_-12px_rgba(22,163,74,0.18)]
+           hover:border-fittree-primary/40
+           hover:-translate-y-1.5;
   }
 
   .form-group {
@@ -71,14 +82,45 @@
   .eyebrow {
     @apply text-[11px] font-bold uppercase tracking-widest text-fittree-primary;
   }
+
+  /* ── Scroll To Top Button ── */
+  .scroll-top-btn {
+    @apply fixed bottom-6 right-6 z-50 w-11 h-11 rounded-full bg-fittree-primary text-white
+           flex items-center justify-center shadow-lg hover:bg-fittree-primary-soft
+           transition-all duration-300 hover:-translate-y-1 hover:shadow-xl;
+  }
 }
 
 /* Hide scrollbar for carousels */
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
 }
-
 .hide-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* Custom scrollbar for main content */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #F8FAFC;
+}
+::-webkit-scrollbar-thumb {
+  background: #D1D5DB;
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #16A34A;
+}
+
+/* Fade-in animation for lazy-loaded images */
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(1.02); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.img-fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
