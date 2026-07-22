@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useStore } from '../store/useStore';
-import { ShoppingCart, Search as SearchIcon, SlidersHorizontal, ChevronDown, Star, Flame, Wheat, Sprout, PackageOpen, LayoutGrid, Heart } from 'lucide-react';
+import { ShoppingCart, Search as SearchIcon, SlidersHorizontal, ChevronDown, Star, Flame, Wheat, Sprout, PackageOpen, LayoutGrid, Leaf, Heart } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import axios from 'axios';
 import Meta from '../components/Meta';
 import Paginate from '../components/Paginate';
 import ProductSkeleton from '../components/ProductSkeleton';
@@ -16,6 +17,7 @@ const CATEGORY_ICONS = {
   SEEDS: Sprout,
   'DEHYDRATED PRODUCTS': PackageOpen,
 };
+const DEFAULT_CATEGORY_ICON = Leaf;
 
 const ProductListPage = () => {
   const { keyword, pageNumber } = useParams();
@@ -27,6 +29,7 @@ const ProductListPage = () => {
   const [category, setCategory] = useState('All');
   const [sort, setSort] = useState('');
   const [showFilters, setShowFilters] = useState(false);
+  const [categories, setCategories] = useState(['All']);
 
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
@@ -44,7 +47,11 @@ const ProductListPage = () => {
     fetchProducts(keyword || '', pageNumber || '', category, '', '', sort);
   }, [fetchProducts, keyword, pageNumber, category, sort]);
 
-  const categories = ['All', 'SPICES', 'PULSES', 'SEEDS', 'DEHYDRATED PRODUCTS'];
+  useEffect(() => {
+    axios.get('/api/categories').then(({ data }) => {
+      setCategories(['All', ...data.map((c) => c.name)]);
+    }).catch(() => {});
+  }, []);
 
   return (
     <div className="bg-fittree-bg min-h-screen font-sans pb-24 pt-[100px] selection:bg-fittree-accent selection:text-white">
@@ -66,7 +73,7 @@ const ProductListPage = () => {
         {/* Quick category pills */}
         <div className="flex gap-3 overflow-x-auto pb-4 mb-8 -mx-1 px-1 hide-scrollbar">
           {categories.map((c) => {
-            const Icon = CATEGORY_ICONS[c];
+            const Icon = CATEGORY_ICONS[c] || DEFAULT_CATEGORY_ICON;
             return (
               <button
                 key={c}

@@ -8,13 +8,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import AdminLayout from '../components/AdminLayout';
 import { exportCsv } from '../utils/exportCsv';
 
-const CATEGORIES = ['All', 'SPICES', 'PULSES', 'SEEDS', 'DEHYDRATED PRODUCTS'];
-
 const ProductListScreen = () => {
   const { userInfo } = useStore();
   const navigate = useNavigate();
 
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
@@ -40,6 +39,7 @@ const ProductListScreen = () => {
   useEffect(() => {
     if (userInfo && userInfo.isAdmin) {
       fetchProducts();
+      axios.get('/api/categories').then(({ data }) => setCategories(data)).catch(() => {});
     } else {
       navigate('/login');
     }
@@ -69,14 +69,10 @@ const ProductListScreen = () => {
     }
   };
 
-  const createProductHandler = async () => {
-    try {
-      const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
-      const { data } = await axios.post('/api/products', {}, config);
-      navigate(`/admin/product/${data._id}/edit`);
-    } catch (err) {
-      toast.error(err.response && err.response.data.message ? err.response.data.message : err.message);
-    }
+  const createProductHandler = () => {
+    // Navigates to a blank create form — nothing is saved to the database
+    // until the admin actually submits it.
+    navigate('/admin/product/new/edit');
   };
 
   const startEditStock = (product) => {
@@ -154,7 +150,8 @@ const ProductListScreen = () => {
           onChange={(e) => setCategory(e.target.value)}
           className="px-4 py-2.5 rounded-xl border border-fittree-border bg-fittree-bg focus:outline-none focus:border-fittree-primary text-[13.5px] text-fittree-text font-medium"
         >
-          {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+          <option value="All">All</option>
+          {categories.map((c) => <option key={c._id} value={c.name}>{c.name}</option>)}
         </select>
         <select
           value={stockFilter}
@@ -207,6 +204,7 @@ const ProductListScreen = () => {
                             value={stockDraft}
                             onChange={(e) => setStockDraft(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && saveStock(product)}
+                            onWheel={(e) => e.target.blur()}
                             className="w-16 px-2 py-1 rounded-lg border border-fittree-primary text-[13px] text-fittree-text focus:outline-none"
                           />
                           <button onClick={() => saveStock(product)} className="w-7 h-7 rounded-full bg-fittree-primary text-white flex items-center justify-center shrink-0"><Check size={13} /></button>

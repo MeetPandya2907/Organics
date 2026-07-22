@@ -5,6 +5,8 @@ import { useStore } from '../store/useStore';
 import toast from 'react-hot-toast';
 import Meta from '../components/Meta';
 import NotifyMeForm from '../components/NotifyMeForm';
+import StarRating from '../components/StarRating';
+import ProductCard from '../components/ProductCard';
 import { getVariants, getRegion, getBaseUnit } from '../utils/units';
 
 const ProductDetailPage = () => {
@@ -318,19 +320,8 @@ const ProductDetailPage = () => {
                   {userInfo ? (
                     <form onSubmit={submitHandler} className="max-w-2xl bg-fittree-bg p-8 rounded-3xl border border-fittree-border shadow-sm">
                       <div className="form-group mb-6">
-                        <label className="form-label font-semibold text-fittree-text uppercase tracking-widest text-[12px]">Rating</label>
-                        <select
-                          value={rating}
-                          onChange={(e) => setRating(Number(e.target.value))}
-                          className="form-input !rounded-xl"
-                        >
-                          <option value="">Select...</option>
-                          <option value="1">1 - Poor</option>
-                          <option value="2">2 - Fair</option>
-                          <option value="3">3 - Good</option>
-                          <option value="4">4 - Very Good</option>
-                          <option value="5">5 - Excellent</option>
-                        </select>
+                        <label className="form-label font-semibold text-fittree-text uppercase tracking-widest text-[12px] block mb-3">Your Rating</label>
+                        <StarRating value={rating} onChange={setRating} size={32} />
                       </div>
                       <div className="form-group mb-8">
                         <label className="form-label font-semibold text-fittree-text uppercase tracking-widest text-[12px]">Comment</label>
@@ -396,68 +387,15 @@ const ProductDetailPage = () => {
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 mb-24">
           <h3 className="text-[22px] font-bold text-fittree-text mb-8">You May Also Like</h3>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-            {relatedProducts.map((p) => (
-              <div key={p._id} className="product-card group bg-white">
-                <div className="relative h-[190px] sm:h-[210px] bg-fittree-sand overflow-hidden">
-                  <span className="absolute top-3 left-3 z-10 bg-white/95 backdrop-blur-sm border border-fittree-border text-fittree-text text-[10px] font-bold px-2 py-1 rounded-md shadow-sm">{getBaseUnit(p)}</span>
-                  {p.countInStock === 0 && (
-                    <span className="absolute top-3 right-3 z-10 bg-fittree-pink text-white text-[9px] font-bold uppercase tracking-widest px-2 py-1 rounded-md shadow-sm">Sold Out</span>
-                  )}
-                  <Link to={`/product/${p._id}`} className="block w-full h-full">
-                    <img src={p.image} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                  </Link>
-                </div>
-
-                <div className="flex flex-col flex-1 p-4">
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-[10px] text-fittree-primary font-bold uppercase tracking-wider">{getRegion(p)}</span>
-                    <span className="flex items-center gap-1 text-[11px] font-bold text-fittree-text-light">
-                      <Star size={11} className="text-fittree-accent fill-fittree-accent" /> {p.rating?.toFixed(1) || '—'}
-                    </span>
-                  </div>
-                  <Link to={`/product/${p._id}`}>
-                    <h3 className="text-[14.5px] font-bold text-fittree-text leading-snug hover:text-fittree-primary transition-colors line-clamp-2 mb-3">{p.name}</h3>
-                  </Link>
-
-                  <div className="mt-auto flex items-center justify-between gap-2 pt-3 border-t border-fittree-border">
-                    <span className="text-[16px] font-extrabold text-fittree-text">₹{p.price}<span className="text-[10.5px] text-fittree-text-light font-semibold">/{getBaseUnit(p)}</span></span>
-                    <button
-                      disabled={p.countInStock === 0}
-                      onClick={(e) => quickAdd(e, p)}
-                      className={`px-4 py-2 rounded-lg font-bold text-[12px] transition-all flex items-center gap-1.5 uppercase tracking-wider shrink-0 ${
-                        p.countInStock === 0
-                          ? 'bg-fittree-sand text-fittree-text-light cursor-not-allowed'
-                          : 'bg-fittree-primary text-white hover:bg-fittree-primary-soft shadow-sm'
-                      }`}
-                    >
-                      <ShoppingCart size={13} /> {p.countInStock === 0 ? 'Sold' : 'Add'}
-                    </button>
-                  </div>
-                </div>
-              </div>
+            {relatedProducts.map((p, idx) => (
+              <ProductCard key={p._id} product={p} index={idx} />
             ))}
           </div>
         </div>
       )}
-
-      {/* Sticky mobile add-to-cart bar */}
-      {product.countInStock > 0 && (
-        <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-fittree-border shadow-[0_-8px_24px_rgba(0,0,0,0.06)] p-3 flex items-center gap-3 md:hidden">
-          <div className="shrink-0">
-            <span className="block text-[16px] font-bold text-fittree-text leading-none">₹{selectedVariant?.price ?? product.price}</span>
-            <span className="block text-[10px] text-fittree-text-light font-semibold mt-0.5">/{selectedVariant?.label}</span>
-          </div>
-          <button
-            onClick={addToCartHandler}
-            className="flex-1 btn btn-primary !h-[48px] flex items-center justify-center gap-2 rounded-xl text-[13px] uppercase tracking-wider"
-          >
-            <ShoppingCart size={16} /> Add to Cart
-          </button>
-        </div>
-      )}
-
     </div>
   );
 };
 
 export default ProductDetailPage;
+

@@ -13,6 +13,7 @@ const STATUS_TABS = [
   { key: 'unshipped', label: 'Not Shipped' },
   { key: 'undelivered', label: 'Not Delivered' },
   { key: 'completed', label: 'Completed' },
+  { key: 'cancelled', label: 'Cancelled' },
 ];
 
 const OrderListScreen = () => {
@@ -78,19 +79,21 @@ const OrderListScreen = () => {
         const matchesName = (o.user?.name || '').toLowerCase().includes(q);
         if (!matchesId && !matchesName) return false;
       }
-      if (statusTab === 'unpaid') return !o.isPaid;
-      if (statusTab === 'unshipped') return !o.isShipped;
-      if (statusTab === 'undelivered') return !o.isDelivered;
+      if (statusTab === 'unpaid') return !o.isPaid && !o.isCancelled;
+      if (statusTab === 'unshipped') return !o.isShipped && !o.isCancelled;
+      if (statusTab === 'undelivered') return !o.isDelivered && !o.isCancelled;
       if (statusTab === 'completed') return o.isPaid && o.isShipped && o.isDelivered;
+      if (statusTab === 'cancelled') return o.isCancelled;
       return true;
     });
   }, [orders, search, statusTab]);
 
   const counts = useMemo(() => ({
     all: orders.length,
-    unpaid: orders.filter((o) => !o.isPaid).length,
-    unshipped: orders.filter((o) => !o.isShipped).length,
-    undelivered: orders.filter((o) => !o.isDelivered).length,
+    unpaid: orders.filter((o) => !o.isPaid && !o.isCancelled).length,
+    unshipped: orders.filter((o) => !o.isShipped && !o.isCancelled).length,
+    undelivered: orders.filter((o) => !o.isDelivered && !o.isCancelled).length,
+    cancelled: orders.filter((o) => o.isCancelled).length,
     completed: orders.filter((o) => o.isPaid && o.isShipped && o.isDelivered).length,
   }), [orders]);
 
@@ -168,9 +171,12 @@ const OrderListScreen = () => {
               </thead>
               <tbody className="divide-y divide-fittree-border">
                 {filtered.map((order) => (
-                  <tr key={order._id} className="hover:bg-fittree-bg transition-colors">
+                  <tr key={order._id} className={`hover:bg-fittree-bg transition-colors ${order.isCancelled ? 'opacity-60' : ''}`}>
                     <td className="py-3 px-4 font-mono text-[12px] text-fittree-text-light">{order._id.substring(0, 8)}...</td>
-                    <td className="py-3 px-4 font-medium text-fittree-text text-[13.5px]">{order.user && order.user.name}</td>
+                    <td className="py-3 px-4 font-medium text-fittree-text text-[13.5px]">
+                      {order.user && order.user.name}
+                      {order.isCancelled && <span className="ml-2 px-2 py-0.5 bg-red-100 text-red-700 rounded-full text-[10px] font-bold uppercase align-middle">Cancelled</span>}
+                    </td>
                     <td className="py-3 px-4 text-[13px] text-fittree-text-light">{new Date(order.createdAt).toLocaleDateString()}</td>
                     <td className="py-3 px-4 text-fittree-primary font-semibold text-[13.5px]">₹{order.totalPrice}</td>
                     <td className="py-3 px-4 text-center">

@@ -33,6 +33,8 @@ import PrivacyPage from './pages/PrivacyPage';
 import BlogPage from './pages/BlogPage';
 import ShippingPolicyPage from './pages/ShippingPolicyPage';
 import RefundPolicyPage from './pages/RefundPolicyPage';
+import NotFoundPage from './pages/NotFoundPage';
+import WhatsAppButton from './components/WhatsAppButton';
 
 function App() {
   return (
@@ -81,9 +83,11 @@ function App() {
             <Route path="/admin/orders" element={<OrderListScreen />} />
             <Route path="/admin/users" element={<UserListScreen />} />
             <Route path="/admin/coupons" element={<CouponListScreen />} />
+            <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </main>
         <Footer />
+        <WhatsAppButton />
       </div>
     </Router>
   );

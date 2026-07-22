@@ -134,6 +134,41 @@ const updateOrderToShipped = async (req, res) => {
   }
 };
 
+// @desc    Cancel an order (customer, only before it has shipped)
+// @route   PUT /api/orders/:id/cancel
+// @access  Private
+const cancelOrder = async (req, res) => {
+  const order = await Order.findById(req.params.id);
+
+  if (!order) {
+    res.status(404).json({ message: 'Order not found' });
+    return;
+  }
+
+  const isOwner = order.user.toString() === req.user._id.toString();
+  if (!isOwner && !req.user.isAdmin) {
+    res.status(401).json({ message: 'Not authorized to cancel this order' });
+    return;
+  }
+
+  if (order.isShipped) {
+    res.status(400).json({ message: 'This order has already shipped and can no longer be cancelled. Please contact support.' });
+    return;
+  }
+
+  if (order.isCancelled) {
+    res.status(400).json({ message: 'This order is already cancelled' });
+    return;
+  }
+
+  order.isCancelled = true;
+  order.cancelledAt = Date.now();
+
+  await order.save();
+  const updatedOrder = await Order.findById(order._id).populate('user', 'name email');
+  res.json(updatedOrder);
+};
+
 export {
   addOrderItems,
   getOrderById,
@@ -142,4 +177,5 @@ export {
   getOrders,
   updateOrderToDelivered,
   updateOrderToShipped,
+  cancelOrder,
 };

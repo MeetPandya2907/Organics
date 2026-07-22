@@ -173,18 +173,33 @@ const CartPage = () => {
                   )}
                 </div>
 
-                {shipping > 0 && (
+                {subtotal > 0 && (
                   <div className="mb-8 relative z-10">
-                    <div className="bg-fittree-primary/10 border border-fittree-primary/20 p-4 rounded-xl flex items-start gap-3">
-                      <div className="w-8 h-8 bg-fittree-primary/20 text-fittree-primary flex items-center justify-center shrink-0 mt-0.5 rounded-lg">
-                        <ShoppingBag size={14} strokeWidth={3} />
-                      </div>
-                      <div className="text-[13px] text-fittree-text leading-relaxed font-medium">
-                        Add <strong className="text-fittree-primary">₹{(1000 - subtotal).toFixed(2)}</strong> more to your bag to get <strong>Free Shipping</strong>!
-                      </div>
+                    <div className="bg-fittree-bg border border-fittree-border rounded-2xl p-4">
+                      {subtotal < 1000 ? (
+                        <>
+                          <div className="flex items-center justify-between mb-2">
+                            <p className="text-[12px] font-semibold text-fittree-text">
+                              Add <span className="font-extrabold text-fittree-primary">₹{(1000 - subtotal).toFixed(0)}</span> more for <span className="font-extrabold">Free Shipping!</span>
+                            </p>
+                            <span className="text-[11px] font-bold text-fittree-text-light">{Math.round((subtotal / 1000) * 100)}%</span>
+                          </div>
+                          <div className="w-full h-2 bg-fittree-border rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-gradient-to-r from-fittree-primary to-green-400 rounded-full transition-all duration-700 ease-out"
+                              style={{ width: `${Math.min((subtotal / 1000) * 100, 100)}%` }}
+                            />
+                          </div>
+                        </>
+                      ) : (
+                        <div className="flex items-center gap-2 text-fittree-primary font-bold text-[13px]">
+                          <span className="text-lg">🎉</span> You've unlocked <span className="underline underline-offset-2">Free Shipping!</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
+
                 
                 <div className="flex justify-between items-end mb-10 relative z-10">
                   <span className="text-[14px] text-fittree-text-light font-bold uppercase tracking-widest">Total</span>

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useStore } from '../store/useStore';
 import { motion } from 'framer-motion';
-import { CheckCircle, MapPin, CreditCard, ShoppingBag, AlertCircle, Clock, Truck, ShieldCheck, Package, Home, ShoppingCart } from 'lucide-react';
+import { CheckCircle, MapPin, CreditCard, ShoppingBag, AlertCircle, Clock, Truck, ShieldCheck, Package, Home, ShoppingCart, XCircle, Ban } from 'lucide-react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
@@ -13,7 +13,24 @@ const OrderPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [paymentLoading, setPaymentLoading] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const navigate = useNavigate();
+
+  const cancelOrderHandler = async () => {
+    setCancelling(true);
+    try {
+      const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
+      const { data } = await axios.put(`/api/orders/${orderId}/cancel`, {}, config);
+      setOrder(data);
+      toast.success('Order cancelled');
+      setShowCancelConfirm(false);
+    } catch (err) {
+      toast.error(err.response && err.response.data.message ? err.response.data.message : err.message);
+    } finally {
+      setCancelling(false);
+    }
+  };
 
   useEffect(() => {
     const fetchOrder = async () => {
@@ -154,6 +171,17 @@ const OrderPage = () => {
     );
   }
 
+  // Compute current step 0-4
+  const currentStep = order
+    ? order.isDelivered
+      ? 4
+      : order.isShipped
+      ? 3
+      : order.isPaid || order.paymentMethod === 'CashOnDelivery'
+      ? 2
+      : 1
+    : 0;
+
   return (
     <div className="bg-fittree-bg min-h-screen pb-24 pt-32">
       {/* Header */}
@@ -165,14 +193,23 @@ const OrderPage = () => {
              <span className="font-mono bg-white px-2 py-0.5 rounded border border-fittree-border">{order._id}</span>
           </p>
         </div>
-        <div className="px-6 py-3 bg-white rounded-full border border-fittree-border font-bold flex items-center gap-2 shadow-sm">
-          <span className="text-xs uppercase tracking-widest text-fittree-text-light">Status</span>
-          {order.isDelivered ? (
-            <span className="text-green-600 flex items-center gap-1.5"><CheckCircle size={16} /> Delivered</span>
+        <div className={`px-6 py-3 rounded-full font-bold flex items-center gap-2 shadow-sm border ${
+          order.isDelivered ? 'bg-green-50 border-green-200 text-green-700' :
+          order.isShipped   ? 'bg-orange-50 border-orange-200 text-orange-600' :
+          order.isCancelled ? 'bg-red-50 border-red-200 text-red-600' :
+                              'bg-white border-fittree-border text-fittree-text'
+        }`}>
+          <span className="text-xs uppercase tracking-widest opacity-70">Status</span>
+          {order.isCancelled ? (
+            <span className="flex items-center gap-1.5"><Ban size={16} /> Cancelled</span>
+          ) : order.isDelivered ? (
+            <span className="flex items-center gap-1.5"><CheckCircle size={16} /> Delivered</span>
+          ) : order.isShipped ? (
+            <span className="flex items-center gap-1.5"><Truck size={16} /> Shipped</span>
           ) : order.isPaid ? (
-            <span className="text-fittree-accent flex items-center gap-1.5"><Truck size={16} /> Shipped</span>
+            <span className="flex items-center gap-1.5"><Package size={16} /> Processing</span>
           ) : (
-            <span className="text-red-500 flex items-center gap-1.5"><Clock size={16} /> Awaiting Payment</span>
+            <span className="flex items-center gap-1.5"><Clock size={16} /> Awaiting Payment</span>
           )}
         </div>
       </div>
@@ -182,58 +219,75 @@ const OrderPage = () => {
         {/* Left: Order Details */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="lg:w-2/3 space-y-6">
           
-          {/* Interactive Tracking Timeline */}
+          {order.isCancelled && (
+            <div className="bg-red-50 border border-red-200 text-red-700 p-5 rounded-2xl flex items-center gap-3 font-bold text-[14px]">
+              <Ban size={20} className="shrink-0" />
+              This order was cancelled on {new Date(order.cancelledAt).toLocaleDateString()}.
+            </div>
+          )}
+
+          {/* Enhanced Tracking Timeline */}
           <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-fittree-border">
-            <h2 className="text-xl text-fittree-text font-bold mb-8">Order Status</h2>
+            <div className="flex items-center justify-between mb-8 gap-4 flex-wrap">
+              <h2 className="text-xl text-fittree-text font-bold">Order Tracking</h2>
+              {!order.isCancelled && !order.isShipped && (
+                <button
+                  onClick={() => setShowCancelConfirm(true)}
+                  className="flex items-center gap-2 text-red-600 hover:text-white hover:bg-red-500 border border-red-200 hover:border-red-500 px-4 py-2 rounded-xl text-[12.5px] font-bold transition-colors"
+                >
+                  <XCircle size={15} /> Cancel Order
+                </button>
+              )}
+            </div>
+
+            {/* Steps */}
             <div className="relative">
-              <div className="absolute top-6 left-6 bottom-6 w-1 bg-fittree-bg md:top-1/2 md:-translate-y-1/2 md:left-6 md:right-6 md:h-1 md:w-auto"></div>
-              
+              {/* Progress track */}
+              <div className="hidden md:block absolute top-6 left-[12.5%] right-[12.5%] h-1 bg-fittree-border rounded-full z-0" />
+              {/* Filled progress */}
+              <div
+                className="hidden md:block absolute top-6 left-[12.5%] h-1 bg-fittree-primary rounded-full z-0 transition-all duration-1000"
+                style={{ width: `${((currentStep - 1) / 3) * 75}%` }}
+              />
+
               <div className="flex flex-col md:flex-row justify-between gap-6 md:gap-0 relative z-10">
-                {/* 1. Placed */}
-                <div className="flex md:flex-col items-center gap-4 md:gap-3 text-center w-full md:w-1/4">
-                  <div className="w-12 h-12 rounded-full bg-fittree-primary text-white flex items-center justify-center shrink-0 shadow-sm border-4 border-white">
-                    <ShoppingCart size={20} />
-                  </div>
-                  <div>
-                    <p className="font-bold text-fittree-text text-[13px] uppercase tracking-wider">Order Placed</p>
-                    <p className="text-[12px] text-fittree-text-light font-medium mt-1">{new Date(order.createdAt).toLocaleDateString()}</p>
-                  </div>
-                </div>
-
-                {/* 2. Paid */}
-                <div className="flex md:flex-col items-center gap-4 md:gap-3 text-center w-full md:w-1/4">
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 border-4 border-white ${order.isPaid || order.paymentMethod === 'CashOnDelivery' ? 'bg-fittree-primary text-white shadow-sm' : 'bg-fittree-sand text-fittree-text-light'}`}>
-                    <CreditCard size={20} />
-                  </div>
-                  <div>
-                    <p className={`font-bold text-[13px] uppercase tracking-wider ${order.isPaid || order.paymentMethod === 'CashOnDelivery' ? 'text-fittree-text' : 'text-fittree-text-light'}`}>Payment Confirmed</p>
-                    {order.isPaid && <p className="text-[12px] text-fittree-text-light font-medium mt-1">{new Date(order.paidAt).toLocaleDateString()}</p>}
-                    {!order.isPaid && order.paymentMethod === 'CashOnDelivery' && <p className="text-[12px] text-fittree-text-light font-medium mt-1">COD Confirmed</p>}
-                  </div>
-                </div>
-
-                {/* 3. Shipped */}
-                <div className="flex md:flex-col items-center gap-4 md:gap-3 text-center w-full md:w-1/4">
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 border-4 border-white ${order.isShipped ? 'bg-fittree-primary text-white shadow-sm' : 'bg-fittree-sand text-fittree-text-light'}`}>
-                    <Package size={20} />
-                  </div>
-                  <div>
-                    <p className={`font-bold text-[13px] uppercase tracking-wider ${order.isShipped ? 'text-fittree-text' : 'text-fittree-text-light'}`}>Shipped</p>
-                    {order.isShipped && <p className="text-[12px] text-fittree-text-light font-medium mt-1">{new Date(order.shippedAt).toLocaleDateString()}</p>}
-                  </div>
-                </div>
-
-                {/* 4. Delivered */}
-                <div className="flex md:flex-col items-center gap-4 md:gap-3 text-center w-full md:w-1/4">
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 border-4 border-white ${order.isDelivered ? 'bg-fittree-primary text-white shadow-sm' : 'bg-fittree-sand text-fittree-text-light'}`}>
-                    <Home size={20} />
-                  </div>
-                  <div>
-                    <p className={`font-bold text-[13px] uppercase tracking-wider ${order.isDelivered ? 'text-fittree-text' : 'text-fittree-text-light'}`}>Delivered</p>
-                    {order.isDelivered && <p className="text-[12px] text-fittree-text-light font-medium mt-1">{new Date(order.deliveredAt).toLocaleDateString()}</p>}
-                  </div>
-                </div>
-
+                {[
+                  { label: 'Order Placed',        icon: ShoppingCart, date: order.createdAt,  step: 1 },
+                  { label: 'Payment Confirmed',   icon: CreditCard,   date: order.paidAt,      step: 2 },
+                  { label: 'Shipped',             icon: Truck,        date: order.shippedAt,   step: 3 },
+                  { label: 'Delivered',           icon: Home,         date: order.deliveredAt, step: 4 },
+                ].map(({ label, icon: Icon, date, step }) => {
+                  const done    = currentStep >= step;
+                  const current = currentStep === step && !order.isCancelled;
+                  return (
+                    <div key={label} className="flex md:flex-col items-center gap-4 md:gap-3 text-center w-full md:w-1/4">
+                      <div className={`relative w-12 h-12 rounded-full flex items-center justify-center shrink-0 border-4 border-white transition-all duration-500 ${
+                        done
+                          ? 'bg-fittree-primary text-white shadow-md'
+                          : 'bg-fittree-sand text-fittree-text-light'
+                      }`}>
+                        <Icon size={20} />
+                        {current && (
+                          <span className="absolute inset-0 rounded-full bg-fittree-primary/30 animate-ping" />
+                        )}
+                      </div>
+                      <div>
+                        <p className={`font-bold text-[13px] uppercase tracking-wider ${
+                          done ? 'text-fittree-text' : 'text-fittree-text-light'
+                        }`}>{label}</p>
+                        {date ? (
+                          <p className="text-[11px] text-fittree-text-light font-medium mt-1">
+                            {new Date(date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                          </p>
+                        ) : current ? (
+                          <p className="text-[11px] text-fittree-primary font-bold mt-1 animate-pulse">In Progress...</p>
+                        ) : (
+                          <p className="text-[11px] text-fittree-text-light/50 font-medium mt-1">Pending</p>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -394,6 +448,34 @@ const OrderPage = () => {
         </motion.div>
 
       </div>
+
+      {showCancelConfirm && (
+        <>
+          <div
+            onClick={() => setShowCancelConfirm(false)}
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40"
+          />
+          <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-[400px] bg-white rounded-3xl p-8 shadow-2xl z-50">
+            <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center text-red-500 mb-6">
+              <Ban size={24} />
+            </div>
+            <h3 className="text-2xl font-bold text-fittree-text mb-2">Cancel this order?</h3>
+            <p className="text-fittree-text-light mb-8 font-medium">This can't be undone. You can always place a new order if you change your mind.</p>
+            <div className="flex gap-3">
+              <button onClick={() => setShowCancelConfirm(false)} className="flex-1 py-3 px-4 rounded-xl font-bold text-fittree-text bg-fittree-sand hover:bg-fittree-border transition-colors">
+                Keep Order
+              </button>
+              <button
+                onClick={cancelOrderHandler}
+                disabled={cancelling}
+                className="flex-1 py-3 px-4 rounded-xl font-bold text-white bg-red-500 hover:bg-red-600 shadow-lg shadow-red-500/30 transition-all disabled:opacity-60"
+              >
+                {cancelling ? 'Cancelling...' : 'Yes, Cancel'}
+              </button>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };

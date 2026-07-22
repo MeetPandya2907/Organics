@@ -231,6 +231,7 @@ const CouponListScreen = () => {
                       min="0"
                       value={form.discountValue}
                       onChange={(e) => setForm({ ...form, discountValue: e.target.value })}
+                      onWheel={(e) => e.target.blur()}
                       placeholder={form.discountType === 'PERCENT' ? '10' : '100'}
                       className="form-input"
                       required
@@ -245,6 +246,7 @@ const CouponListScreen = () => {
                       min="0"
                       value={form.minOrderValue}
                       onChange={(e) => setForm({ ...form, minOrderValue: e.target.value })}
+                      onWheel={(e) => e.target.blur()}
                       placeholder="Optional"
                       className="form-input"
                     />
@@ -257,6 +259,7 @@ const CouponListScreen = () => {
                         min="0"
                         value={form.maxDiscountAmount}
                         onChange={(e) => setForm({ ...form, maxDiscountAmount: e.target.value })}
+                        onWheel={(e) => e.target.blur()}
                         placeholder="Optional cap"
                         className="form-input"
                       />
@@ -271,6 +274,7 @@ const CouponListScreen = () => {
                       min="0"
                       value={form.usageLimit}
                       onChange={(e) => setForm({ ...form, usageLimit: e.target.value })}
+                      onWheel={(e) => e.target.blur()}
                       placeholder="Unlimited"
                       className="form-input"
                     />

@@ -98,16 +98,18 @@ const deleteProduct = async (req, res) => {
 // @route   POST /api/products
 // @access  Private/Admin
 const createProduct = async (req, res) => {
+  const { name, price, description, image, images, category, countInStock } = req.body;
+
   const product = new Product({
-    name: 'Sample name',
-    price: 0,
+    name: name || 'Sample name',
+    price: price || 0,
     user: req.user._id,
-    image: 'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=800',
-    images: [],
-    category: 'SPICES',
-    countInStock: 0,
+    image: image || 'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=800',
+    images: images || [],
+    category: category || 'SPICES',
+    countInStock: countInStock || 0,
     numReviews: 0,
-    description: 'Sample description',
+    description: description || 'Sample description',
   });
 
   const createdProduct = await product.save();
