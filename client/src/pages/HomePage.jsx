@@ -1,346 +1,111 @@
 import { useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useStore } from '../store/useStore';
 import {
-  ShoppingCart, ArrowRight, Star, ShieldCheck, Truck, Leaf, Handshake, Heart,
-  MapPin, Sparkles, Clock, ChefHat, Send,
+  ArrowRight, Award, Box, CheckCircle2, Clock3, CreditCard, Headphones, Heart,
+  Leaf, PackageCheck, Play, Recycle, ShieldCheck, Sprout, Star, Truck,
 } from 'lucide-react';
-import { motion } from 'framer-motion';
 import Meta from '../components/Meta';
-import ProductSkeleton from '../components/ProductSkeleton';
-import ProductCard from '../components/ProductCard';
-import { getBaseUnit, getRegion } from '../utils/units';
+
+const FALLBACK_PRODUCTS = [
+  { _id: 'green-moong', name: 'Green Moong', price: 150, oldPrice: null, unit: '1kg', rating: 4.8, tag: 'BESTSELLER', image: 'https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&w=600&q=85' },
+  { _id: 'raw-honey', name: 'Raw Organic Honey', price: 250, unit: '500g', rating: 4.9, tag: 'ORGANIC', image: 'https://images.unsplash.com/photo-1587049352851-8d4e89133924?auto=format&fit=crop&w=600&q=85' },
+  { _id: 'white-quinoa', name: 'White Quinoa', price: 299, unit: '1kg', rating: 4.7, tag: 'NEW', image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=600&q=85' },
+  { _id: 'toor-dal', name: 'Toor Dal', price: 120, unit: '1kg', rating: 4.8, image: 'https://images.unsplash.com/photo-1631209121750-a9f656d28f46?auto=format&fit=crop&w=600&q=85' },
+  { _id: 'coconut-oil', name: 'Cold Pressed Coconut Oil', price: 350, unit: '1L', rating: 4.9, image: 'https://images.unsplash.com/photo-1620706857370-e1b9770e8bb1?auto=format&fit=crop&w=600&q=85' },
+  { _id: 'turmeric', name: 'Organic Turmeric Powder', price: 100, oldPrice: 260, unit: '250g', rating: 4.6, tag: 'SALE', image: 'https://images.unsplash.com/photo-1615485500704-8e990f9900f7?auto=format&fit=crop&w=600&q=85' },
+];
 
 const CATEGORIES = [
-  { name: 'Spices', query: 'SPICES', img: 'https://fittreeinternational.com/wp-content/uploads/2026/01/imresizer-turmeric-2344157-scaled-1-1.jpg' },
-  { name: 'Pulses', query: 'PULSES', img: 'https://fittreeinternational.com/wp-content/uploads/2026/01/imresizer-bowl-sackcloth-red-raw-lentils-wooden-board.jpg.jpg' },
-  { name: 'Seeds', query: 'SEEDS', img: 'https://fittreeinternational.com/wp-content/uploads/2026/01/istockphoto-1153368009-612x612-1-1.jpg' },
-  { name: 'Dehydrated', query: 'DEHYDRATED PRODUCTS', img: 'https://fittreeinternational.com/wp-content/uploads/2026/01/76-769552_dehydrated._imresizer.jpg' },
-  { name: 'Quinoa', query: 'SEEDS', img: 'https://fittreeinternational.com/wp-content/uploads/2026/01/istockphoto-171117213-612x612-1-1.jpg' },
-  { name: 'Blends', query: 'SPICES', img: 'https://fittreeinternational.com/wp-content/uploads/2026/01/coriander1_imresizer.jpg' },
-  { name: 'New In', query: 'All', img: 'https://fittreeinternational.com/wp-content/uploads/2026/01/imresizer-istockphoto-144803768-170667a.jpg' },
+  ['Pulses', 'https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&w=300&q=85'],
+  ['Grains', 'https://images.unsplash.com/photo-1603569283847-aa295f0d016a?auto=format&fit=crop&w=300&q=85'],
+  ['Flours', 'https://images.unsplash.com/photo-1627485937980-221c88ac04f9?auto=format&fit=crop&w=300&q=85'],
+  ['Dry Fruits', 'https://images.unsplash.com/photo-1599599810769-bcde5a160d32?auto=format&fit=crop&w=300&q=85'],
+  ['Spices', 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=300&q=85'],
+  ['Seeds', 'https://images.unsplash.com/photo-1508061253366-f7da158b6d46?auto=format&fit=crop&w=300&q=85'],
+  ['Oils', 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=300&q=85'],
+  ['Herbs', 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=300&q=85'],
 ];
 
-const REGIONS = [
-  { place: 'Nashik, MH', crop: 'Turmeric' },
-  { place: 'Idukki, KL', crop: 'Cardamom' },
-  { place: 'Malwa, MP', crop: 'Masoor Dal' },
-  { place: 'Unjha, GJ', crop: 'Cumin' },
-];
-
-const RECIPES = [
-  { title: 'The Perfect Golden Milk (Haldi Doodh)', excerpt: 'Boost your immunity with this traditional evening drink using our high-curcumin turmeric.', image: 'https://images.unsplash.com/photo-1615485500704-8e990f9900f7?w=800&q=80', time: '10 Mins' },
-  { title: 'Comforting Sunday Masoor Dal', excerpt: 'A hearty, protein-packed bowl of red lentil dal tempered with fresh cumin and ghee.', image: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=800&q=80', time: '30 Mins' },
-  { title: 'Overnight Chia Pudding', excerpt: 'Start your morning right with organic chia seeds soaked in almond milk and seasonal fruit.', image: 'https://images.unsplash.com/photo-1494597564530-871f2b93ac55?w=800&q=80', time: '5 Mins' },
+const featureIcons = [
+  [Leaf, '100% Organic', 'No Chemicals'], [Sprout, 'Farm Fresh', 'Direct from Farmers'],
+  [ShieldCheck, 'Lab Tested', 'For Purity'], [Heart, 'Sustainable', 'Better for Earth'],
 ];
 
 const HomePage = () => {
-  const { products, fetchProducts, loading, addToCart, wishlist, toggleWishlist, recentlyViewed } = useStore();
-  const navigate = useNavigate();
+  const { products, fetchProducts, loading, addToCart } = useStore();
 
-  useEffect(() => {
-    fetchProducts();
-  }, [fetchProducts]);
+  useEffect(() => { fetchProducts(); }, [fetchProducts]);
 
-  const sellableProducts = products.filter(p => p.price > 0 && p.name !== 'Sample name');
-  const heroProduct = sellableProducts.find(p => p.name.includes('Turmeric')) || sellableProducts[0];
+  const liveProducts = products.filter((p) => p.price > 0 && p.name !== 'Sample name').slice(0, 6);
+  const displayProducts = liveProducts.length ? liveProducts.map((p, i) => ({
+    ...p, unit: p.unit || (i === 1 ? '500g' : '1kg'), rating: (4.6 + (i % 4) / 10).toFixed(1), tag: i === 0 ? 'BESTSELLER' : i === 1 ? 'ORGANIC' : i === 2 ? 'NEW' : i === 5 ? 'SALE' : null,
+  })) : FALLBACK_PRODUCTS;
 
-  const quickAdd = (e, product) => {
+  const add = (e, product) => {
     e.preventDefault();
-    if (!product || product.countInStock === 0) return;
-    addToCart({ ...product, qty: 1 }, 1);
+    if (product._id && !String(product._id).includes('-')) addToCart({ ...product, qty: 1 }, 1);
   };
 
-  const isSaved = (id) => wishlist.some((w) => w._id === id);
-
   return (
-    <div className="bg-fittree-bg min-h-screen font-sans pt-[130px] overflow-x-hidden">
-      <Meta title="FitTree Organics | Real Spices, Pulses & Seeds From Indian Farms" />
+    <div className="min-h-screen bg-[#fbfaf6] pt-[122px] text-[#0b3020] overflow-hidden">
+      <Meta title="FitTree Organics | Good for You, Good for Nature" />
 
-      {/* HERO */}
-      <section className="max-w-[1400px] mx-auto px-4 sm:px-6 pt-2 mb-16">
-        <div className="relative w-full min-h-[440px] md:min-h-[560px] rounded-[2rem] overflow-hidden shadow-fittree-md">
-          <img src="/hero_banner_pantry.png" alt="Labelled jars of chia seeds, quinoa, lentils and grains on a kitchen counter" className="absolute inset-0 w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/35 to-transparent"></div>
-
-          <div className="relative z-10 h-full flex flex-col justify-center px-8 sm:px-12 md:px-16 py-14 max-w-2xl">
-            <motion.span
-              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
-              className="pill-tag bg-white/15 backdrop-blur-sm border border-white/25 text-white w-fit mb-6"
-            >
-              <Sparkles size={12} /> FSSAI Licensed · 40,000+ Homes
-            </motion.span>
-            <motion.h1
-              initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, delay: 0.08 }}
-              className="text-white text-4xl sm:text-5xl lg:text-[3.4rem] font-extrabold leading-[1.08] mb-5 drop-shadow-md"
-            >
-              Clean food, from farms<br className="hidden sm:block" /> we can name.
-            </motion.h1>
-            <motion.p
-              initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, delay: 0.16 }}
-              className="text-white/85 text-[15px] sm:text-[17px] leading-relaxed max-w-lg mb-8 font-medium"
-            >
-              Whole spices, unpolished dals and cold-milled flours — every batch traceable to a district and a growers' collective, packed the week you order.
-            </motion.p>
-            <motion.div
-              initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, delay: 0.24 }}
-              className="flex flex-wrap gap-3.5 mb-10"
-            >
-              <Link to="/products" className="bg-white text-fittree-text px-7 py-3.5 rounded-xl font-bold hover:scale-[1.03] transition-transform flex items-center gap-2 shadow-lg">
-                Shop Now <ArrowRight size={18} />
-              </Link>
-              <Link to="/about" className="border border-white/40 text-white bg-white/10 backdrop-blur-sm px-7 py-3.5 rounded-xl font-bold hover:bg-white/20 transition-colors">
-                Our Sourcing Story
-              </Link>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.7, delay: 0.35 }}
-              className="flex gap-8 border-t border-white/20 pt-5 w-fit"
-            >
-              {[['4.8★', 'Rating'], ['100%', 'Lab-Tested'], ['0', 'Middlemen']].map(([n, l], i) => (
-                <div key={i}>
-                  <b className="block text-white text-xl font-extrabold leading-none">{n}</b>
-                  <span className="text-white/60 text-[11px] font-bold uppercase tracking-wider">{l}</span>
-                </div>
-              ))}
-            </motion.div>
+      <section className="relative min-h-[520px] bg-[#fbfaf6]">
+        <div className="absolute inset-y-0 right-0 w-[58%] hidden lg:block">
+          <img src="/hero_banner_farm.png" alt="Organic farm landscape" className="h-full w-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#fbfaf6] via-[#fbfaf6]/70 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#fbfaf6] via-transparent to-transparent" />
+        </div>
+        <div className="relative max-w-[1340px] mx-auto px-5 sm:px-8 pt-24 pb-8 grid lg:grid-cols-[1fr_1.05fr] gap-10 items-center">
+          <div className="z-10">
+            <p className="uppercase tracking-[0.22em] text-[13px] font-extrabold text-[#0b6b3a] mb-5">Clean food. Real ingredients.</p>
+            <h1 className="font-serif text-[50px] sm:text-[64px] lg:text-[72px] leading-[0.95] font-bold text-[#082f20] mb-6">Good for You,<br /><span className="text-[#0a7a3d]">Good for Nature.</span></h1>
+            <p className="text-lg text-[#17251f] leading-7 mb-8 max-w-xl">Pure, natural & chemical-free staples delivered fresh from trusted farms to your home.</p>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-5 mb-8 max-w-2xl">
+              {featureIcons.map(([Icon, title, sub]) => <div key={title} className="flex gap-3 items-center"><Icon className="text-[#0a6b3d]" size={28}/><div><b className="block text-sm">{title}</b><span className="text-xs text-[#47584e]">{sub}</span></div></div>)}
+            </div>
+            <div className="flex items-center gap-6">
+              <Link to="/products" className="inline-flex items-center gap-3 rounded-lg bg-[#064c2d] px-7 py-4 text-white font-bold shadow-lg hover:bg-[#083b25]">Shop Now <ArrowRight size={19}/></Link>
+              <Link to="/about" className="inline-flex items-center gap-3 font-semibold text-[#34453b]"><span className="grid h-12 w-12 place-items-center rounded-full border border-[#b6bcae]"><Play size={18} fill="currentColor" /></span> Watch Our Story</Link>
+            </div>
           </div>
-
-          {/* Floating shoppable card */}
-          {heroProduct && (
-            <Link
-              to={`/product/${heroProduct._id}`}
-              className="hidden lg:flex absolute bottom-8 right-8 bg-white rounded-2xl shadow-xl p-3.5 items-center gap-3.5 w-[280px] hover:-translate-y-1 transition-transform"
-            >
-              <div className="w-16 h-16 rounded-xl bg-fittree-sand overflow-hidden shrink-0">
-                <img src={heroProduct.image} alt={heroProduct.name} className="w-full h-full object-cover" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <span className="text-[9px] font-bold uppercase tracking-wider text-fittree-primary">Bestseller</span>
-                <h4 className="text-[13px] font-bold text-fittree-text leading-tight truncate">{heroProduct.name}</h4>
-                <span className="text-[13px] font-bold text-fittree-text-light">₹{heroProduct.price}</span>
-              </div>
-              <button
-                onClick={(e) => quickAdd(e, heroProduct)}
-                className="w-9 h-9 rounded-full bg-fittree-primary text-white flex items-center justify-center shrink-0 hover:bg-fittree-primary-soft transition-colors"
-              >
-                <ShoppingCart size={15} />
-              </button>
-            </Link>
-          )}
+          <div className="relative z-10 min-h-[430px] hidden lg:block">
+            <div className="absolute right-4 bottom-0 w-[620px] max-w-full rounded-[2rem]">
+              <img src="/hero_banner_pantry.png" alt="FitTree organic product basket" className="w-full h-[420px] object-cover rounded-[2rem] shadow-2xl" />
+              <div className="absolute -right-4 bottom-8 h-24 w-24 rounded-full bg-white border shadow-xl grid place-items-center text-center text-[#064c2d] font-black text-xs tracking-widest rotate-[-15deg]">PURE<br/>NATURAL</div>
+            </div>
+            <Leaf className="absolute left-8 top-4 text-[#6a8a45] animate-float" size={70} fill="currentColor" />
+          </div>
         </div>
       </section>
 
-      {/* SHOP BY CATEGORY */}
-      <section className="max-w-[1400px] mx-auto px-4 sm:px-6 mb-16">
-        <h3 className="text-[22px] font-bold text-fittree-text mb-6">Shop by Category</h3>
-        <div className="flex gap-6 overflow-x-auto pb-4 hide-scrollbar">
-          {CATEGORIES.map((cat, i) => (
-            <Link key={i} to={cat.query === 'All' ? '/products' : `/products?category=${encodeURIComponent(cat.query)}`} className="flex flex-col items-center gap-3 shrink-0 group w-28">
-              <div className="w-24 h-24 rounded-full overflow-hidden border-[4px] border-white shadow-md group-hover:shadow-lg transition-all group-hover:border-fittree-primary bg-fittree-sand">
-                <img src={cat.img} alt={cat.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-              </div>
-              <span className="text-[15px] font-bold text-fittree-text text-center">{cat.name}</span>
-            </Link>
-          ))}
+      <main className="max-w-[1340px] mx-auto px-5 sm:px-8 -mt-2 pb-10 space-y-8">
+        <div className="grid lg:grid-cols-[1fr_380px] gap-4">
+          <section className="bg-white rounded-2xl shadow-[0_18px_50px_rgba(30,45,30,.09)] p-7">
+            <div className="flex justify-between items-center mb-5"><h2 className="font-serif text-2xl font-bold">Shop by Category</h2><Link to="/products" className="text-[#0a6b3d] font-bold flex gap-2 items-center">View All Categories <ArrowRight size={16}/></Link></div>
+            <div className="grid grid-cols-4 md:grid-cols-8 gap-4">{CATEGORIES.map(([name, img]) => <Link to="/products" key={name} className="text-center group"><div className="mx-auto h-20 w-20 rounded-full bg-[#f6efe2] overflow-hidden border border-[#eadfca] p-1"><img src={img} alt={name} className="h-full w-full rounded-full object-cover group-hover:scale-110 transition" /></div><b className="mt-3 block text-sm text-[#17251f]">{name}</b></Link>)}</div>
+          </section>
+          <aside className="rounded-2xl bg-[#064c2d] text-white p-7 relative overflow-hidden"><Leaf className="absolute right-8 bottom-4 text-white/10" size={170}/><h3 className="font-serif text-xl font-bold mb-5">Why Choose FitTree Organics?</h3>{['Chemical & Pesticide Free','Sourced from Trusted Farmers','Lab Tested for Purity','Sustainable & Ethical Practices'].map(t => <p key={t} className="flex items-center gap-3 mb-3 text-sm"><CheckCircle2 size={16} className="text-[#f0d487]"/> {t}</p>)}</aside>
         </div>
-      </section>
 
-      {/* TRENDING PRODUCTS */}
-      <section className="max-w-[1400px] mx-auto px-4 sm:px-6 pb-24">
-        <div className="flex items-center justify-between mb-8">
+        <section className="grid lg:grid-cols-[230px_1fr_170px] gap-5 items-stretch">
+          <div className="rounded-2xl bg-[#f4efe5] p-7 relative overflow-hidden"><h3 className="font-serif text-2xl font-bold leading-tight mb-8">NATURE’S<br/><span className="text-[#0a6b3d]">GOODNESS,</span><br/>DELIVERED TO YOUR DOOR.</h3><p className="text-sm leading-6 mb-7">Carefully packed to retain nutrition and natural goodness.</p><Link to="/products" className="inline-flex items-center gap-2 bg-[#064c2d] text-white rounded-lg px-4 py-3 text-sm font-bold">Explore All Products <ArrowRight size={16}/></Link><Leaf className="absolute -bottom-4 -left-2 text-[#709a43]" size={80}/></div>
           <div>
-            <span className="eyebrow">Most reordered</span>
-            <h3 className="text-[24px] font-bold text-fittree-text mt-1">Trending This Week</h3>
+            <div className="flex justify-between items-center mb-5"><h2 className="font-serif text-2xl font-bold flex items-center gap-3"><Sprout size={24} className="text-[#0a6b3d]"/>Trending This Week</h2><Link to="/products" className="text-[#0a6b3d] font-bold flex gap-2 items-center">View All Products <ArrowRight size={16}/></Link></div>
+            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">{displayProducts.map((p) => <Link key={p._id} to={String(p._id).includes('-') ? '/products' : `/product/${p._id}`} className="bg-white border border-[#ece6d8] rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition"><div className="relative h-44 bg-[#f7f1e6]"><img src={p.image} alt={p.name} className="h-full w-full object-cover" />{p.tag && <span className={`absolute top-3 left-3 rounded px-2 py-1 text-[10px] font-black text-white ${p.tag === 'SALE' ? 'bg-[#f05a24]' : 'bg-[#0a7a3d]'}`}>{p.tag}</span>}</div><div className="p-3"><h4 className="text-sm font-bold text-[#1c231f] min-h-[38px] line-clamp-2">{p.name}</h4><p className="text-xs text-[#6e756f]">{p.unit}</p><div className="mt-2 flex justify-between items-center"><b>₹{p.price}</b><span className="text-xs flex items-center gap-1"><Star size={12} fill="#f59e0b" className="text-[#f59e0b]" />{p.rating}</span></div><button onClick={(e)=>add(e,p)} className="mt-3 w-full bg-[#0a6b3d] text-white rounded-md py-2 text-xs font-bold flex justify-center gap-2">Add to Cart <Truck size={13}/></button></div></Link>)}</div>
           </div>
-          <Link to="/products" className="text-fittree-primary font-bold text-sm hover:underline shrink-0">View All →</Link>
-        </div>
-
-        {loading ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-            {[1, 2, 3, 4].map(i => <ProductSkeleton key={i} />)}
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-            {sellableProducts.slice(0, 8).map((product, idx) => (
-              <ProductCard
-                key={product._id}
-                product={product}
-                index={idx}
-                badge={idx === 0 ? 'Bestseller' : idx === 1 ? 'Popular' : null}
-              />
-            ))}
-          </div>
-        )}
-      </section>
-
-      {/* SOURCING STORY */}
-      <section className="max-w-[1400px] mx-auto px-4 sm:px-6 mb-24">
-        <div className="grid lg:grid-cols-2 gap-10 items-center bg-white rounded-[2rem] overflow-hidden border border-fittree-border shadow-sm">
-          <div className="relative h-[300px] lg:h-[460px]">
-            <img src="/hero_banner_farm.png" alt="A farmer holding freshly harvested lentils in a field" className="absolute inset-0 w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
-            <div className="absolute bottom-5 left-5 bg-white/95 backdrop-blur rounded-xl px-4 py-3 shadow-lg max-w-[240px]">
-              <div className="flex gap-0.5 text-fittree-accent mb-1.5">{[1,2,3,4,5].map(i => <Star key={i} size={12} fill="currentColor" stroke="none" />)}</div>
-              <p className="text-[12px] font-bold text-fittree-text leading-snug">"We visit every growers' collective twice a season."</p>
-            </div>
-          </div>
-          <div className="p-8 lg:p-12">
-            <span className="eyebrow">Where it actually comes from</span>
-            <h2 className="mt-2 mb-5 text-[28px] md:text-[34px] font-extrabold leading-tight text-fittree-text">Four regions.<br />Zero middlemen.</h2>
-            <p className="text-fittree-text-light text-[15px] leading-relaxed mb-8 max-w-md font-medium">
-              Most "organic" labels stop at a certificate. We can tell you the district and the family behind every sack — because we still go back every season.
-            </p>
-            <div className="grid grid-cols-2 gap-3 mb-9">
-              {REGIONS.map((r, i) => (
-                <div key={i} className="bg-fittree-bg rounded-xl border border-fittree-border px-4 py-3 flex items-center gap-3">
-                  <span className="w-8 h-8 rounded-full bg-fittree-primary/10 text-fittree-primary flex items-center justify-center shrink-0"><MapPin size={14} /></span>
-                  <span>
-                    <b className="block text-[13px] text-fittree-text">{r.place}</b>
-                    <span className="text-[11px] text-fittree-text-light font-semibold">{r.crop}</span>
-                  </span>
-                </div>
-              ))}
-            </div>
-            <Link to="/about" className="btn btn-primary">Meet Our Farmers <ArrowRight size={16} /></Link>
-          </div>
-        </div>
-      </section>
-
-      {/* WHY CHOOSE US */}
-      <section className="bg-fittree-sand py-16 mb-20 border-y border-fittree-border">
-        <div className="max-w-[1400px] mx-auto px-4 sm:px-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div className="bg-white p-6 rounded-2xl shadow-sm text-center">
-              <div className="w-12 h-12 bg-fittree-primary/10 text-fittree-primary rounded-xl flex items-center justify-center mx-auto mb-4"><Handshake size={24} /></div>
-              <h4 className="font-bold text-[15px] text-fittree-text mb-2">Farm-Traced Batches</h4>
-              <p className="text-[13px] text-fittree-text-light font-medium">Every pack names the district and growers' collective it came from.</p>
-            </div>
-            <div className="bg-white p-6 rounded-2xl shadow-sm text-center">
-              <div className="w-12 h-12 bg-fittree-primary/10 text-fittree-primary rounded-xl flex items-center justify-center mx-auto mb-4"><Leaf size={24} /></div>
-              <h4 className="font-bold text-[15px] text-fittree-text mb-2">100% Organic</h4>
-              <p className="text-[13px] text-fittree-text-light font-medium">Sourced directly from certified farmers with zero chemical pesticides.</p>
-            </div>
-            <div className="bg-white p-6 rounded-2xl shadow-sm text-center">
-              <div className="w-12 h-12 bg-fittree-primary/10 text-fittree-primary rounded-xl flex items-center justify-center mx-auto mb-4"><ShieldCheck size={24} /></div>
-              <h4 className="font-bold text-[15px] text-fittree-text mb-2">FSSAI Lab Tested</h4>
-              <p className="text-[13px] text-fittree-text-light font-medium">Every batch is rigorously tested to ensure safety and purity.</p>
-            </div>
-            <div className="bg-white p-6 rounded-2xl shadow-sm text-center">
-              <div className="w-12 h-12 bg-fittree-primary/10 text-fittree-primary rounded-xl flex items-center justify-center mx-auto mb-4"><Truck size={24} /></div>
-              <h4 className="font-bold text-[15px] text-fittree-text mb-2">Easy Returns</h4>
-              <p className="text-[13px] text-fittree-text-light font-medium">Not satisfied with the quality? We offer instant, no-questions-asked refunds.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* RECENTLY VIEWED */}
-      {recentlyViewed.length > 0 && (
-        <section className="max-w-[1400px] mx-auto px-4 sm:px-6 mb-24">
-          <h3 className="text-[22px] font-bold text-fittree-text mb-6">Recently Viewed</h3>
-          <div className="flex gap-4 overflow-x-auto pb-2 hide-scrollbar">
-            {recentlyViewed.map((product) => (
-              <Link
-                key={product._id}
-                to={`/product/${product._id}`}
-                className="shrink-0 w-[160px] sm:w-[190px] bg-white border border-fittree-border rounded-xl overflow-hidden hover:border-fittree-primary hover:shadow-fittree-sm transition-all group"
-              >
-                <div className="h-[110px] sm:h-[130px] bg-fittree-sand overflow-hidden">
-                  <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                </div>
-                <div className="p-3">
-                  <h4 className="text-[12.5px] font-bold text-fittree-text leading-snug line-clamp-2 mb-1.5 group-hover:text-fittree-primary transition-colors">{product.name}</h4>
-                  <span className="text-[13px] font-bold text-fittree-text-light">₹{product.price}</span>
-                </div>
-              </Link>
-            ))}
-          </div>
+          <aside className="rounded-2xl bg-[#f4efe5] p-6 flex flex-col justify-around">{[[Truck,'Free Shipping','On orders above ₹999'],[Recycle,'Easy Returns','Hassle free returns'],[CreditCard,'Secure Payment','100% secure payments'],[Headphones,'24/7 Support','We are here to help']].map(([Icon,t,s]) => <div key={t} className="flex gap-3 items-center"><Icon className="text-[#0a6b3d]" size={30}/><div><b className="text-sm">{t}</b><p className="text-xs text-[#566259]">{s}</p></div></div>)}</aside>
         </section>
-      )}
 
-      {/* FROM THE JOURNAL */}
-      <section className="max-w-[1400px] mx-auto px-4 sm:px-6 mb-24">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <span className="eyebrow">From the journal</span>
-            <h3 className="text-[24px] font-bold text-fittree-text mt-1">Recipes worth cooking</h3>
-          </div>
-          <Link to="/recipes" className="text-fittree-primary font-bold text-sm hover:underline shrink-0">All Recipes →</Link>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {RECIPES.map((r, i) => (
-            <Link key={i} to="/recipes" className="group bg-white rounded-2xl overflow-hidden border border-fittree-border hover:shadow-fittree-md hover:-translate-y-1 transition-all">
-              <div className="h-[170px] overflow-hidden">
-                <img src={r.image} alt={r.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-              </div>
-              <div className="p-5">
-                <div className="flex items-center gap-2 text-[11px] font-bold text-fittree-text-light uppercase tracking-wider mb-2.5">
-                  <Clock size={12} /> {r.time}
-                  <span className="w-1 h-1 rounded-full bg-fittree-border"></span>
-                  <ChefHat size={12} /> Easy
-                </div>
-                <h4 className="font-bold text-[15.5px] text-fittree-text leading-snug mb-2 group-hover:text-fittree-primary transition-colors">{r.title}</h4>
-                <p className="text-[12.5px] text-fittree-text-light font-medium line-clamp-2">{r.excerpt}</p>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
+        <section className="grid lg:grid-cols-[1.1fr_.8fr_1fr] gap-5">
+          <div className="rounded-2xl bg-[#064c2d] text-white p-8 min-h-[190px] bg-[url('/hero_banner_farm.png')] bg-cover bg-center overflow-hidden relative"><div className="absolute inset-0 bg-[#064c2d]/65"/><div className="relative max-w-xs"><h3 className="font-serif text-2xl font-bold mb-4">From Our Farms<br/>To Your Family</h3><p className="text-sm mb-5">We work directly with farmers who follow natural & sustainable farming methods.</p><Link to="/about" className="bg-white text-[#064c2d] rounded px-4 py-2 text-sm font-bold">Know Our Story</Link></div></div>
+          <div className="rounded-2xl bg-[#fff7e8] p-8 relative overflow-hidden"><h3 className="font-serif text-xl font-bold mb-4">Subscribe & Save</h3><p className="font-serif text-2xl font-bold mb-7">Get 10% OFF on your first order</p><form onSubmit={(e)=>e.preventDefault()} className="flex"><input className="min-w-0 flex-1 rounded-l-lg border px-4 text-sm" placeholder="Enter your email address"/><button className="rounded-r-lg bg-[#064c2d] px-5 text-white text-sm font-bold">Subscribe</button></form><Leaf className="absolute -right-6 -top-4 text-[#779c45]" size={130}/></div>
+          <div className="rounded-2xl bg-[#eef3e9] p-8"><h3 className="font-serif text-xl font-bold mb-8">Our Promise</h3><div className="grid grid-cols-4 gap-3 text-center">{[[Award,'100+','Organic Products'],[Heart,'50K+','Happy Customers'],[Sprout,'30+','Partner Farms'],[PackageCheck,'100%','Quality Assured']].map(([Icon,n,s]) => <div key={s}><Icon className="mx-auto mb-3 text-[#0a6b3d]"/><b className="block text-[#0a7a3d] text-xl">{n}</b><span className="text-xs">{s}</span></div>)}</div></div>
+        </section>
 
-      {/* TESTIMONIALS */}
-      <section className="max-w-[1400px] mx-auto px-4 sm:px-6 pb-24">
-        <h3 className="text-[24px] font-bold text-fittree-text mb-8 text-center">Loved by thousands</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white border border-fittree-border p-6 rounded-2xl shadow-sm">
-            <div className="flex gap-1 text-fittree-accent mb-4"><Star size={16} fill="currentColor" stroke="none"/><Star size={16} fill="currentColor" stroke="none"/><Star size={16} fill="currentColor" stroke="none"/><Star size={16} fill="currentColor" stroke="none"/><Star size={16} fill="currentColor" stroke="none"/></div>
-            <p className="text-[14px] text-fittree-text font-medium mb-6">"The turmeric actually smells like turmeric — not the dusty stuff from the supermarket. My mother-in-law asked where I bought it."</p>
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-fittree-sand flex items-center justify-center font-bold text-fittree-primary border border-fittree-border">A</div>
-              <div><h5 className="font-bold text-[13px] text-fittree-text">Aarti Sharma</h5><span className="text-[11px] text-fittree-text-light font-bold uppercase">Verified Buyer</span></div>
-            </div>
-          </div>
-          <div className="bg-white border border-fittree-border p-6 rounded-2xl shadow-sm">
-            <div className="flex gap-1 text-fittree-accent mb-4"><Star size={16} fill="currentColor" stroke="none"/><Star size={16} fill="currentColor" stroke="none"/><Star size={16} fill="currentColor" stroke="none"/><Star size={16} fill="currentColor" stroke="none"/><Star size={16} fill="currentColor" stroke="none"/></div>
-            <p className="text-[14px] text-fittree-text font-medium mb-6">"I love the transparency! I can see exactly where my lentils came from. Plus, the quick 'Add to Cart' experience makes shopping super fast."</p>
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-fittree-sand flex items-center justify-center font-bold text-fittree-primary border border-fittree-border">R</div>
-              <div><h5 className="font-bold text-[13px] text-fittree-text">Rahul Verma</h5><span className="text-[11px] text-fittree-text-light font-bold uppercase">Verified Buyer</span></div>
-            </div>
-          </div>
-          <div className="bg-white border border-fittree-border p-6 rounded-2xl shadow-sm">
-            <div className="flex gap-1 text-fittree-accent mb-4"><Star size={16} fill="currentColor" stroke="none"/><Star size={16} fill="currentColor" stroke="none"/><Star size={16} fill="currentColor" stroke="none"/><Star size={16} fill="currentColor" stroke="none"/><Star size={16} fill="currentColor" stroke="none"/></div>
-            <p className="text-[14px] text-fittree-text font-medium mb-6">"Finally an organic brand that doesn't feel overly expensive. Their white quinoa is my absolute favorite, always fresh and beautifully packaged."</p>
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-fittree-sand flex items-center justify-center font-bold text-fittree-primary border border-fittree-border">S</div>
-              <div><h5 className="font-bold text-[13px] text-fittree-text">Sneha Patel</h5><span className="text-[11px] text-fittree-text-light font-bold uppercase">Verified Buyer</span></div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* NEWSLETTER / WHATSAPP CTA */}
-      <section className="max-w-[1400px] mx-auto px-4 sm:px-6 pb-24">
-        <div className="bg-fittree-primary rounded-[2rem] px-8 py-12 md:px-16 md:py-14 flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden">
-          <div className="absolute -top-10 -right-10 w-56 h-56 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
-          <div className="relative z-10 text-center md:text-left">
-            <span className="inline-flex items-center gap-2 text-white/80 font-bold text-[12px] uppercase tracking-widest mb-3"><Sparkles size={14} /> First-order offer</span>
-            <h3 className="text-white text-[26px] md:text-[30px] font-extrabold mb-2">Get 10% off your first pantry order</h3>
-            <p className="text-white/70 text-sm font-medium">Join 40,000+ subscribers for restock alerts and recipes on WhatsApp.</p>
-          </div>
-          <form onSubmit={(e) => e.preventDefault()} className="relative z-10 flex w-full md:w-auto max-w-md gap-2">
-            <input
-              type="email"
-              placeholder="Enter your email"
-              className="flex-1 bg-white/95 rounded-xl px-5 py-3.5 text-[14px] text-fittree-text placeholder-fittree-text-light focus:outline-none focus:ring-2 focus:ring-white"
-            />
-            <button type="submit" className="bg-white text-fittree-primary font-bold px-5 py-3.5 rounded-xl flex items-center gap-2 hover:bg-fittree-bg transition-colors shrink-0">
-              <Send size={16} /> <span className="hidden sm:inline">Subscribe</span>
-            </button>
-          </form>
-        </div>
-      </section>
-
+        <section className="grid md:grid-cols-4 gap-5 rounded-2xl bg-white/80 p-5 shadow-sm">{[[Leaf,'100% Organic','No chemicals or additives'],[Sprout,'Direct from Farms','Fresh & responsibly sourced'],[Box,'Secure Packaging','Safe & hygienic delivery'],[Clock3,'Environment Friendly','We care for our planet']].map(([Icon,t,s]) => <div key={t} className="flex items-center gap-4 justify-center"><Icon className="text-[#0a6b3d]"/><div><b>{t}</b><p className="text-sm text-[#566259]">{s}</p></div></div>)}</section>
+      </main>
     </div>
   );
 };

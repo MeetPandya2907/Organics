@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useStore } from '../store/useStore';
-import { ShoppingCart, User, LogOut, Package, Menu, X, Leaf, Heart } from 'lucide-react';
+import { ChevronDown, Gift, Search, ShoppingCart, User, LogOut, Package, Menu, X, Leaf, Heart } from 'lucide-react';
 import SearchBox from './SearchBox';
 import CartDrawer from './CartDrawer';
 
@@ -18,6 +18,7 @@ const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const cartItemsCount = cart.reduce((acc, item) => acc + item.qty, 0);
 
@@ -26,6 +27,46 @@ const Header = () => {
     navigate('/login');
     setIsOpen(false);
   };
+
+  if (location.pathname === '/') {
+    return (
+      <>
+        <div className="fixed w-full top-0 z-50 bg-white/95 backdrop-blur border-b border-[#e7dfcf]">
+          <div className="bg-[#064c2d] text-[#ffe9a9] text-[13px] font-semibold">
+            <div className="max-w-[1340px] mx-auto px-5 sm:px-8 h-9 flex items-center justify-between">
+              <span className="hidden sm:flex items-center gap-2"><Gift size={15}/> Free Shipping on orders above ₹999</span>
+              <span className="flex items-center gap-2"><Gift size={15}/> 100% Organic & Chemical Free</span>
+              <span className="hidden lg:flex items-center gap-2"><Leaf size={15}/> Pure Food. Better Life.</span>
+            </div>
+          </div>
+          <header className="max-w-[1340px] mx-auto px-5 sm:px-8 h-[86px] flex items-center gap-8">
+            <Link to="/" className="flex items-center gap-3 shrink-0">
+              <div className="w-11 h-11 rounded-lg bg-[#064c2d] text-white grid place-items-center"><Leaf size={25} fill="currentColor" /></div>
+              <div className="leading-none"><span className="font-serif text-[30px] font-bold text-[#0a3b29]">FitTree</span><span className="block tracking-[0.35em] text-[11px] font-black text-[#0a6b3d]">ORGANICS</span></div>
+            </Link>
+            <nav className="hidden lg:flex items-center gap-8 text-[14px] font-bold text-black ml-10">
+              <Link to="/products">Shop</Link>
+              <Link to="/products" className="flex items-center gap-1">Categories <ChevronDown size={14}/></Link>
+              <Link to="/about">Our Story</Link>
+              <Link to="/about">Sustainability</Link>
+              <Link to="/recipes">Blog</Link>
+              <Link to="/profile">Track Order</Link>
+              <Link to="/contact">Contact</Link>
+            </nav>
+            <div className="ml-auto hidden md:flex items-center gap-5">
+              <div className="relative w-[260px]"><Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#718075]" size={17}/><input className="w-full rounded-full border border-[#ddd8cc] bg-white py-3 pl-11 pr-4 text-xs outline-none focus:ring-2 focus:ring-[#0a6b3d]/20" placeholder="Search organic products..." /></div>
+              <Link to={userInfo ? '/profile' : '/login'}><User size={23}/></Link>
+              <Link to="/wishlist" className="relative"><Heart size={24}/>{wishlist.length > 0 && <span className="absolute -top-2 -right-2 bg-[#0a6b3d] text-white text-[10px] font-bold h-5 w-5 rounded-full grid place-items-center">{wishlist.length}</span>}</Link>
+              <button onClick={() => setCartOpen(true)} className="relative"><ShoppingCart size={25}/>{cartItemsCount > 0 && <span className="absolute -top-3 -right-3 bg-[#0a6b3d] text-white text-[10px] font-bold h-5 w-5 rounded-full grid place-items-center">{cartItemsCount}</span>}</button>
+            </div>
+            <button className="ml-auto lg:hidden" onClick={() => setIsOpen(!isOpen)} aria-label="Menu">{isOpen ? <X /> : <Menu />}</button>
+          </header>
+          {isOpen && <div className="lg:hidden bg-white border-t p-5 flex flex-col gap-4 font-bold"><Link to="/products">Shop</Link><Link to="/about">Our Story</Link><Link to="/recipes">Blog</Link><Link to="/contact">Contact</Link></div>}
+        </div>
+        <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
+      </>
+    );
+  }
 
   return (
     <>
