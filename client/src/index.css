@@ -91,6 +91,19 @@
   }
 }
 
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-33.333%); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(var(--float-rot, 0deg)); }
+  50% { transform: translateY(-10px) rotate(var(--float-rot, 0deg)); }
+}
+.animate-float {
+  animation: float 4.5s ease-in-out infinite;
+}
+
 /* Hide scrollbar for carousels */
 .hide-scrollbar::-webkit-scrollbar {
   display: none;

@@ -18,11 +18,13 @@ import PaymentPage from './pages/PaymentPage';
 import PlaceOrderPage from './pages/PlaceOrderPage';
 import OrderPage from './pages/OrderPage';
 import OrderSuccessPage from './pages/OrderSuccessPage';
+import TrackOrderPage from './pages/TrackOrderPage';
 import ProductListScreen from './pages/ProductListScreen';
 import ProductEditScreen from './pages/ProductEditScreen';
 import OrderListScreen from './pages/OrderListScreen';
 import UserListScreen from './pages/UserListScreen';
 import CouponListScreen from './pages/CouponListScreen';
+import CategoryListScreen from './pages/CategoryListScreen';
 import AdminLogin from './pages/AdminLogin';
 import ScrollToTop from './components/ScrollToTop';
 import { Toaster } from 'react-hot-toast';
@@ -76,6 +78,7 @@ function App() {
             <Route path="/placeorder" element={<PlaceOrderPage />} />
             <Route path="/order/:id" element={<OrderPage />} />
             <Route path="/order-success/:id" element={<OrderSuccessPage />} />
+            <Route path="/track-order" element={<TrackOrderPage />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route path="/admin/products" element={<ProductListScreen />} />
@@ -83,6 +86,7 @@ function App() {
             <Route path="/admin/orders" element={<OrderListScreen />} />
             <Route path="/admin/users" element={<UserListScreen />} />
             <Route path="/admin/coupons" element={<CouponListScreen />} />
+            <Route path="/admin/categories" element={<CategoryListScreen />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </main>

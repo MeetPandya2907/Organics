@@ -1,18 +1,18 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import { ChevronRight, Minus, Plus, ShoppingCart, Star, ShieldCheck, ArrowLeft, Leaf, Truck, Heart } from 'lucide-react';
+import { ChevronRight, Minus, Plus, ShoppingCart, Star, ShieldCheck, Leaf, Truck, Heart, FileText, Beaker, Droplet, Package, Clock, Trash2, Share2, MapPin, Wallet, AlertTriangle, RotateCcw } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import toast from 'react-hot-toast';
-import Meta from '../components/Meta';
+import { Helmet } from 'react-helmet-async';
 import NotifyMeForm from '../components/NotifyMeForm';
 import StarRating from '../components/StarRating';
 import ProductCard from '../components/ProductCard';
-import { getVariants, getRegion, getBaseUnit } from '../utils/units';
+import { getVariants, getRegion, getCashback } from '../utils/units';
 
 const ProductDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { products, fetchProducts, addToCart, loading, userInfo, createReview, wishlist, toggleWishlist, addRecentlyViewed } = useStore();
+  const { products, fetchProducts, addToCart, loading, userInfo, createReview, deleteReview, wishlist, toggleWishlist, addRecentlyViewed } = useStore();
   const product = products.find((p) => p._id === id);
   const variants = product ? getVariants(product) : [];
   const isWishlisted = product ? wishlist.some((w) => w._id === product._id) : false;
@@ -26,10 +26,26 @@ const ProductDetailPage = () => {
 
   const relatedProducts = product ? products.filter(p => p.category === product.category && p._id !== product._id && p.price > 0 && p.name !== 'Sample name').slice(0, 4) : [];
 
+  const displayPrice = selectedVariant?.price ?? product?.price ?? 0;
+  const mrp = selectedVariant?.mrp ?? product?.mrp ?? displayPrice;
+  const discountPct = mrp > displayPrice && displayPrice > 0
+    ? Math.round(((mrp - displayPrice) / mrp) * 100)
+    : 0;
+
   const quickAdd = (e, p) => {
     e.preventDefault();
     addToCart({ ...p, qty: 1 }, 1);
     toast.success(`${p.name} added to cart!`, { icon: '🛍️' });
+  };
+
+  const shareHandler = async () => {
+    const shareData = { title: product.name, text: `Check out ${product.name} on FitTree Organics`, url: window.location.href };
+    if (navigator.share) {
+      try { await navigator.share(shareData); } catch { /* user cancelled */ }
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      toast.success('Product link copied!');
+    }
   };
 
   useEffect(() => {
@@ -41,19 +57,18 @@ const ProductDetailPage = () => {
   useEffect(() => {
     if (product) {
       setSelectedVariant(getVariants(product).find((v) => v.isDefault) || getVariants(product)[0]);
-      setSelectedImage(product.image); // reset gallery selection on product change
+      setSelectedImage(product.image);
       addRecentlyViewed(product);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product?._id]);
 
   const addToCartHandler = () => {
-
     const variantLabel = selectedVariant?.label;
     addToCart({
       ...product,
       name: variantLabel ? `${product.name} (${variantLabel})` : product.name,
-      price: selectedVariant?.price ?? product.price,
+      price: displayPrice,
       _id: variantLabel ? `${product._id}-${variantLabel}` : product._id,
       originalId: product._id,
     }, qty);
@@ -77,6 +92,18 @@ const ProductDetailPage = () => {
     }
   };
 
+  const deleteReviewHandler = async (reviewId) => {
+    if (window.confirm('Are you sure you want to delete this review?')) {
+      const res = await deleteReview(id, reviewId);
+      if (res.success) {
+        toast.success(res.message);
+        fetchProducts();
+      } else {
+        toast.error(res.message);
+      }
+    }
+  };
+
   if (loading) return (
     <div className="min-h-screen bg-fittree-bg flex items-center justify-center pt-24 pb-20">
       <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-fittree-primary"></div>
@@ -93,11 +120,12 @@ const ProductDetailPage = () => {
 
   return (
     <div className="bg-fittree-bg min-h-screen font-sans pb-24 pt-[130px] selection:bg-fittree-accent selection:text-white">
-      <Meta title={`FitTree Organics | ${product.name}`} />
+      <Helmet>
+        <title>{product.metaTitle || `${product.name} | FitTree Organics`}</title>
+        <meta name="description" content={product.metaDescription || product.description?.substring(0, 150)} />
+      </Helmet>
 
       <div className="max-w-[1400px] mx-auto px-6">
-
-        {/* Breadcrumbs */}
         <div className="flex items-center gap-2 text-[12px] font-semibold tracking-wider text-fittree-text-light mb-10 overflow-x-auto whitespace-nowrap pb-2 uppercase">
           <Link to="/" className="hover:text-fittree-primary transition-colors">Home</Link>
           <ChevronRight size={14} />
@@ -155,20 +183,34 @@ const ProductDetailPage = () => {
             {/* Right: Product Info */}
             <div className="flex flex-col">
               <div className="mb-4 flex items-center justify-between">
-                <span className="inline-block px-4 py-1.5 bg-fittree-bg text-fittree-primary text-[11px] font-bold uppercase tracking-widest rounded-md border border-fittree-border shadow-sm">
-                  {product.category}
-                </span>
-                <button
-                  onClick={() => toggleWishlist(product)}
-                  className={`w-11 h-11 rounded-full border flex items-center justify-center transition-colors shadow-sm ${
-                    isWishlisted
-                      ? 'bg-fittree-pink/10 border-fittree-pink text-fittree-pink'
-                      : 'bg-white border-fittree-border text-fittree-text-light hover:border-fittree-pink hover:text-fittree-pink'
-                  }`}
-                  title={isWishlisted ? 'Remove from wishlist' : 'Save to wishlist'}
-                >
-                  <Heart size={18} fill={isWishlisted ? 'currentColor' : 'none'} />
-                </button>
+                <div className="flex items-center gap-2">
+                  <span className="inline-block px-4 py-1.5 bg-fittree-bg text-fittree-primary text-[11px] font-bold uppercase tracking-widest rounded-md border border-fittree-border shadow-sm">
+                    {product.category}
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-fittree-light text-fittree-primary text-[11px] font-bold uppercase tracking-wider rounded-md">
+                    <MapPin size={12} /> {getRegion(product)}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2.5">
+                  <button
+                    onClick={shareHandler}
+                    className="w-11 h-11 rounded-full border border-fittree-border bg-white text-fittree-text-light hover:border-fittree-primary hover:text-fittree-primary flex items-center justify-center transition-colors shadow-sm"
+                    title="Share this product"
+                  >
+                    <Share2 size={17} />
+                  </button>
+                  <button
+                    onClick={() => toggleWishlist(product)}
+                    className={`w-11 h-11 rounded-full border flex items-center justify-center transition-colors shadow-sm ${
+                      isWishlisted
+                        ? 'bg-fittree-pink/10 border-fittree-pink text-fittree-pink'
+                        : 'bg-white border-fittree-border text-fittree-text-light hover:border-fittree-pink hover:text-fittree-pink'
+                    }`}
+                    title={isWishlisted ? 'Remove from wishlist' : 'Save to wishlist'}
+                  >
+                    <Heart size={18} fill={isWishlisted ? 'currentColor' : 'none'} />
+                  </button>
+                </div>
               </div>
 
               <h1 className="text-[32px] md:text-[44px] font-semibold text-fittree-text mb-4 leading-tight">
@@ -184,8 +226,28 @@ const ProductDetailPage = () => {
                 <span className="text-[14px] font-semibold text-fittree-text-light">{product.numReviews} Reviews</span>
               </div>
 
-              <div className="text-[36px] font-semibold text-fittree-text mb-8">
-                ₹{selectedVariant?.price ?? product.price}<span className="text-[18px] font-medium text-fittree-text-light">/{selectedVariant?.label}</span>
+              <div className="mb-8">
+                <div className="flex items-center gap-3">
+                  <span className="text-[36px] font-semibold text-fittree-text leading-none">
+                    ₹{displayPrice}
+                  </span>
+                  {mrp > displayPrice && (
+                    <span className="text-[20px] text-fittree-text-light/60 line-through font-medium self-end mb-1">
+                      ₹{mrp}
+                    </span>
+                  )}
+                  {discountPct > 0 && (
+                    <span className="bg-green-100 text-green-700 text-[11px] font-bold uppercase tracking-wider px-2 py-1 rounded-md self-end mb-1.5 shadow-sm">
+                      {discountPct}% OFF
+                    </span>
+                  )}
+                </div>
+                <div className="text-[14px] font-medium text-fittree-text-light mt-1">
+                  Inclusive of all taxes <span className="mx-2 opacity-50">|</span> per {selectedVariant?.label}
+                </div>
+                <div className="flex items-center gap-2 mt-3 text-[13px] font-semibold text-fittree-primary">
+                  <Wallet size={15} /> Earn ₹{getCashback(product)} cashback on this order
+                </div>
               </div>
 
               <p className="text-fittree-text-light text-[16px] leading-relaxed mb-10 font-medium">
@@ -221,6 +283,12 @@ const ProductDetailPage = () => {
                     <span className="text-[12px] font-bold uppercase tracking-widest text-red-500">Out of Stock</span>
                   )}
                 </div>
+
+                {product.countInStock > 0 && product.countInStock <= 5 && (
+                  <div className="flex items-center gap-2 mb-4 text-[13px] font-bold text-fittree-accent-dark bg-fittree-accent-light/60 px-4 py-2.5 rounded-xl">
+                    <AlertTriangle size={15} /> Only {product.countInStock} left in stock — order soon
+                  </div>
+                )}
 
                 {product.countInStock > 0 && (
                   <div className="flex flex-col sm:flex-row gap-4 mt-2">
@@ -270,6 +338,18 @@ const ProductDetailPage = () => {
                   </div>
                   <span className="text-[14px] font-semibold text-fittree-text">Fast Delivery</span>
                 </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full bg-fittree-sand flex items-center justify-center text-fittree-primary shrink-0 shadow-sm">
+                    <ShieldCheck size={22} />
+                  </div>
+                  <span className="text-[14px] font-semibold text-fittree-text">FSSAI Certified</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full bg-fittree-sand flex items-center justify-center text-fittree-primary shrink-0 shadow-sm">
+                    <RotateCcw size={22} />
+                  </div>
+                  <span className="text-[14px] font-semibold text-fittree-text">Easy 7-Day Returns</span>
+                </div>
               </div>
             </div>
           </div>
@@ -280,13 +360,29 @@ const ProductDetailPage = () => {
           <div className="flex gap-10 border-b border-fittree-border mb-10 overflow-x-auto whitespace-nowrap pb-1 hide-scrollbar">
             <button
               onClick={() => setActiveTab('description')}
-              className={`pb-4 text-[16px] font-bold uppercase tracking-wide transition-all ${activeTab === 'description' ? 'text-fittree-primary border-b-2 border-fittree-primary' : 'text-fittree-text-light hover:text-fittree-text'}`}
+              className={`pb-4 text-[16px] font-bold uppercase tracking-wide transition-all whitespace-nowrap ${activeTab === 'description' ? 'text-fittree-primary border-b-2 border-fittree-primary' : 'text-fittree-text-light hover:text-fittree-text'}`}
             >
               Description
             </button>
+            {product.nutrition && product.nutrition.length > 0 && (
+              <button
+                onClick={() => setActiveTab('nutrition')}
+                className={`pb-4 text-[16px] font-bold uppercase tracking-wide transition-all whitespace-nowrap ${activeTab === 'nutrition' ? 'text-fittree-primary border-b-2 border-fittree-primary' : 'text-fittree-text-light hover:text-fittree-text'}`}
+              >
+                Nutrition
+              </button>
+            )}
+            {(product.ingredients || product.storageInstructions || product.shelfLife) && (
+              <button
+                onClick={() => setActiveTab('details')}
+                className={`pb-4 text-[16px] font-bold uppercase tracking-wide transition-all whitespace-nowrap ${activeTab === 'details' ? 'text-fittree-primary border-b-2 border-fittree-primary' : 'text-fittree-text-light hover:text-fittree-text'}`}
+              >
+                Details
+              </button>
+            )}
             <button
               onClick={() => setActiveTab('reviews')}
-              className={`pb-4 text-[16px] font-bold uppercase tracking-wide transition-all ${activeTab === 'reviews' ? 'text-fittree-primary border-b-2 border-fittree-primary' : 'text-fittree-text-light hover:text-fittree-text'}`}
+              className={`pb-4 text-[16px] font-bold uppercase tracking-wide transition-all whitespace-nowrap ${activeTab === 'reviews' ? 'text-fittree-primary border-b-2 border-fittree-primary' : 'text-fittree-text-light hover:text-fittree-text'}`}
             >
               Reviews ({product.reviews ? product.reviews.length : 0})
             </button>
@@ -296,20 +392,98 @@ const ProductDetailPage = () => {
             {activeTab === 'description' && (
               <div className="prose prose-lg max-w-none text-fittree-text font-medium leading-relaxed">
                 <p>{product.description}</p>
-                <ul className="mt-8 space-y-4">
-                  <li className="flex items-center gap-4">
-                    <span className="w-8 h-8 rounded-full bg-fittree-bg flex items-center justify-center text-fittree-primary shadow-sm border border-fittree-border"><ShieldCheck size={16} /></span>
-                    Certified Organic & Pesticide Free
-                  </li>
-                  <li className="flex items-center gap-4">
-                    <span className="w-8 h-8 rounded-full bg-fittree-bg flex items-center justify-center text-fittree-primary shadow-sm border border-fittree-border"><ShieldCheck size={16} /></span>
-                    Directly Sourced from Local Farmers
-                  </li>
-                  <li className="flex items-center gap-4">
-                    <span className="w-8 h-8 rounded-full bg-fittree-bg flex items-center justify-center text-fittree-primary shadow-sm border border-fittree-border"><ShieldCheck size={16} /></span>
-                    Packed with Essential Nutrients
-                  </li>
-                </ul>
+                {/* Show custom benefits from DB if set, otherwise use default list */}
+                {product.benefits && product.benefits.trim() ? (
+                  <ul className="mt-8 space-y-4 not-prose">
+                    {product.benefits.split('\n').filter(Boolean).map((benefit, i) => (
+                      <li key={i} className="flex items-center gap-4">
+                        <span className="w-8 h-8 rounded-full bg-fittree-bg flex items-center justify-center text-fittree-primary shadow-sm border border-fittree-border shrink-0">
+                          <ShieldCheck size={16} />
+                        </span>
+                        {benefit}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <ul className="mt-8 space-y-4">
+                    <li className="flex items-center gap-4">
+                      <span className="w-8 h-8 rounded-full bg-fittree-bg flex items-center justify-center text-fittree-primary shadow-sm border border-fittree-border"><ShieldCheck size={16} /></span>
+                      Certified Organic &amp; Pesticide Free
+                    </li>
+                    <li className="flex items-center gap-4">
+                      <span className="w-8 h-8 rounded-full bg-fittree-bg flex items-center justify-center text-fittree-primary shadow-sm border border-fittree-border"><ShieldCheck size={16} /></span>
+                      Directly Sourced from Local Farmers
+                    </li>
+                    <li className="flex items-center gap-4">
+                      <span className="w-8 h-8 rounded-full bg-fittree-bg flex items-center justify-center text-fittree-primary shadow-sm border border-fittree-border"><ShieldCheck size={16} /></span>
+                      Packed with Essential Nutrients
+                    </li>
+                  </ul>
+                )}
+              </div>
+            )}
+
+            {activeTab === 'nutrition' && product.nutrition && product.nutrition.length > 0 && (
+              <div className="max-w-xl mx-auto">
+                <div className="bg-fittree-bg border border-fittree-border rounded-3xl overflow-hidden shadow-sm">
+                  <div className="bg-fittree-primary/5 px-6 py-4 border-b border-fittree-border">
+                    <h3 className="text-[18px] font-bold text-fittree-text flex items-center gap-2">
+                      <Beaker size={20} className="text-fittree-primary" />
+                      Nutritional Values
+                    </h3>
+                    <p className="text-[13px] text-fittree-text-light font-medium mt-0.5">Typical values per 100g</p>
+                  </div>
+                  <div className="divide-y divide-fittree-border">
+                    {product.nutrition.map((item, idx) => (
+                      <div key={idx} className="flex items-center justify-between px-6 py-4 bg-white">
+                        <span className="text-[15px] font-semibold text-fittree-text">{item.nutrient}</span>
+                        <span className="text-[15px] font-bold text-fittree-text-light">
+                          {item.value} {item.unit}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'details' && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {product.ingredients && (
+                  <div className="bg-fittree-bg rounded-3xl p-8 border border-fittree-border shadow-sm">
+                    <h4 className="text-[14px] font-bold uppercase tracking-widest text-fittree-primary mb-3 flex items-center gap-2">
+                      <Droplet size={18} /> Ingredients
+                    </h4>
+                    <p className="text-[15px] font-medium text-fittree-text leading-relaxed">
+                      {product.ingredients}
+                    </p>
+                  </div>
+                )}
+                
+                <div className="space-y-6">
+                  {product.storageInstructions && (
+                    <div className="bg-white rounded-3xl p-6 border border-fittree-border shadow-sm flex items-start gap-4">
+                      <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center shrink-0">
+                        <Package size={20} />
+                      </div>
+                      <div>
+                        <h4 className="text-[14px] font-bold text-fittree-text mb-1">Storage</h4>
+                        <p className="text-[14px] font-medium text-fittree-text-light">{product.storageInstructions}</p>
+                      </div>
+                    </div>
+                  )}
+                  {product.shelfLife && (
+                    <div className="bg-white rounded-3xl p-6 border border-fittree-border shadow-sm flex items-start gap-4">
+                      <div className="w-10 h-10 rounded-full bg-green-50 text-green-500 flex items-center justify-center shrink-0">
+                        <Clock size={20} />
+                      </div>
+                      <div>
+                        <h4 className="text-[14px] font-bold text-fittree-text mb-1">Shelf Life</h4>
+                        <p className="text-[14px] font-medium text-fittree-text-light">{product.shelfLife}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 
@@ -353,21 +527,32 @@ const ProductDetailPage = () => {
                     <div className="space-y-8">
                       {product.reviews.map(review => (
                         <div key={review._id} className="pb-8 border-b border-fittree-border last:border-0 last:pb-0">
-                          <div className="flex items-center gap-5 mb-4">
-                            <div className="w-12 h-12 rounded-full bg-fittree-sand text-fittree-primary flex items-center justify-center font-bold text-[18px] shadow-sm border border-fittree-border">
-                              {review.name.charAt(0)}
-                            </div>
-                            <div>
-                              <h4 className="font-bold text-fittree-text text-[15px]">{review.name}</h4>
-                              <div className="flex items-center gap-3 mt-1">
-                                <div className="flex items-center gap-0.5 text-fittree-accent">
-                                  {[1, 2, 3, 4, 5].map(i => (
-                                    <Star key={i} size={14} fill={review.rating >= i ? "currentColor" : "none"} strokeWidth={review.rating >= i ? 0 : 1} />
-                                  ))}
+                          <div className="flex items-center gap-5 mb-4 justify-between">
+                            <div className="flex items-center gap-5">
+                              <div className="w-12 h-12 rounded-full bg-fittree-sand text-fittree-primary flex items-center justify-center font-bold text-[18px] shadow-sm border border-fittree-border">
+                                {review.name.charAt(0)}
+                              </div>
+                              <div>
+                                <h4 className="font-bold text-fittree-text text-[15px]">{review.name}</h4>
+                                <div className="flex items-center gap-3 mt-1">
+                                  <div className="flex items-center gap-0.5 text-fittree-accent">
+                                    {[1, 2, 3, 4, 5].map(i => (
+                                      <Star key={i} size={14} fill={review.rating >= i ? "currentColor" : "none"} strokeWidth={review.rating >= i ? 0 : 1} />
+                                    ))}
+                                  </div>
+                                  <span className="text-[12px] font-medium text-fittree-text-light">{review.createdAt?.substring(0, 10)}</span>
                                 </div>
-                                <span className="text-[12px] font-medium text-fittree-text-light">{review.createdAt?.substring(0, 10)}</span>
                               </div>
                             </div>
+                            {userInfo && (userInfo.isAdmin || userInfo._id === review.user) && (
+                              <button
+                                onClick={() => deleteReviewHandler(review._id)}
+                                className="w-8 h-8 flex items-center justify-center rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                                title="Delete review"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            )}
                           </div>
                           <p className="text-fittree-text text-[15px] font-medium leading-relaxed pl-17">{review.comment}</p>
                         </div>
@@ -391,6 +576,22 @@ const ProductDetailPage = () => {
               <ProductCard key={p._id} product={p} index={idx} />
             ))}
           </div>
+        </div>
+      )}
+
+      {/* Sticky mobile add-to-cart bar */}
+      {product.countInStock > 0 && (
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-fittree-border shadow-[0_-4px_20px_rgba(0,0,0,0.06)] px-4 py-3 flex items-center gap-3">
+          <div className="flex-1 min-w-0">
+            <p className="text-[13px] font-bold text-fittree-text truncate">{product.name}</p>
+            <p className="text-[15px] font-bold text-fittree-primary">₹{displayPrice}</p>
+          </div>
+          <button
+            onClick={addToCartHandler}
+            className="btn btn-primary !h-[46px] px-6 flex items-center gap-2 shrink-0 text-[13px]"
+          >
+            <ShoppingCart size={16} /> Add to Cart
+          </button>
         </div>
       )}
     </div>

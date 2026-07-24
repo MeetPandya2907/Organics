@@ -31,7 +31,7 @@ const CartDrawer = ({ open, onClose }) => {
 
   const goToCheckout = () => {
     onClose();
-    navigate('/shipping');
+    navigate('/placeorder');
   };
 
   return (

@@ -2,10 +2,24 @@ import mongoose from 'mongoose';
 
 const orderSchema = mongoose.Schema(
   {
+    // Sequential, customer-facing order number (e.g. 100234). The Mongo
+    // _id is still used internally for lookups/routing, but it's never
+    // shown to customers — it's a MongoDB ObjectId, which encodes a
+    // creation timestamp and is trivially enumerable in sequence, so it
+    // makes a poor public-facing identifier.
+    orderNumber: {
+      type: Number,
+      unique: true,
+    },
     user: {
       type: mongoose.Schema.Types.ObjectId,
-      required: true,
       ref: 'User',
+    },
+    guestName: {
+      type: String,
+    },
+    guestEmail: {
+      type: String,
     },
     orderItems: [
       {

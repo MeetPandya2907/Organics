@@ -15,7 +15,10 @@ export default {
         'fittree-dark': '#111827',        // Sharp dark gray text
         'fittree-light': '#F0FDF4',       // Soft green background
         'fittree-sand': '#F3F4F6',        // Clean gray for cards
-        'fittree-cream': '#FFFFFF',       
+        'fittree-cream': '#FBF6EC',        // Warm paper tone for editorial sections
+        'fittree-paper': '#F6F0E2',        // Deeper warm paper for contrast blocks
+        'fittree-forest': '#0E2B1C',       // Deep on-brand green for dark sections
+        'fittree-forest-light': '#173D28', // Lighter deep green for card fills on forest bg
         'fittree-text': '#111827',        // High contrast text
         'fittree-text-light': '#6B7280',  // Legible secondary text
         'fittree-border': '#E5E7EB',      // Clean borders
@@ -44,6 +47,7 @@ export default {
       fontFamily: {
         display: ['"Outfit"', 'sans-serif'],
         sans: ['"Inter"', 'sans-serif'],
+        serif: ['"Fraunces"', 'serif'],
       },
       boxShadow: {
         'fittree-sm': '0 4px 20px -2px rgba(4,47,26,0.03)',

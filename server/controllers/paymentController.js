@@ -20,6 +20,10 @@ const createRazorpayOrder = async (req, res) => {
       return res.status(401).json({ message: 'Not authorized to pay for this order' });
     }
 
+    if (order.isCancelled) {
+      return res.status(400).json({ message: 'Cannot pay for a cancelled order' });
+    }
+
     const instance = new Razorpay({
       key_id: process.env.RAZORPAY_KEY_ID,
       key_secret: process.env.RAZORPAY_KEY_SECRET,
@@ -83,7 +87,7 @@ const verifyRazorpayPayment = async (req, res) => {
               <p style="color: #555; font-size: 16px; line-height: 1.5;">Thank you for your order! We have successfully received your payment of <strong>₹${order.totalPrice}</strong>.</p>
               
               <div style="background-color: #ffffff; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px solid #eee;">
-                <h3 style="color: #0c3927; margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px;">Order Summary (Order #${order._id.toString().substring(0, 8)})</h3>
+                <h3 style="color: #0c3927; margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px;">Order Summary (Order #${order.orderNumber ?? order._id.toString().substring(0, 8)})</h3>
                 <table style="width: 100%; border-collapse: collapse;">
                   ${order.orderItems.map(item => `
                     <tr>
@@ -108,7 +112,7 @@ const verifyRazorpayPayment = async (req, res) => {
 
         sendEmail({
           email: req.user.email,
-          subject: `Order Receipt - Organics Store (#${order._id.toString().substring(0, 8)})`,
+          subject: `Order Receipt - Organics Store (#${order.orderNumber ?? order._id.toString().substring(0, 8)})`,
           html: emailHtml,
         });
 

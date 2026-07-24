@@ -3,7 +3,7 @@ import { useStore } from '../store/useStore';
 import { Heart, ShoppingCart, Star, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Meta from '../components/Meta';
-import { getBaseUnit, getRegion } from '../utils/units';
+import { getDisplayUnit, getDisplayPrice, getRegion } from '../utils/units';
 
 const WishlistPage = () => {
   const { wishlist, toggleWishlist, addToCart, userInfo } = useStore();
@@ -16,7 +16,12 @@ const WishlistPage = () => {
       navigate('/login');
       return;
     }
-    addToCart({ ...product, qty: 1 }, 1);
+    const displayUnit = getDisplayUnit(product);
+    const displayPrice = getDisplayPrice(product);
+    const cartProduct = product.sizes && product.sizes.length > 0
+      ? { ...product, price: displayPrice, name: `${product.name} (${displayUnit})`, _id: `${product._id}-${displayUnit}`, originalId: product._id }
+      : { ...product };
+    addToCart(cartProduct, 1);
   };
 
   return (
@@ -62,7 +67,7 @@ const WishlistPage = () => {
                   >
                     <X size={15} />
                   </button>
-                  <span className="absolute top-3 left-3 bg-white/90 backdrop-blur-md border border-white/50 text-fittree-text text-[10px] font-bold px-2 py-1 rounded-md z-10 shadow-sm">{getBaseUnit(p)}</span>
+                  <span className="absolute top-3 left-3 bg-white/90 backdrop-blur-md border border-white/50 text-fittree-text text-[10px] font-bold px-2 py-1 rounded-md z-10 shadow-sm">{getDisplayUnit(p)}</span>
 
                   <Link to={`/product/${p._id}`} className="block h-[150px] sm:h-[180px] bg-fittree-sand rounded-xl overflow-hidden mb-3 relative">
                     <img src={p.image} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
@@ -79,7 +84,7 @@ const WishlistPage = () => {
                     </div>
 
                     <div className="mt-auto flex items-center justify-between">
-                      <span className="text-[15px] font-bold text-fittree-text">₹{p.price}</span>
+                      <span className="text-[15px] font-bold text-fittree-text">₹{getDisplayPrice(p)}</span>
                       <button
                         onClick={(e) => quickAdd(e, p)}
                         disabled={p.countInStock === 0}

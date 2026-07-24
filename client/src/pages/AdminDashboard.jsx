@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../store/useStore';
-import { Package, ShoppingBag, Users, DollarSign, AlertCircle, Tag } from 'lucide-react';
+import { Package, ShoppingBag, Users, DollarSign, AlertCircle, Tag, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import {
@@ -167,6 +167,59 @@ const AdminDashboard = () => {
 
             </div>
 
+            {/* Top Sellers + Low Stock */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="bg-white p-8 rounded-2xl shadow-sm border border-fittree-border">
+                <h3 className="text-xl font-bold text-fittree-text mb-6 border-b border-fittree-border pb-4 flex items-center gap-2">
+                  <TrendingUp size={20} className="text-fittree-primary" /> Top Selling Products
+                </h3>
+                {summary.topSellingProducts.length === 0 ? (
+                  <div className="py-10 text-center text-fittree-text-light">No paid orders yet</div>
+                ) : (
+                  <div className="space-y-3">
+                    {summary.topSellingProducts.map((p, i) => (
+                      <div key={p._id} className="flex items-center gap-4">
+                        <span className="w-6 text-center font-bold text-fittree-text-light text-[13px]">{i + 1}</span>
+                        <div className="w-11 h-11 rounded-lg bg-fittree-bg overflow-hidden shrink-0 border border-fittree-border">
+                          {p.image && <img src={p.image} alt={p.name} className="w-full h-full object-cover" />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-bold text-[14px] text-fittree-text truncate">{p.name}</p>
+                          <p className="text-[12px] text-fittree-text-light font-medium">{p.qtySold} units sold</p>
+                        </div>
+                        <span className="font-bold text-[14px] text-fittree-text shrink-0">₹{p.revenue.toFixed(0)}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="bg-white p-8 rounded-2xl shadow-sm border border-fittree-border">
+                <h3 className="text-xl font-bold text-fittree-text mb-6 border-b border-fittree-border pb-4 flex items-center gap-2">
+                  <AlertCircle size={20} className="text-red-500" /> Low Stock Alerts
+                </h3>
+                {summary.lowStockProducts.length === 0 ? (
+                  <div className="py-10 text-center text-fittree-text-light">All products well-stocked</div>
+                ) : (
+                  <div className="space-y-3">
+                    {summary.lowStockProducts.map((p) => (
+                      <Link key={p._id} to={`/admin/product/${p._id}/edit`} className="flex items-center gap-4 hover:bg-fittree-bg -mx-2 px-2 py-1 rounded-lg transition-colors">
+                        <div className="w-11 h-11 rounded-lg bg-fittree-bg overflow-hidden shrink-0 border border-fittree-border">
+                          {p.image && <img src={p.image} alt={p.name} className="w-full h-full object-cover" />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-bold text-[14px] text-fittree-text truncate">{p.name}</p>
+                        </div>
+                        <span className={`px-2.5 py-1 rounded text-[11px] font-bold uppercase tracking-wider shrink-0 ${p.countInStock === 0 ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>
+                          {p.countInStock === 0 ? 'Out of stock' : `${p.countInStock} left`}
+                        </span>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
             {/* Recent Orders Table */}
             <div className="bg-white p-8 rounded-2xl shadow-sm border border-fittree-border">
               <div className="flex justify-between items-center mb-6 border-b border-fittree-border pb-4">
@@ -191,7 +244,7 @@ const AdminDashboard = () => {
                     )}
                     {summary.recentOrders.map((order) => (
                       <tr key={order._id} className="hover:bg-fittree-bg transition-colors">
-                        <td className="py-4 px-4 font-mono text-[13px] text-fittree-text-light">{order._id.substring(0, 8)}</td>
+                        <td className="py-4 px-4 font-mono text-[13px] text-fittree-text-light">#{order.orderNumber ?? order._id.substring(0, 8)}</td>
                         <td className="py-4 px-4 font-medium text-fittree-text">{order.user && order.user.name}</td>
                         <td className="py-4 px-4 text-[14px] font-medium text-fittree-text-light">{new Date(order.createdAt).toLocaleDateString()}</td>
                         <td className="py-4 px-4 font-bold text-fittree-text">₹{order.totalPrice}</td>

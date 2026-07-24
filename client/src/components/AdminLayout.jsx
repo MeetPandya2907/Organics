@@ -1,9 +1,10 @@
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Package, ShoppingBag, Users, Tag, ExternalLink } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingBag, Users, Tag, ExternalLink, List } from 'lucide-react';
 
 const NAV = [
   { name: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
   { name: 'Products', path: '/admin/products', icon: Package },
+  { name: 'Categories', path: '/admin/categories', icon: List },
   { name: 'Orders', path: '/admin/orders', icon: ShoppingBag },
   { name: 'Customers', path: '/admin/users', icon: Users },
   { name: 'Coupons', path: '/admin/coupons', icon: Tag },

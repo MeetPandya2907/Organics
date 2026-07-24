@@ -192,8 +192,8 @@ const CouponListScreen = () => {
               className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40"
             />
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[92%] max-w-[480px] bg-white rounded-3xl p-8 shadow-2xl z-50 max-h-[88vh] overflow-y-auto"
+              initial={{ opacity: 0, scale: 0.95, x: "-50%", y: "-45%" }} animate={{ opacity: 1, scale: 1, x: "-50%", y: "-50%" }} exit={{ opacity: 0, scale: 0.95, x: "-50%", y: "-45%" }}
+              className="fixed top-1/2 left-1/2 w-[92%] max-w-[480px] bg-white rounded-3xl p-8 shadow-2xl z-50 max-h-[88vh] overflow-y-auto"
             >
               <div className="flex justify-between items-start mb-6">
                 <h3 className="text-2xl font-bold text-fittree-text">New Coupon</h3>
@@ -309,8 +309,8 @@ const CouponListScreen = () => {
               className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40"
             />
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-[400px] bg-white rounded-3xl p-8 shadow-2xl z-50 overflow-hidden"
+              initial={{ opacity: 0, scale: 0.95, x: "-50%", y: "-45%" }} animate={{ opacity: 1, scale: 1, x: "-50%", y: "-50%" }} exit={{ opacity: 0, scale: 0.95, x: "-50%", y: "-45%" }}
+              className="fixed top-1/2 left-1/2 w-[90%] max-w-[400px] bg-white rounded-3xl p-8 shadow-2xl z-50 overflow-hidden"
             >
               <div className="absolute top-0 left-0 w-full h-2 bg-red-500"></div>
               <div className="flex justify-between items-start mb-6">

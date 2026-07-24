@@ -132,6 +132,34 @@ export const useStore = create((set, get) => ({
     }
   },
 
+  addSavedAddress: async (address) => {
+    const state = get();
+    if (!state.userInfo) return false;
+    try {
+      const { data } = await axios.post('/api/users/addresses', address);
+      const updatedUserInfo = { ...state.userInfo, addresses: data };
+      set({ userInfo: updatedUserInfo });
+      localStorage.setItem('userInfo', JSON.stringify(updatedUserInfo));
+      return true;
+    } catch (error) {
+      return false;
+    }
+  },
+
+  deleteSavedAddress: async (addressId) => {
+    const state = get();
+    if (!state.userInfo) return false;
+    try {
+      const { data } = await axios.delete(`/api/users/addresses/${addressId}`);
+      const updatedUserInfo = { ...state.userInfo, addresses: data };
+      set({ userInfo: updatedUserInfo });
+      localStorage.setItem('userInfo', JSON.stringify(updatedUserInfo));
+      return true;
+    } catch (error) {
+      return false;
+    }
+  },
+
   logout: async () => {
     try {
       await axios.post('/api/users/logout');
@@ -270,6 +298,18 @@ export const useStore = create((set, get) => ({
       return { 
         success: false, 
         message: error.response && error.response.data.message ? error.response.data.message : error.message 
+      };
+    }
+  },
+
+  deleteReview: async (productId, reviewId) => {
+    try {
+      const { data } = await axios.delete(`/api/products/${productId}/reviews/${reviewId}`);
+      return { success: true, message: data.message };
+    } catch (error) {
+      return {
+        success: false,
+        message: error.response && error.response.data.message ? error.response.data.message : error.message
       };
     }
   },

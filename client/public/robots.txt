@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /cart
+Disallow: /checkout
+Disallow: /placeorder
+
+Sitemap: https://www.fittreeorganics.com/sitemap.xml

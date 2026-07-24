@@ -2,6 +2,7 @@ import express from 'express';
 import {
   addOrderItems,
   getOrderById,
+  trackOrderByNumber,
   updateOrderToPaid,
   getMyOrders,
   getOrders,
@@ -9,16 +10,17 @@ import {
   updateOrderToShipped,
   cancelOrder,
 } from '../controllers/orderController.js';
-import { protect, admin } from '../middleware/authMiddleware.js';
+import { protect, protectOptional, admin } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-router.route('/').post(protect, addOrderItems).get(protect, admin, getOrders);
+router.route('/').post(protectOptional, addOrderItems).get(protect, admin, getOrders);
 router.route('/myorders').get(protect, getMyOrders);
-router.route('/:id').get(protect, getOrderById);
-router.route('/:id/pay').put(protect, updateOrderToPaid);
+router.route('/track/:orderNumber').get(trackOrderByNumber);
+router.route('/:id').get(protectOptional, getOrderById);
+router.route('/:id/pay').put(protectOptional, updateOrderToPaid);
 router.route('/:id/deliver').put(protect, admin, updateOrderToDelivered);
 router.route('/:id/ship').put(protect, admin, updateOrderToShipped);
-router.route('/:id/cancel').put(protect, cancelOrder);
+router.route('/:id/cancel').put(protectOptional, cancelOrder);
 
 export default router;

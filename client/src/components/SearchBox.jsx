@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, X } from 'lucide-react';
 import { useStore } from '../store/useStore';
+import { getDisplayPrice } from '../utils/units';
 
 const SearchBox = () => {
   const [keyword, setKeyword] = useState('');
@@ -73,23 +74,17 @@ const SearchBox = () => {
           onFocus={() => suggestions.length > 0 && setOpen(true)}
           placeholder="Search for organic products..."
           autoComplete="off"
-          className="w-full bg-slate-100 border border-transparent rounded-xl py-3 pl-11 pr-[90px] focus:outline-none focus:bg-white focus:border-fittree-primary focus:ring-4 focus:ring-fittree-primary/10 transition-all placeholder-fittree-text-light text-fittree-text text-[14px] font-medium shadow-inner"
+          className="w-full bg-slate-100 border border-transparent rounded-xl py-3 pl-11 pr-12 focus:outline-none focus:bg-white focus:border-fittree-primary focus:ring-4 focus:ring-fittree-primary/10 transition-all placeholder-fittree-text-light text-fittree-text text-[14px] font-medium shadow-inner"
         />
         {keyword && (
           <button
             type="button"
             onClick={() => { setKeyword(''); setSuggestions([]); setOpen(false); }}
-            className="absolute right-[72px] top-1/2 -translate-y-1/2 text-fittree-text-light hover:text-fittree-text transition-colors"
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-fittree-text-light hover:text-fittree-text transition-colors"
           >
             <X size={15} />
           </button>
         )}
-        <button
-          type="submit"
-          className="absolute right-1.5 top-1/2 -translate-y-1/2 bg-fittree-primary text-white text-[12px] font-bold px-4 py-1.5 rounded-lg hover:bg-fittree-primary-soft transition-colors shadow-sm"
-        >
-          Search
-        </button>
       </form>
 
       {/* Autocomplete Dropdown */}
@@ -119,7 +114,7 @@ const SearchBox = () => {
                   {product.name}
                 </p>
                 <p className="text-[11px] text-fittree-text-light font-semibold">
-                  ₹{product.price} · {product.category}
+                  ₹{getDisplayPrice(product)} · {product.category}
                 </p>
               </div>
               <Search size={14} className="text-fittree-text-light shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />

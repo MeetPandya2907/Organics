@@ -21,13 +21,14 @@ const ProductListScreen = () => {
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('All');
   const [stockFilter, setStockFilter] = useState('all'); // all | low | out
+  const [statusFilter, setStatusFilter] = useState('all'); // all | Published | Draft | Archived
   const [editingStockId, setEditingStockId] = useState(null);
   const [stockDraft, setStockDraft] = useState('');
 
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const { data } = await axios.get('/api/products?pageSize=200');
+      const { data } = await axios.get('/api/products?pageSize=200&showAll=true');
       setProducts(data.products);
       setLoading(false);
     } catch (err) {
@@ -51,9 +52,10 @@ const ProductListScreen = () => {
       if (category !== 'All' && p.category !== category) return false;
       if (stockFilter === 'low' && !(p.countInStock > 0 && p.countInStock <= 5)) return false;
       if (stockFilter === 'out' && p.countInStock !== 0) return false;
+      if (statusFilter !== 'all' && (p.status || 'Published') !== statusFilter) return false;
       return true;
     });
-  }, [products, search, category, stockFilter]);
+  }, [products, search, category, stockFilter, statusFilter]);
 
   const confirmDelete = async () => {
     if (!deleteConfirmId) return;
@@ -162,6 +164,16 @@ const ProductListScreen = () => {
           <option value="low">Low Stock (≤5)</option>
           <option value="out">Out of Stock</option>
         </select>
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          className="px-4 py-2.5 rounded-xl border border-fittree-border bg-fittree-bg focus:outline-none focus:border-fittree-primary text-[13.5px] text-fittree-text font-medium"
+        >
+          <option value="all">All Status</option>
+          <option value="Published">Published</option>
+          <option value="Draft">Draft</option>
+          <option value="Archived">Archived</option>
+        </select>
       </div>
 
       <div className="bg-white p-5 md:p-8 rounded-2xl shadow-sm border border-fittree-border">
@@ -189,7 +201,16 @@ const ProductListScreen = () => {
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-3">
                         <img src={product.image} alt={product.name} className="w-10 h-10 rounded-lg object-cover bg-fittree-sand shrink-0" />
-                        <span className="font-medium text-fittree-text text-[13.5px] line-clamp-1">{product.name}</span>
+                        <div className="min-w-0">
+                          <span className="font-medium text-fittree-text text-[13.5px] line-clamp-1 block">{product.name}</span>
+                          <span className={`inline-block mt-0.5 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${
+                            (product.status || 'Published') === 'Published'
+                              ? 'bg-green-100 text-green-700'
+                              : (product.status || 'Published') === 'Draft'
+                              ? 'bg-yellow-100 text-yellow-700'
+                              : 'bg-gray-100 text-gray-500'
+                          }`}>{product.status || 'Published'}</span>
+                        </div>
                       </div>
                     </td>
                     <td className="py-3 px-4 text-fittree-primary font-semibold text-[13.5px]">₹{product.price}</td>
@@ -254,8 +275,8 @@ const ProductListScreen = () => {
               className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40"
             />
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-[400px] bg-white rounded-3xl p-8 shadow-2xl z-50 overflow-hidden"
+              initial={{ opacity: 0, scale: 0.95, x: "-50%", y: "-45%" }} animate={{ opacity: 1, scale: 1, x: "-50%", y: "-50%" }} exit={{ opacity: 0, scale: 0.95, x: "-50%", y: "-45%" }}
+              className="fixed top-1/2 left-1/2 w-[90%] max-w-[400px] bg-white rounded-3xl p-8 shadow-2xl z-50 overflow-hidden"
             >
               <div className="absolute top-0 left-0 w-full h-2 bg-red-500"></div>
               <div className="flex justify-between items-start mb-6">

@@ -23,6 +23,7 @@ const authUser = async (req, res) => {
       email: user.email,
       isAdmin: user.isAdmin,
       cart: user.cart || [],
+      addresses: user.addresses || [],
     });
   } else {
     res.status(401).json({ message: 'Invalid email or password' });
@@ -117,6 +118,7 @@ const registerUser = async (req, res) => {
       email: user.email,
       isAdmin: user.isAdmin,
       cart: user.cart || [],
+      addresses: user.addresses || [],
     });
   } else {
     res.status(400).json({ message: 'Invalid user data' });
@@ -177,6 +179,7 @@ const getUserProfile = async (req, res) => {
       email: user.email,
       isAdmin: user.isAdmin,
       cart: user.cart || [],
+      addresses: user.addresses || [],
     });
   } else {
     res.status(404).json({ message: 'User not found' });
@@ -286,6 +289,69 @@ const saveUserCart = async (req, res) => {
   }
 };
 
+// @desc    Add a saved address
+// @route   POST /api/users/addresses
+// @access  Private
+const addAddress = async (req, res) => {
+  const user = await User.findById(req.user._id);
+  if (!user) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+
+  const { label, fullName, phone, addressLine, city, state, postalCode, isDefault } = req.body;
+  if (!fullName || !phone || !addressLine || !city || !state || !postalCode) {
+    return res.status(400).json({ message: 'All address fields are required' });
+  }
+
+  if (isDefault) {
+    user.addresses.forEach((a) => { a.isDefault = false; });
+  }
+
+  user.addresses.push({
+    label: label || 'Home',
+    fullName,
+    phone,
+    addressLine,
+    city,
+    state,
+    postalCode,
+    isDefault: isDefault || user.addresses.length === 0,
+  });
+
+  await user.save();
+  res.status(201).json(user.addresses);
+};
+
+// @desc    Delete a saved address
+// @route   DELETE /api/users/addresses/:addressId
+// @access  Private
+const deleteAddress = async (req, res) => {
+  const user = await User.findById(req.user._id);
+  if (!user) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+
+  user.addresses = user.addresses.filter((a) => a._id.toString() !== req.params.addressId);
+  await user.save();
+  res.json(user.addresses);
+};
+
+// @desc    Set an address as default
+// @route   PUT /api/users/addresses/:addressId/default
+// @access  Private
+const setDefaultAddress = async (req, res) => {
+  const user = await User.findById(req.user._id);
+  if (!user) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+
+  user.addresses.forEach((a) => {
+    a.isDefault = a._id.toString() === req.params.addressId;
+  });
+  await user.save();
+  res.json(user.addresses);
+};
+
 // @desc    Google Authentication (Login/Register)
 // @route   POST /api/users/google-auth
 // @access  Public
@@ -348,4 +414,7 @@ export {
   getUserById,
   updateUser,
   saveUserCart,
+  addAddress,
+  deleteAddress,
+  setDefaultAddress,
 };

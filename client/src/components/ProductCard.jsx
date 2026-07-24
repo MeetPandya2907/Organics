@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingCart, Heart, Star, Zap, CheckCircle } from 'lucide-react';
 import { useStore } from '../store/useStore';
-import { getBaseUnit, getRegion } from '../utils/units';
+import { getDisplayUnit, getDisplayPrice, getRegion } from '../utils/units';
 
 const ProductCard = ({ product, index = 0, badge = null }) => {
   const { addToCart, wishlist, toggleWishlist } = useStore();
@@ -22,13 +22,34 @@ const ProductCard = ({ product, index = 0, badge = null }) => {
   const inStock = product.countInStock > 0;
   const isLowStock = product.countInStock > 0 && product.countInStock <= 5;
 
+  // Auto-computed discount from MRP vs selling price
+  const displayPrice = getDisplayPrice(product);
+  const mrp = product.mrp || 0;
+  const discountPct = mrp > displayPrice && displayPrice > 0
+    ? Math.round(((mrp - displayPrice) / mrp) * 100)
+    : 0;
+
+
   const handleAddToCart = (e) => {
     e.preventDefault();
     if (!inStock || added) return;
-    addToCart({ ...product, qty: 1 }, 1);
+    const displayUnit = getDisplayUnit(product);
+    const displayPrice = getDisplayPrice(product);
+    // If the product has custom sizes, tag the cart item with the default size label and price
+    const cartProduct = product.sizes && product.sizes.length > 0
+      ? {
+          ...product,
+          price: displayPrice,
+          name: `${product.name} (${displayUnit})`,
+          _id: `${product._id}-${displayUnit}`,
+          originalId: product._id,
+        }
+      : { ...product, qty: 1 };
+    addToCart(cartProduct, 1);
     setAdded(true);
     setTimeout(() => setAdded(false), 1800);
   };
+
 
   const handleWishlist = (e) => {
     e.preventDefault();
@@ -78,7 +99,12 @@ const ProductCard = ({ product, index = 0, badge = null }) => {
                 Sold Out
               </span>
             )}
-            {inStock && badge && (
+            {discountPct > 0 && (
+              <span className="bg-fittree-primary text-white text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-lg shadow">
+                {discountPct}% Off
+              </span>
+            )}
+            {inStock && badge && !discountPct && (
               <span className="bg-fittree-accent text-white text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-lg shadow">
                 {badge}
               </span>
@@ -143,11 +169,18 @@ const ProductCard = ({ product, index = 0, badge = null }) => {
         {/* Price + Add to Cart */}
         <div className="mt-auto flex items-center justify-between gap-2 pt-3 border-t border-fittree-border">
           <div className="flex flex-col">
-            <span className="text-[17px] font-extrabold text-fittree-text leading-none">
-              ₹{product.price}
-            </span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-[17px] font-extrabold text-fittree-text leading-none">
+                ₹{displayPrice}
+              </span>
+              {mrp > displayPrice && (
+                <span className="text-[12px] text-fittree-text-light/60 line-through font-medium">
+                  ₹{mrp}
+                </span>
+              )}
+            </div>
             <span className="text-[10px] text-fittree-text-light font-semibold mt-0.5">
-              per {getBaseUnit(product)}
+              per {getDisplayUnit(product)}
             </span>
           </div>
           <button

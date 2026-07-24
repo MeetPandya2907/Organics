@@ -16,8 +16,13 @@ import uploadRoutes from './routes/uploadRoutes.js';
 import couponRoutes from './routes/couponRoutes.js';
 import stockAlertRoutes from './routes/stockAlertRoutes.js';
 import categoryRoutes from './routes/categoryRoutes.js';
+import newsletterRoutes from './routes/newsletterRoutes.js';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 import morgan from 'morgan';
+import Product from './models/productModel.js';
+
+const SITE_URL = process.env.SITE_URL || 'https://www.fittreeorganics.com';
+const STATIC_PAGES = ['', 'products', 'about', 'recipes', 'contact', 'faq'];
 
 dotenv.config();
 connectDB();
@@ -43,8 +48,29 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/coupons', couponRoutes);
 app.use('/api/stock-alerts', stockAlertRoutes);
 app.use('/api/categories', categoryRoutes);
+app.use('/api/newsletter', newsletterRoutes);
 
 app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
+
+app.get('/sitemap.xml', async (req, res) => {
+  try {
+    const products = await Product.find({ price: { $gt: 0 } }).select('_id updatedAt');
+
+    const staticUrls = STATIC_PAGES.map(
+      (p) => `<url><loc>${SITE_URL}/${p}</loc><changefreq>weekly</changefreq><priority>${p === '' ? '1.0' : '0.7'}</priority></url>`
+    );
+    const productUrls = products.map(
+      (p) => `<url><loc>${SITE_URL}/product/${p._id}</loc><lastmod>${p.updatedAt.toISOString()}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>`
+    );
+
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${[...staticUrls, ...productUrls].join('\n')}\n</urlset>`;
+
+    res.header('Content-Type', 'application/xml');
+    res.send(xml);
+  } catch (error) {
+    res.status(500).send('Error generating sitemap');
+  }
+});
 
 if (process.env.NODE_ENV === 'production') {
   const clientDistPath = path.join(__dirname, '../client/dist');

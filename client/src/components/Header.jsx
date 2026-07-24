@@ -1,15 +1,18 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { useStore } from '../store/useStore';
-import { ShoppingCart, User, LogOut, Package, Menu, X, Leaf, Heart } from 'lucide-react';
+import { ShoppingCart, User, LogOut, Package, Menu, X, Leaf, Heart, Truck, ChevronDown } from 'lucide-react';
 import SearchBox from './SearchBox';
 import CartDrawer from './CartDrawer';
+import Logo from './Logo';
 
 const NAV_LINKS = [
-  { name: 'Shop All', path: '/products' },
-  { name: 'Best Deals', path: '/products?sort=lowest' },
+  { name: 'Shop', path: '/products' },
   { name: 'Our Story', path: '/about' },
-  { name: 'Recipes', path: '/recipes' },
+  { name: 'Sustainability', path: '/about' },
+  { name: 'Blog', path: '/recipes' },
+  { name: 'Track Order', path: '/track-order' },
   { name: 'Contact', path: '/contact' },
 ];
 
@@ -17,7 +20,12 @@ const Header = () => {
   const { userInfo, logout, cart, wishlist } = useStore();
   const [isOpen, setIsOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
+  const [categories, setCategories] = useState([]);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    axios.get('/api/categories').then(({ data }) => setCategories(data)).catch(() => { });
+  }, []);
 
   const cartItemsCount = cart.reduce((acc, item) => acc + item.qty, 0);
 
@@ -29,44 +37,52 @@ const Header = () => {
 
   return (
     <>
-      <div className="fixed w-full top-0 z-50 bg-white border-b border-fittree-border shadow-sm">
-        {/* Top promotional bar */}
-        <div className="bg-fittree-primary text-white text-center py-1.5 text-[12px] font-medium tracking-wide">
-          🌿 Farm-traced batches, lab-tested for purity · Flat 10% off prepaid, COD available pan-India
-        </div>
+      <div className="absolute w-full top-0 z-50 bg-fittree-cream/90 backdrop-blur-md">
 
         <header className="w-full">
           <div className="max-w-[1400px] mx-auto px-4 sm:px-6">
             <div className="flex items-center justify-between gap-6 py-4">
 
-              {/* Logo */}
-              <Link to="/" className="flex items-center gap-2 shrink-0 group">
-                <div className="w-10 h-10 rounded-xl bg-fittree-primary text-white flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
-                  <Leaf size={22} fill="currentColor" />
-                </div>
-                <div className="flex flex-col leading-none">
-                  <span className="font-display font-bold text-[22px] text-fittree-text leading-none">FitTree</span>
-                  <span className="text-[10px] font-bold tracking-[0.2em] text-fittree-primary uppercase mt-1">Organics</span>
-                </div>
-              </Link>
-
-              {/* Desktop Search Bar */}
-              <div className="hidden md:flex flex-1 max-w-2xl mx-8">
-                <SearchBox />
+              {/* Logo (Left, flex-1 to push nav to center) */}
+              <div className="flex flex-1">
+                <Link to="/" className="flex items-center shrink-0 group" aria-label="FitTree Organics">
+                  <Logo className="group-hover:scale-105 transition-transform" />
+                </Link>
               </div>
 
-              {/* Desktop Actions */}
-              <div className="hidden md:flex items-center gap-6">
-                <nav className="flex items-center gap-5 text-[14px] font-semibold text-fittree-text">
-                  {NAV_LINKS.map(link => (
-                    <Link key={link.name} to={link.path} className="hover:text-fittree-primary transition-colors">
-                      {link.name}
-                    </Link>
-                  ))}
-                </nav>
+              {/* Nav (Centered) */}
+              <nav className="hidden lg:flex items-center justify-center gap-8 text-[14px] font-bold text-fittree-text shrink-0">
+                <Link to="/products" className="hover:text-fittree-primary transition-colors">Shop</Link>
 
-                <div className="w-px h-6 bg-fittree-border"></div>
+                <div className="relative group py-2 -my-2">
+                  <button className="flex items-center gap-1 hover:text-fittree-primary transition-colors">
+                    Categories <ChevronDown size={14} />
+                  </button>
+                  <div className="absolute left-0 top-full w-52 bg-white rounded-xl shadow-lg border border-fittree-border opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 overflow-hidden py-1.5">
+                    {categories.map((c) => (
+                      <Link
+                        key={c._id}
+                        to={`/products?category=${encodeURIComponent(c.name)}`}
+                        className="block px-4 py-2.5 text-[13.5px] font-medium text-fittree-text hover:bg-fittree-light hover:text-fittree-primary transition-colors"
+                      >
+                        {c.name}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
 
+                {NAV_LINKS.slice(1).map(link => (
+                  <Link key={link.name} to={link.path} className="hover:text-fittree-primary transition-colors whitespace-nowrap">
+                    {link.name}
+                  </Link>
+                ))}
+              </nav>
+
+              {/* Desktop Actions (Right, flex-1) */}
+              <div className="hidden md:flex flex-1 items-center justify-end gap-5 shrink-0">
+                <div className="w-full max-w-[200px] lg:max-w-[240px]">
+                  <SearchBox />
+                </div>
                 {userInfo ? (
                   <div className="relative group">
                     <button className="flex items-center gap-2 font-semibold text-[14px] text-fittree-text hover:text-fittree-primary transition-colors">
@@ -96,23 +112,23 @@ const Header = () => {
                   </Link>
                 )}
 
-                <Link to="/wishlist" className="relative flex items-center justify-center w-12 h-12 bg-white border border-fittree-border text-fittree-text rounded-xl hover:border-fittree-pink hover:text-fittree-pink transition-colors shadow-sm">
-                  <Heart size={20} />
+                <Link to="/wishlist" className="relative flex items-center justify-center w-10 h-10 text-fittree-text hover:text-fittree-pink transition-colors">
+                  <Heart size={22} strokeWidth={1.5} />
                   {wishlist.length > 0 && (
-                    <span className="absolute -top-2 -right-2 bg-fittree-pink text-white text-[11px] font-bold h-6 w-6 rounded-full flex items-center justify-center shadow-md border-2 border-white">
+                    <span className="absolute top-0 right-0 bg-fittree-pink text-white text-[10px] font-bold h-4 w-4 rounded-full flex items-center justify-center">
                       {wishlist.length}
                     </span>
                   )}
                 </Link>
 
-                {/* Cart Button → opens Drawer */}
+                {/* Cart Button */}
                 <button
                   onClick={() => setCartOpen(true)}
-                  className="relative flex items-center justify-center w-12 h-12 bg-fittree-primary text-white rounded-xl hover:bg-fittree-primary-soft transition-colors shadow-md hover:shadow-lg hover:-translate-y-0.5"
+                  className="relative flex items-center justify-center w-10 h-10 text-fittree-text hover:text-fittree-primary transition-colors"
                 >
-                  <ShoppingCart size={22} />
+                  <ShoppingCart size={22} strokeWidth={1.5} />
                   {cartItemsCount > 0 && (
-                    <span className="absolute -top-2 -right-2 bg-fittree-accent text-white text-[11px] font-bold h-6 w-6 rounded-full flex items-center justify-center shadow-md border-2 border-white">
+                    <span className="absolute top-0 right-0 bg-fittree-primary text-white text-[10px] font-bold h-4 w-4 rounded-full flex items-center justify-center">
                       {cartItemsCount}
                     </span>
                   )}
@@ -151,9 +167,9 @@ const Header = () => {
 
             {/* Mobile Search Bar */}
             <div className="md:hidden pb-4">
-               <div className="w-full relative shadow-sm rounded-xl overflow-hidden border border-fittree-border focus-within:border-fittree-primary focus-within:ring-2 focus-within:ring-fittree-primary/20">
-                  <SearchBox />
-               </div>
+              <div className="w-full relative shadow-sm rounded-xl overflow-hidden border border-fittree-border focus-within:border-fittree-primary focus-within:ring-2 focus-within:ring-fittree-primary/20">
+                <SearchBox />
+              </div>
             </div>
           </div>
         </header>
@@ -168,6 +184,18 @@ const Header = () => {
                     {link.name}
                   </Link>
                 ))}
+                {categories.length > 0 && (
+                  <div className="pb-3 border-b border-fittree-border">
+                    <span className="block text-[13px] font-bold uppercase tracking-wider text-fittree-text-light mb-3">Categories</span>
+                    <div className="flex flex-col gap-3">
+                      {categories.map((c) => (
+                        <Link key={c._id} to={`/products?category=${encodeURIComponent(c.name)}`} onClick={() => setIsOpen(false)} className="text-[16px] font-semibold text-fittree-text">
+                          {c.name}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </nav>
 
               <div className="flex flex-col gap-4 mt-2">

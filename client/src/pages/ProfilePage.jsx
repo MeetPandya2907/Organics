@@ -191,7 +191,7 @@ const ProfilePage = () => {
                         <div>
                           <div className="flex items-center gap-3 mb-1">
                             <p className="text-[12px] font-bold text-fittree-text-light uppercase tracking-widest">Order</p>
-                            <p className="font-mono font-bold text-fittree-text bg-fittree-sand px-2 py-0.5 rounded border border-fittree-border">#{order._id.substring(0, 8)}</p>
+                            <p className="font-mono font-bold text-fittree-text bg-fittree-sand px-2 py-0.5 rounded border border-fittree-border">#{order.orderNumber ?? order._id.substring(0, 8)}</p>
                           </div>
                           <p className="text-[13px] font-medium text-fittree-text-light flex items-center gap-2"><Clock size={14}/> {new Date(order.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}</p>
                         </div>

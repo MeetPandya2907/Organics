@@ -16,7 +16,11 @@ export const getSummary = async (req, res) => {
     const totalSales = orders.reduce((sum, order) => sum + (order.isPaid ? order.totalPrice : 0), 0);
     const totalUsers = users.length;
     const pendingOrders = orders.filter(order => !order.isDelivered).length;
-    const lowStockItems = products.filter(product => product.countInStock <= 5).length;
+    const lowStockProducts = products
+      .filter(product => product.countInStock <= 5)
+      .sort((a, b) => a.countInStock - b.countInStock)
+      .map(p => ({ _id: p._id, name: p.name, countInStock: p.countInStock, image: p.image }));
+    const lowStockItems = lowStockProducts.length;
 
     // 2. Sales by Date (Line Chart)
     const salesDataObj = {};
@@ -60,6 +64,32 @@ export const getSummary = async (req, res) => {
       value: categorySales[key]
     }));
 
+    // 3b. Top Selling Products (by units sold across paid orders)
+    const unitsSoldByProduct = {};
+    for (const order of orders) {
+      if (order.isPaid) {
+        for (const item of order.orderItems) {
+          const key = item.product.toString();
+          if (!unitsSoldByProduct[key]) unitsSoldByProduct[key] = { qty: 0, revenue: 0 };
+          unitsSoldByProduct[key].qty += item.qty;
+          unitsSoldByProduct[key].revenue += item.price * item.qty;
+        }
+      }
+    }
+    const topSellingProducts = Object.keys(unitsSoldByProduct)
+      .map((key) => {
+        const product = products.find(p => p._id.toString() === key);
+        return {
+          _id: key,
+          name: product ? product.name : 'Deleted Product',
+          image: product ? product.image : null,
+          qtySold: unitsSoldByProduct[key].qty,
+          revenue: unitsSoldByProduct[key].revenue,
+        };
+      })
+      .sort((a, b) => b.qtySold - a.qtySold)
+      .slice(0, 5);
+
     // 4. Recent Orders (Table data)
     const recentOrders = await Order.find()
       .populate('user', 'name email')
@@ -72,8 +102,10 @@ export const getSummary = async (req, res) => {
       totalUsers,
       pendingOrders,
       lowStockItems,
+      lowStockProducts,
       salesByDate,
       salesByCategory,
+      topSellingProducts,
       recentOrders
     });
 

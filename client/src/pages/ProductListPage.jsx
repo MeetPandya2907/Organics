@@ -30,6 +30,12 @@ const ProductListPage = () => {
   const [sort, setSort] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [categories, setCategories] = useState(['All']);
+  const [maxPrice, setMaxPrice] = useState(1000);
+  const [inStockOnly, setInStockOnly] = useState(false);
+
+  const visibleProducts = products.filter(
+    (p) => p.price <= maxPrice && (!inStockOnly || p.countInStock > 0)
+  );
 
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
@@ -137,6 +143,35 @@ const ProductListPage = () => {
                     ))}
                   </div>
 
+                  <div className="mt-8 pt-8 border-t border-fittree-border">
+                    <h3 className="text-[18px] font-semibold text-fittree-text mb-5">Price</h3>
+                    <input
+                      type="range"
+                      min="50"
+                      max="1000"
+                      step="50"
+                      value={maxPrice}
+                      onChange={(e) => setMaxPrice(Number(e.target.value))}
+                      className="w-full accent-fittree-primary"
+                    />
+                    <div className="flex justify-between text-[12.5px] font-medium text-fittree-text-light mt-1.5">
+                      <span>₹0</span>
+                      <span>Up to ₹{maxPrice}</span>
+                    </div>
+                  </div>
+
+                  <div className="mt-8 pt-8 border-t border-fittree-border">
+                    <label className="flex items-center gap-3 cursor-pointer group">
+                      <input
+                        type="checkbox"
+                        checked={inStockOnly}
+                        onChange={(e) => setInStockOnly(e.target.checked)}
+                        className="w-5 h-5 rounded accent-fittree-primary"
+                      />
+                      <span className="text-[14px] font-medium text-fittree-text group-hover:text-fittree-primary transition-colors">In stock only</span>
+                    </label>
+                  </div>
+
                   <div className="mt-10 pt-8 border-t border-fittree-border">
                     <div className="flex items-start gap-4 text-fittree-text text-[13px] font-medium leading-relaxed bg-fittree-bg p-4 rounded-2xl">
                       <span className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-fittree-accent shrink-0 shadow-sm border border-fittree-border"><Star size={14} fill="currentColor" /></span>
@@ -154,17 +189,17 @@ const ProductListPage = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {[1, 2, 3, 4, 5, 6].map(i => <ProductSkeleton key={i} />)}
               </div>
-            ) : products.length === 0 ? (
+            ) : visibleProducts.length === 0 ? (
               <div className="bg-white rounded-[2rem] shadow-sm border border-fittree-border p-16 text-center">
                 <div className="w-20 h-20 bg-fittree-bg rounded-full flex items-center justify-center mx-auto mb-6 text-fittree-text-light"><SearchIcon size={32} /></div>
                 <h3 className="text-[24px] font-semibold text-fittree-text mb-3">No products found</h3>
                 <p className="text-fittree-text-light mb-10 text-[15px]">We couldn't find any products matching your current filters.</p>
-                <button onClick={() => { setCategory('All'); setSort(''); }} className="btn btn-primary">Clear All Filters</button>
+                <button onClick={() => { setCategory('All'); setSort(''); setMaxPrice(1000); setInStockOnly(false); }} className="btn btn-primary">Clear All Filters</button>
               </div>
             ) : (
               <>
                 <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {products.map((product, idx) => (
+                  {visibleProducts.map((product, idx) => (
                     <motion.div
                       layout
                       initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.4, delay: (idx % 6) * 0.05 }}

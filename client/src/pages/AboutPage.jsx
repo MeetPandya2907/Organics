@@ -1,227 +1,225 @@
 import { motion } from 'framer-motion';
-import { Leaf, ShieldCheck, Handshake, Sun, ArrowRight, MapPin, Users, Sprout, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import {
+  Leaf, Handshake, FlaskConical, Package, ArrowRight, ShieldCheck,
+  CheckCircle2, Send, Sprout, Heart, Tractor, Award, Users,
+} from 'lucide-react';
 import Meta from '../components/Meta';
+import NewsletterForm from '../components/NewsletterForm';
 
 const STATS = [
-  { num: '40,000+', label: 'Homes Served' },
-  { num: '40+', label: 'Partner Farms' },
-  { num: '4', label: 'Sourcing States' },
-  { num: '100%', label: 'Batches Lab-Tested' },
+  { icon: Sprout, n: '100+', l: 'Organic Products' },
+  { icon: Heart, n: '50K+', l: 'Happy Customers' },
+  { icon: Tractor, n: '30+', l: 'Partner Farms' },
+  { icon: ShieldCheck, n: '100%', l: 'Quality Assured' },
+  { icon: Award, n: '5+', l: 'Years of Trust' },
 ];
 
-const REGIONS = [
-  { place: 'Nashik, Maharashtra', crop: 'Turmeric', desc: 'Sun-dried and stone-ground within days of harvest.', img: 'https://fittreeinternational.com/wp-content/uploads/2026/01/imresizer-turmeric-2344157-scaled-1-1.jpg' },
-  { place: 'Idukki, Kerala', crop: 'Cardamom & Pepper', desc: 'Handpicked from a 60-family growers\' collective.', img: 'https://fittreeinternational.com/wp-content/uploads/2026/01/imresizer-istockphoto-515677966-170667a.jpg' },
-  { place: 'Malwa, Madhya Pradesh', crop: 'Masoor & Toor Dal', desc: 'Stone-milled without polish or added wax.', img: 'https://fittreeinternational.com/wp-content/uploads/2026/01/imresizer-bowl-sackcloth-red-raw-lentils-wooden-board.jpg.jpg' },
-  { place: 'Unjha, Gujarat', crop: 'Cumin & Coriander', desc: 'India\'s largest spice mandi, sourced direct.', img: 'https://fittreeinternational.com/wp-content/uploads/2026/01/coriander1_imresizer.jpg' },
+const WHY_CHOOSE = [
+  'Chemical & Pesticide Free',
+  'Sourced from Trusted Farmers',
+  'Lab Tested for Purity',
+  'Sustainable & Ethical Practices',
+  'Secure Packaging & Timely Delivery',
 ];
 
-const TIMELINE = [
-  { year: '2019', title: 'A single sack of turmeric', desc: 'Started by buying direct from three farmers near Nashik who couldn\'t get a fair price at the local mandi.' },
-  { year: '2021', title: 'Building the farmer network', desc: 'Grew to 40+ partner farms across four states, each visited and vetted in person before onboarding.' },
-  { year: '2023', title: 'Our own testing lab', desc: 'Brought pesticide-residue testing in-house so every single batch is checked before it ships — not sampled occasionally.' },
-  { year: 'Today', title: '40,000+ homes, one pantry', desc: 'FSSAI-licensed, lab-tested batch by batch, and still packed to order rather than to a warehouse shelf.' },
+const WHY_CARDS = [
+  { title: 'Pure & Natural', desc: 'No additives, no preservatives. Just honest, natural food.', icon: Leaf, img: 'https://fittreeinternational.com/wp-content/uploads/2026/01/imresizer-bowl-sackcloth-red-raw-lentils-wooden-board.jpg.jpg' },
+  { title: 'Farm to Home', desc: 'Directly sourced from farms and delivered to your home.', icon: Tractor, img: '/hero_banner_farm.png' },
+  { title: 'Better for Earth', desc: 'We care for our planet through responsible & eco-friendly practices.', icon: Sprout, img: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=500&q=80' },
 ];
 
-const VALUES = [
-  { icon: <MapPin strokeWidth={1.75} />, title: 'Named Sources', desc: 'Every batch is traceable to a district and a growers\' collective — not a vague "Indian farms" label.' },
-  { icon: <ShieldCheck strokeWidth={1.75} />, title: 'Lab-Tested', desc: 'Every batch is tested for pesticide residue before it\'s packed. If it fails, it doesn\'t ship.' },
-  { icon: <Handshake strokeWidth={1.75} />, title: 'Fair Farmer Pricing', desc: 'We pay above mandi rate and skip the middlemen, so more of what you pay reaches the farm.' },
-  { icon: <Sun strokeWidth={1.75} />, title: 'Packed to Order', desc: 'Nothing sits in a warehouse for months. Most orders are packed within a week of harvest or milling.' },
+const OUR_VALUES = [
+  { icon: ShieldCheck, title: 'Integrity', desc: 'We believe in honesty and transparency in everything we do.' },
+  { icon: Award, title: 'Quality', desc: 'We never compromise on the quality of our products.' },
+  { icon: Leaf, title: 'Sustainability', desc: 'We support sustainable farming and care for the environment.' },
+  { icon: Users, title: 'Customer First', desc: 'Your health and happiness are our top priorities.' },
 ];
 
 const AboutPage = () => {
   return (
-    <div className="bg-fittree-bg min-h-screen text-fittree-text font-sans pb-24 pt-[130px]">
-      <Meta title="FitTree Organics | Our Story & Sourcing" description="Learn how FitTree Organics sources whole spices, pulses and seeds directly from named farms across India." />
+    <div className="bg-fittree-cream min-h-screen text-fittree-text font-sans pb-0 pt-[130px]">
+      <Meta title="FitTree Organics | Our Story" description="Learn how FitTree Organics sources whole spices, pulses and seeds directly from named farms across India." />
 
       {/* HERO */}
-      <section className="max-w-[1400px] mx-auto px-4 sm:px-6 mb-6">
-        <div className="relative w-full min-h-[420px] md:min-h-[520px] rounded-[2rem] overflow-hidden shadow-fittree-md">
-          <img
-            src="/hero_banner_farm.png"
-            alt="A farmer holding freshly harvested lentils in a field near Nashik"
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/40 to-transparent"></div>
-
-          <div className="relative z-10 h-full flex flex-col justify-center px-8 sm:px-12 md:px-16 py-14 max-w-2xl">
-            <motion.span
-              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
-              className="pill-tag bg-white/15 backdrop-blur-sm border border-white/25 text-white w-fit mb-6"
-            >
-              <Leaf size={12} /> Our Sourcing Story
-            </motion.span>
-            <motion.h1
-              initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, delay: 0.08 }}
-              className="text-white text-4xl sm:text-5xl lg:text-[3.2rem] font-extrabold leading-[1.1] mb-6 drop-shadow-md"
-            >
-              From one Nashik farm<br />to 40,000 kitchens.
-            </motion.h1>
-            <motion.p
-              initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, delay: 0.16 }}
-              className="text-white/85 text-[15px] sm:text-[17px] leading-relaxed max-w-lg font-medium"
-            >
-              FitTree Organics started because we couldn't find turmeric that actually smelled like turmeric. So we went and bought it directly from the farmers who grow it.
-            </motion.p>
-          </div>
-        </div>
-      </section>
-
-      {/* STATS STRIP */}
-      <section className="max-w-[1400px] mx-auto px-4 sm:px-6 mb-24">
-        <div className="bg-white rounded-2xl border border-fittree-border shadow-sm grid grid-cols-2 md:grid-cols-4">
-          {STATS.map((s, i) => (
-            <div key={i} className={`text-center py-7 px-4 ${i < STATS.length - 1 ? 'border-r border-fittree-border' : ''} ${i === 2 ? 'border-r-0 md:border-r' : ''}`}>
-              <b className="block font-display text-2xl md:text-3xl font-extrabold text-fittree-primary leading-none mb-1.5">{s.num}</b>
-              <span className="text-[11.5px] font-bold uppercase tracking-wider text-fittree-text-light">{s.label}</span>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* VALUES */}
-      <section className="max-w-[1400px] mx-auto px-4 sm:px-6 mb-24">
-        <div className="text-center mb-12">
-          <span className="eyebrow">What we actually do</span>
-          <h2 className="mt-2 text-[28px] md:text-[36px] font-extrabold text-fittree-text">Not just another "organic" label</h2>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-          {VALUES.map((val, idx) => (
-            <motion.div
-              key={idx}
-              initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: idx * 0.08 }}
-              className="bg-white p-7 rounded-2xl border border-fittree-border shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 group"
-            >
-              <div className="w-12 h-12 bg-fittree-primary/10 text-fittree-primary rounded-xl flex items-center justify-center mb-6 group-hover:bg-fittree-primary group-hover:text-white transition-colors">
-                {val.icon}
-              </div>
-              <h3 className="text-[17px] font-display font-bold text-fittree-text mb-2.5">{val.title}</h3>
-              <p className="text-fittree-text-light font-medium leading-relaxed text-[13.5px]">{val.desc}</p>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
-      {/* SOURCING REGIONS */}
-      <section className="max-w-[1400px] mx-auto px-4 sm:px-6 mb-24">
-        <div className="text-center mb-12">
-          <span className="eyebrow">Region by region</span>
-          <h2 className="mt-2 text-[28px] md:text-[36px] font-extrabold text-fittree-text">A supply chain we can actually name</h2>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-          {REGIONS.map((r, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08 }}
-              className="bg-white rounded-2xl border border-fittree-border shadow-sm overflow-hidden hover:shadow-md hover:-translate-y-1 transition-all group"
-            >
-              <div className="h-[130px] overflow-hidden">
-                <img src={r.img} alt={r.crop} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-              </div>
-              <div className="p-6">
-                <div className="w-9 h-9 rounded-full bg-fittree-accent-light text-fittree-accent-dark flex items-center justify-center mb-4">
-                  <MapPin size={16} />
-                </div>
-                <span className="text-[10.5px] font-extrabold uppercase tracking-wider text-fittree-accent-dark block mb-1.5">{r.crop}</span>
-                <h3 className="font-display font-bold text-fittree-text text-[16px] mb-2.5 leading-snug">{r.place}</h3>
-                <p className="text-fittree-text-light text-[13px] font-medium leading-relaxed">{r.desc}</p>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
-      {/* TIMELINE */}
-      <section className="max-w-[900px] mx-auto px-4 sm:px-6 mb-24">
-        <div className="text-center mb-14">
-          <span className="eyebrow">How we got here</span>
-          <h2 className="mt-2 text-[28px] md:text-[36px] font-extrabold text-fittree-text">Our journey</h2>
-        </div>
-        <div className="space-y-8 relative before:absolute before:inset-0 before:ml-6 before:h-full before:w-[2px] before:bg-fittree-border">
-          {TIMELINE.map((t, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, x: -16 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
-              className="relative flex items-start gap-6"
-            >
-              <div className="flex items-center justify-center w-12 h-12 rounded-full border-4 border-fittree-bg bg-fittree-primary text-white font-display font-bold shrink-0 z-10">
-                {i + 1}
-              </div>
-              <div className="flex-1 bg-white p-6 rounded-2xl border border-fittree-border shadow-sm">
-                <span className="text-xs font-extrabold text-fittree-accent-dark uppercase tracking-widest mb-2 block">{t.year}</span>
-                <h3 className="font-display font-bold text-fittree-text text-[17px] mb-2">{t.title}</h3>
-                <p className="text-fittree-text-light font-medium leading-relaxed text-[13.5px]">{t.desc}</p>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
-      {/* QUOTE BLOCK */}
-      <section className="max-w-[1400px] mx-auto px-4 sm:px-6 mb-24">
-        <div className="bg-white rounded-[2rem] p-8 md:p-14 border border-fittree-border shadow-sm grid lg:grid-cols-2 gap-12 items-center">
-          <div className="relative h-[260px] lg:h-[360px] rounded-2xl overflow-hidden">
-            <img
-              src="https://fittreeinternational.com/wp-content/uploads/2026/01/imresizer-bowl-sackcloth-red-raw-lentils-wooden-board.jpg.jpg"
-              alt="Masoor dal, stone-milled without polish"
-              className="w-full h-full object-cover"
-            />
-          </div>
+      <section className="max-w-[1400px] mx-auto px-4 sm:px-6 mb-16">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
           <div>
-            <div className="flex gap-0.5 text-fittree-accent mb-5">{[1,2,3,4,5].map(i => <Star key={i} size={16} fill="currentColor" stroke="none" />)}</div>
-            <p className="text-xl md:text-2xl font-display font-medium italic text-fittree-text leading-snug mb-7 border-l-4 border-fittree-primary pl-6">
-              "We wanted spices that tasted like the ones our grandmothers used — not the dust that sits in a supermarket jar for a year."
+            <span className="text-fittree-primary font-bold text-[12px] uppercase tracking-[0.18em] mb-4 block">About FitTree Organics</span>
+            <motion.h1
+              initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
+              className="font-serif text-[2.6rem] sm:text-[3.1rem] font-medium leading-[1.05] mb-6"
+            >
+              <span className="text-fittree-dark">Pure Food.</span><br /><span className="text-fittree-primary">Pure Purpose.</span>
+            </motion.h1>
+            <p className="text-fittree-text-light text-[15.5px] leading-relaxed max-w-md mb-8 font-medium">
+              At FitTree Organics, we believe good health begins with pure, natural and honest food. That's why we bring you organic staples directly from trusted Indian farms.
             </p>
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-fittree-primary/10 text-fittree-primary flex items-center justify-center">
-                <Users size={20} />
+            <div className="flex flex-wrap gap-8 mb-9">
+              <div className="flex items-center gap-3">
+                <Leaf size={22} className="text-fittree-primary shrink-0" />
+                <span className="leading-tight"><span className="block text-[13.5px] font-bold text-fittree-text">100% Organic</span><span className="block text-[11.5px] text-fittree-text-light font-medium">No Chemicals</span></span>
               </div>
-              <div>
-                <p className="font-bold text-fittree-text text-[14.5px]">FitTree Organics, Founding Team</p>
-                <p className="text-[12.5px] font-medium text-fittree-text-light mt-0.5">Mumbai, Maharashtra</p>
+              <div className="flex items-center gap-3">
+                <Handshake size={22} className="text-fittree-primary shrink-0" />
+                <span className="leading-tight"><span className="block text-[13.5px] font-bold text-fittree-text">Farm to Home</span><span className="block text-[11.5px] text-fittree-text-light font-medium">Direct from Farmers</span></span>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* PROMISE STRIP */}
-      <section className="max-w-[1400px] mx-auto px-4 sm:px-6 mb-24">
-        <div className="grid md:grid-cols-3 gap-5">
-          <div className="bg-fittree-primary/5 border border-fittree-primary/15 rounded-2xl p-7">
-            <Sprout className="text-fittree-primary mb-4" size={26} strokeWidth={1.75} />
-            <h4 className="font-display font-bold text-fittree-text text-[16px] mb-2">Grown, Not Manufactured</h4>
-            <p className="text-fittree-text-light text-[13.5px] font-medium leading-relaxed">No fillers, no anti-caking agents, no "natural flavour" shortcuts. Just the crop, cleaned and packed.</p>
-          </div>
-          <div className="bg-fittree-accent-light/50 border border-fittree-accent/20 rounded-2xl p-7">
-            <ShieldCheck className="text-fittree-accent-dark mb-4" size={26} strokeWidth={1.75} />
-            <h4 className="font-display font-bold text-fittree-text text-[16px] mb-2">Every Report, On Request</h4>
-            <p className="text-fittree-text-light text-[13.5px] font-medium leading-relaxed">Ask for the lab report on any batch and we'll send it. Nothing about our testing is confidential.</p>
-          </div>
-          <div className="bg-fittree-primary/5 border border-fittree-primary/15 rounded-2xl p-7">
-            <Handshake className="text-fittree-primary mb-4" size={26} strokeWidth={1.75} />
-            <h4 className="font-display font-bold text-fittree-text text-[16px] mb-2">Not Happy? Full Refund</h4>
-            <p className="text-fittree-text-light text-[13.5px] font-medium leading-relaxed">If a batch doesn't meet your expectations, tell us — we'll refund it, no questions asked.</p>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="max-w-[1100px] mx-auto px-4 sm:px-6">
-        <div className="bg-fittree-primary rounded-[2rem] p-12 md:p-16 relative overflow-hidden text-center">
-          <div className="absolute -top-16 -right-10 w-72 h-72 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
-          <div className="absolute -bottom-16 -left-10 w-72 h-72 bg-white/5 rounded-full blur-3xl pointer-events-none"></div>
-          <div className="relative z-10 flex flex-col items-center">
-            <div className="w-14 h-14 bg-white/15 rounded-full flex items-center justify-center mb-6">
-              <Leaf className="text-white" size={24} strokeWidth={1.75} />
-            </div>
-            <h2 className="text-white text-3xl md:text-4xl font-extrabold mb-8 leading-tight max-w-xl">Ready to taste the difference?</h2>
-            <Link to="/products" className="bg-white text-fittree-primary px-9 py-4 rounded-xl font-bold hover:scale-[1.03] transition-transform flex items-center gap-2.5 shadow-lg">
-              Shop the Pantry <ArrowRight size={18} />
+            <Link to="/products" className="inline-flex items-center gap-2 bg-fittree-forest text-white px-7 py-3.5 rounded-xl font-bold text-[14.5px] hover:bg-fittree-forest-light transition-colors shadow-lg shadow-fittree-forest/15">
+              Our Story <ArrowRight size={16} />
             </Link>
           </div>
+
+          <div className="relative">
+            <div className="relative rounded-tl-[5rem] rounded-br-[5rem] rounded-tr-2xl rounded-bl-2xl overflow-hidden aspect-[16/11] shadow-fittree-lg">
+              <img src="/hero_banner_farm.png" alt="A farmer tending organic crops in a field" className="absolute inset-0 w-full h-full object-cover" />
+            </div>
+            <div className="hidden sm:block absolute -right-6 top-1/2 -translate-y-1/2 w-[230px] bg-fittree-forest rounded-2xl p-6 shadow-xl">
+              <span className="font-serif text-fittree-accent text-4xl leading-none block mb-1">&ldquo;</span>
+              <p className="text-white/90 text-[14px] font-medium leading-snug -mt-2">We work directly with farmers who follow natural &amp; sustainable farming methods.</p>
+              <Leaf size={38} className="text-white/10 absolute bottom-4 right-4" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* OUR JOURNEY */}
+      <section className="max-w-[1400px] mx-auto px-4 sm:px-6 mb-16">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="relative">
+            <div className="relative rounded-[2rem] overflow-hidden aspect-[4/3] shadow-fittree-md">
+              <img src="/01_hero_product_basket.jpg" alt="A wicker basket of FitTree Organics Toor Dal, Moong Dal, oils and spice jars" className="absolute inset-0 w-full h-full object-cover" />
+            </div>
+            <div className="hidden sm:flex absolute -bottom-6 -left-6 w-24 h-24 rounded-full bg-white shadow-xl border border-fittree-border items-center justify-center text-center">
+              <span className="text-fittree-forest font-serif italic text-[12px] font-medium leading-tight">Pure<br />Natural</span>
+            </div>
+          </div>
+
+          <div>
+            <span className="text-fittree-primary font-bold text-[12px] uppercase tracking-[0.18em] mb-4 block">Our Journey</span>
+            <h2 className="font-serif text-[2.1rem] font-medium leading-tight text-fittree-dark mb-6">From Our Farms<br />to Your Family</h2>
+            <p className="text-fittree-text-light text-[14.5px] leading-relaxed mb-4 font-medium max-w-md">
+              FitTree Organics started with a simple idea — to make clean, chemical-free food accessible to every home.
+            </p>
+            <p className="text-fittree-text-light text-[14.5px] leading-relaxed mb-9 font-medium max-w-md">
+              We partner with farmers who share our values of purity, transparency and sustainability. Every product you see is carefully sourced, tested and packed with love.
+            </p>
+            <div className="grid grid-cols-3 gap-4 max-w-md">
+              <div className="flex items-center gap-2.5">
+                <Handshake size={19} className="text-fittree-primary shrink-0" />
+                <span className="leading-tight"><span className="block text-[12.5px] font-bold text-fittree-text">Carefully Sourced</span><span className="block text-[10.5px] text-fittree-text-light font-medium">From Trusted Farms</span></span>
+              </div>
+              <div className="flex items-center gap-2.5">
+                <FlaskConical size={19} className="text-fittree-primary shrink-0" />
+                <span className="leading-tight"><span className="block text-[12.5px] font-bold text-fittree-text">Lab Tested</span><span className="block text-[10.5px] text-fittree-text-light font-medium">For Purity</span></span>
+              </div>
+              <div className="flex items-center gap-2.5">
+                <Package size={19} className="text-fittree-primary shrink-0" />
+                <span className="leading-tight"><span className="block text-[12.5px] font-bold text-fittree-text">Hygienically Packed</span><span className="block text-[10.5px] text-fittree-text-light font-medium">With Care</span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* STATS BAR */}
+      <section className="max-w-[1400px] mx-auto px-4 sm:px-6 mb-16">
+        <div className="bg-fittree-forest rounded-[2rem] py-8 px-6 sm:px-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-8">
+          {STATS.map((s, i) => (
+            <div key={i} className="flex items-center gap-3">
+              <s.icon size={26} className="text-fittree-accent shrink-0" />
+              <span>
+                <span className="block font-serif text-white text-[22px] font-medium leading-none">{s.n}</span>
+                <span className="block text-white/60 text-[11px] font-semibold mt-1">{s.l}</span>
+              </span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* WHY CHOOSE US */}
+      <section className="max-w-[1400px] mx-auto px-4 sm:px-6 mb-16">
+        <div className="grid lg:grid-cols-[1fr_1.3fr] gap-12 items-center">
+          <div>
+            <span className="text-fittree-primary font-bold text-[12px] uppercase tracking-[0.18em] mb-4 block">Why Choose Us</span>
+            <h2 className="font-serif text-[2.1rem] font-medium leading-tight text-fittree-dark mb-5">Better Food. Better Life.</h2>
+            <p className="text-fittree-text-light text-[14.5px] leading-relaxed mb-7 font-medium max-w-md">
+              We are committed to delivering wholesome food that's good for you and kind to the planet.
+            </p>
+            <ul className="space-y-3 mb-8">
+              {WHY_CHOOSE.map((item, i) => (
+                <li key={i} className="flex items-center gap-2.5 text-[13.5px] font-semibold text-fittree-text">
+                  <CheckCircle2 size={17} className="text-fittree-primary shrink-0" /> {item}
+                </li>
+              ))}
+            </ul>
+            <Link to="/products" className="inline-flex items-center gap-2 bg-fittree-forest text-white px-6 py-3 rounded-xl font-bold text-[13.5px] hover:bg-fittree-forest-light transition-colors">
+              Shop Our Products <ArrowRight size={15} />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-3 gap-5">
+            {WHY_CARDS.map((c, i) => (
+              <div key={i} className="rounded-2xl overflow-hidden border border-fittree-border bg-white">
+                <div className="relative h-[110px]">
+                  <img src={c.img} alt={c.title} className="absolute inset-0 w-full h-full object-cover" />
+                  <span className="absolute top-3 left-3 w-9 h-9 rounded-full bg-white/95 backdrop-blur flex items-center justify-center text-fittree-primary shadow-sm"><c.icon size={17} /></span>
+                </div>
+                <div className="p-4">
+                  <h4 className="font-bold text-[13.5px] text-fittree-dark mb-1.5">{c.title}</h4>
+                  <p className="text-[11.5px] text-fittree-text-light font-medium leading-relaxed">{c.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* OUR VALUES */}
+      <section className="max-w-[1400px] mx-auto px-4 sm:px-6 mb-16">
+        <div className="bg-fittree-sand border border-fittree-border rounded-[2rem] py-8 px-6 sm:px-10">
+          <span className="text-fittree-primary font-bold text-[11px] uppercase tracking-[0.18em] mb-6 block">Our Values</span>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+            {OUR_VALUES.map((v, i) => (
+              <div key={i} className="flex items-start gap-3">
+                <v.icon size={22} className="text-fittree-forest shrink-0 mt-0.5" />
+                <span>
+                  <span className="block text-[13.5px] font-bold text-fittree-text">{v.title}</span>
+                  <span className="block text-[12px] text-fittree-text-light font-medium leading-relaxed mt-0.5">{v.desc}</span>
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* NEWSLETTER */}
+      <section className="max-w-[1400px] mx-auto px-4 sm:px-6 mb-0">
+        <div className="bg-fittree-forest rounded-[2rem] px-8 py-10 md:px-14 flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden">
+          <Leaf size={90} className="hidden md:block absolute -left-4 -bottom-4 text-white/5 rotate-[20deg]" />
+          <Leaf size={70} className="hidden md:block absolute -right-2 -top-4 text-white/5 -rotate-[15deg]" />
+          <div className="relative z-10 text-center md:text-left">
+            <span className="text-fittree-accent font-bold text-[11.5px] uppercase tracking-widest mb-2 block">Subscribe &amp; Save</span>
+            <h3 className="font-serif text-white text-[24px] md:text-[28px] font-medium mb-2">Get 10% OFF on your first order</h3>
+            <p className="text-white/70 text-[13.5px] font-medium">Join 40,000+ subscribers for recipes, offers &amp; more.</p>
+          </div>
+          <NewsletterForm className="relative z-10 flex w-full md:w-auto max-w-md gap-2.5">
+            {({ email, setEmail, loading }) => (
+              <>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter your email address"
+                  required
+                  className="flex-1 bg-white/95 rounded-xl px-5 py-3.5 text-[14px] text-fittree-text placeholder-fittree-text-light focus:outline-none focus:ring-2 focus:ring-white"
+                />
+                <button type="submit" disabled={loading} className="bg-fittree-primary text-white font-bold px-5 py-3.5 rounded-xl flex items-center gap-2 hover:bg-fittree-primary-soft transition-colors shrink-0 disabled:opacity-60">
+                  <Send size={15} /> <span className="hidden sm:inline">{loading ? 'Subscribing…' : 'Subscribe'}</span>
+                </button>
+              </>
+            )}
+          </NewsletterForm>
         </div>
       </section>
 

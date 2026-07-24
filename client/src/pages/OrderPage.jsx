@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom';
+import { Link, useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useStore } from '../store/useStore';
 import { motion } from 'framer-motion';
 import { CheckCircle, MapPin, CreditCard, ShoppingBag, AlertCircle, Clock, Truck, ShieldCheck, Package, Home, ShoppingCart, XCircle, Ban } from 'lucide-react';
@@ -8,6 +8,7 @@ import toast from 'react-hot-toast';
 
 const OrderPage = () => {
   const { id: orderId } = useParams();
+  const [searchParams] = useSearchParams();
   const { userInfo } = useStore();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -20,8 +21,8 @@ const OrderPage = () => {
   const cancelOrderHandler = async () => {
     setCancelling(true);
     try {
-      const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
-      const { data } = await axios.put(`/api/orders/${orderId}/cancel`, {}, config);
+      const body = userInfo ? {} : { guestEmail: order?.guestEmail };
+      const { data } = await axios.put(`/api/orders/${orderId}/cancel`, body);
       setOrder(data);
       toast.success('Order cancelled');
       setShowCancelConfirm(false);
@@ -35,12 +36,15 @@ const OrderPage = () => {
   useEffect(() => {
     const fetchOrder = async () => {
       try {
-        const config = {
-          headers: {
-            Authorization: `Bearer ${userInfo.token}`,
-          },
-        };
-        const { data } = await axios.get(`/api/orders/${orderId}`, config);
+        // Guest orders require the checkout email to view — pulled from
+        // the URL (a shared/tracking link) or from this browser's own
+        // recent checkout, in that order of preference.
+        const guestEmail = !userInfo
+          ? (searchParams.get('email') || sessionStorage.getItem('guestOrderEmail'))
+          : null;
+        const { data } = await axios.get(`/api/orders/${orderId}`, {
+          params: guestEmail ? { email: guestEmail } : undefined,
+        });
         setOrder(data);
         setLoading(false);
       } catch (err) {
@@ -49,10 +53,8 @@ const OrderPage = () => {
       }
     };
 
-    if (userInfo) {
-      fetchOrder();
-    }
-  }, [orderId, userInfo]);
+    fetchOrder();
+  }, [orderId, userInfo, searchParams]);
 
   const handlePayment = async () => {
     setPaymentLoading(true);
@@ -100,8 +102,8 @@ const OrderPage = () => {
           }
         },
         prefill: {
-          name: order.user.name,
-          email: order.user.email,
+          name: order.user?.name,
+          email: order.user?.email,
           contact: (order.shippingAddress && order.shippingAddress.phone) ? order.shippingAddress.phone.replace(/\D/g, '').slice(-10) : undefined,
         },
         theme: {
@@ -189,8 +191,8 @@ const OrderPage = () => {
         <div className="text-center md:text-left">
           <h1 className="text-3xl md:text-4xl text-fittree-text font-bold mb-2">Order Details</h1>
           <p className="text-fittree-text-light font-medium flex items-center justify-center md:justify-start gap-2 text-[14px]">
-             <span className="uppercase tracking-widest font-bold">Order ID</span> 
-             <span className="font-mono bg-white px-2 py-0.5 rounded border border-fittree-border">{order._id}</span>
+             <span className="uppercase tracking-widest font-bold">Order</span>
+             <span className="font-mono bg-white px-2 py-0.5 rounded border border-fittree-border">#{order.orderNumber}</span>
           </p>
         </div>
         <div className={`px-6 py-3 rounded-full font-bold flex items-center gap-2 shadow-sm border ${
@@ -300,8 +302,8 @@ const OrderPage = () => {
               <h2 className="text-xl text-fittree-text font-bold">Shipping Details</h2>
             </div>
             <div className="pl-13 text-fittree-text text-[15px] font-medium space-y-4">
-              <p className="flex flex-col"><span className="text-[11px] font-bold text-fittree-text-light uppercase tracking-widest mb-1">Recipient</span> <span className="font-bold">{order.user.name}</span></p>
-              <p className="flex flex-col"><span className="text-[11px] font-bold text-fittree-text-light uppercase tracking-widest mb-1">Contact</span> <a href={`mailto:${order.user.email}`} className="hover:text-fittree-primary hover:underline">{order.user.email}</a></p>
+              <p className="flex flex-col"><span className="text-[11px] font-bold text-fittree-text-light uppercase tracking-widest mb-1">Recipient</span> <span className="font-bold">{order.user?.name || order.guestName}</span></p>
+              <p className="flex flex-col"><span className="text-[11px] font-bold text-fittree-text-light uppercase tracking-widest mb-1">Contact</span> <a href={`mailto:${order.user?.email || order.guestEmail}`} className="hover:text-fittree-primary hover:underline">{order.user?.email || order.guestEmail}</a></p>
               <p className="flex flex-col"><span className="text-[11px] font-bold text-fittree-text-light uppercase tracking-widest mb-1">Address</span>
                 <span className="leading-relaxed">
                    {order.shippingAddress.address}, <br/>
@@ -411,7 +413,7 @@ const OrderPage = () => {
               </div>
             </div>
 
-            {!order.isPaid && order.paymentMethod !== 'CashOnDelivery' && (
+            {!order.isCancelled && !order.isPaid && order.paymentMethod !== 'CashOnDelivery' && (
               <button 
                 onClick={handlePayment} 
                 disabled={paymentLoading}
@@ -427,7 +429,7 @@ const OrderPage = () => {
               </button>
             )}
 
-            {userInfo && userInfo.isAdmin && order.isPaid && !order.isShipped && (
+            {userInfo && userInfo.isAdmin && !order.isCancelled && order.isPaid && !order.isShipped && (
               <button 
                 onClick={shipOrderHandler} 
                 className="w-full mt-4 bg-fittree-accent text-white py-4 rounded-xl font-bold text-[15px] flex items-center justify-center gap-2 hover:bg-amber-500 transition-colors"
@@ -436,7 +438,7 @@ const OrderPage = () => {
               </button>
             )}
 
-            {userInfo && userInfo.isAdmin && order.isShipped && !order.isDelivered && (
+            {userInfo && userInfo.isAdmin && !order.isCancelled && order.isShipped && !order.isDelivered && (
               <button 
                 onClick={deliverOrderHandler} 
                 className="w-full mt-4 bg-green-600 text-white py-4 rounded-xl font-bold text-[15px] flex items-center justify-center gap-2 hover:bg-green-700 transition-colors"

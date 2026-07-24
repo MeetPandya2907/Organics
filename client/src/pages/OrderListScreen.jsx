@@ -172,7 +172,7 @@ const OrderListScreen = () => {
               <tbody className="divide-y divide-fittree-border">
                 {filtered.map((order) => (
                   <tr key={order._id} className={`hover:bg-fittree-bg transition-colors ${order.isCancelled ? 'opacity-60' : ''}`}>
-                    <td className="py-3 px-4 font-mono text-[12px] text-fittree-text-light">{order._id.substring(0, 8)}...</td>
+                    <td className="py-3 px-4 font-mono text-[12px] text-fittree-text-light">#{order.orderNumber ?? order._id.substring(0, 8)}</td>
                     <td className="py-3 px-4 font-medium text-fittree-text text-[13.5px]">
                       {order.user && order.user.name}
                       {order.isCancelled && <span className="ml-2 px-2 py-0.5 bg-red-100 text-red-700 rounded-full text-[10px] font-bold uppercase align-middle">Cancelled</span>}

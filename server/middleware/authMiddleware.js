@@ -19,6 +19,22 @@ const protect = async (req, res, next) => {
   }
 };
 
+// Attaches req.user if a valid token cookie is present, but never blocks
+// the request — used for guest-checkout-capable routes.
+const protectOptional = async (req, res, next) => {
+  const token = req.cookies.jwt;
+
+  if (token) {
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      req.user = await User.findById(decoded.userId).select('-password');
+    } catch (error) {
+      // Invalid/expired token — proceed as guest rather than blocking.
+    }
+  }
+  next();
+};
+
 const admin = (req, res, next) => {
   if (req.user && req.user.isAdmin) {
     next();
@@ -27,4 +43,4 @@ const admin = (req, res, next) => {
   }
 };
 
-export { protect, admin };
+export { protect, protectOptional, admin };

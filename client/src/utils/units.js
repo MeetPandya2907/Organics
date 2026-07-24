@@ -56,12 +56,25 @@ const VARIANT_SETS = {
 
 export function getBaseUnit(product) {
   if (!product) return DEFAULT_UNIT;
+  // Prefer explicitly stored baseUnit from the DB
+  if (product.baseUnit) return product.baseUnit;
   const nameMatch = NAME_UNIT_MAP.find(({ match }) => match.test(product.name || ''));
   if (nameMatch) return nameMatch.unit;
   return CATEGORY_UNIT_MAP[product.category] || DEFAULT_UNIT;
 }
 
 export function getVariants(product) {
+  // If the product has custom per-size prices stored in the DB, use them directly.
+  if (product?.sizes && product.sizes.length > 0) {
+    const baseUnit = getBaseUnit(product);
+    return product.sizes.map((s) => ({
+      label: s.label,
+      price: s.price,
+      isDefault: s.label === baseUnit,
+    }));
+  }
+
+  // Fallback: compute from multipliers (for products without custom size data)
   const baseUnit = getBaseUnit(product);
   const basePrice = product?.price || 0;
   const sets = VARIANT_SETS[baseUnit] || VARIANT_SETS['250g'];
@@ -71,6 +84,29 @@ export function getVariants(product) {
     price: Math.round(basePrice * v.multiplier),
   }));
 }
+
+export function getDisplayUnit(product) {
+  // If the admin configured custom sizes, find the default one (matching baseUnit) or use the first one.
+  if (product?.sizes && product.sizes.length > 0) {
+    const baseUnit = getBaseUnit(product);
+    const defaultSize = product.sizes.find((s) => s.label === baseUnit) || product.sizes[0];
+    return defaultSize.label;
+  }
+  // Fall back to the inferred base unit (name/category matching)
+  return getBaseUnit(product);
+}
+
+export function getDisplayPrice(product) {
+  // If the admin configured custom sizes, find the default one's price.
+  if (product?.sizes && product.sizes.length > 0) {
+    const baseUnit = getBaseUnit(product);
+    const defaultSize = product.sizes.find((s) => s.label === baseUnit) || product.sizes[0];
+    return defaultSize.price;
+  }
+  // Fall back to the stored product price
+  return product?.price || 0;
+}
+
 
 // Sourcing region shown on the "farm-traced" chip. Inferred from name,
 // falling back to category.
@@ -93,6 +129,8 @@ const CATEGORY_REGION_MAP = {
 
 export function getRegion(product) {
   if (!product) return 'India';
+  // Prefer explicitly stored origin from the DB
+  if (product.origin) return product.origin;
   const hit = NAME_REGION_MAP.find(({ match }) => match.test(product.name || ''));
   if (hit) return hit.region;
   return CATEGORY_REGION_MAP[product.category] || 'India';

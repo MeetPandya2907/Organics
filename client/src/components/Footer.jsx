@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { MapPin, Phone, Mail, ShieldCheck, Truck, Leaf } from 'lucide-react';
+import NewsletterForm from './NewsletterForm';
 
 const Footer = () => {
   return (
@@ -84,20 +85,28 @@ const Footer = () => {
               <li className="flex items-start gap-3"><MapPin size={16} className="text-fittree-primary shrink-0 mt-0.5" /> Mumbai, Maharashtra, India</li>
             </ul>
             <p className="text-[13px] text-fittree-text-light font-semibold mb-3">Get 10% off your first order — join our WhatsApp list for restock alerts.</p>
-            <form className="relative flex items-center" onSubmit={(e) => e.preventDefault()}>
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="w-full bg-fittree-sand border border-fittree-border rounded-xl py-4 pl-5 pr-14 text-[14px] text-fittree-text placeholder-fittree-text-light focus:outline-none focus:border-fittree-primary transition-colors"
-              />
-              <button
-                type="submit"
-                aria-label="Subscribe"
-                className="absolute right-1.5 w-10 h-10 bg-fittree-primary text-white rounded-lg flex items-center justify-center hover:bg-fittree-primary-soft transition-colors shadow-sm"
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-              </button>
-            </form>
+            <NewsletterForm className="relative flex items-center">
+              {({ email, setEmail, loading }) => (
+                <>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Enter your email"
+                    required
+                    className="w-full bg-fittree-sand border border-fittree-border rounded-xl py-4 pl-5 pr-14 text-[14px] text-fittree-text placeholder-fittree-text-light focus:outline-none focus:border-fittree-primary transition-colors"
+                  />
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    aria-label="Subscribe"
+                    className="absolute right-1.5 w-10 h-10 bg-fittree-primary text-white rounded-lg flex items-center justify-center hover:bg-fittree-primary-soft transition-colors shadow-sm disabled:opacity-60"
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                  </button>
+                </>
+              )}
+            </NewsletterForm>
           </div>
 
         </div>

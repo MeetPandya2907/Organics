@@ -4,6 +4,10 @@ import { notifyBackInStock } from './stockAlertController.js';
 
 const myCache = new NodeCache({ stdTTL: 300, checkperiod: 320 }); // Cache for 5 minutes
 
+// Exposed so other controllers (e.g. orders, on stock reservation/release)
+// can invalidate the product list cache without duplicating a NodeCache instance.
+export const flushProductCache = () => myCache.flushAll();
+
 // @desc    Fetch all products
 // @route   GET /api/products
 // @access  Public
@@ -15,13 +19,22 @@ const getProducts = async (req, res) => {
   const minPrice = req.query.minPrice ? Number(req.query.minPrice) : 0;
   const maxPrice = req.query.maxPrice ? Number(req.query.maxPrice) : 0;
   const sort = req.query.sort || 'newest'; // newest, price_asc, price_desc, toprated
+  const showAll = req.query.showAll === 'true'; // admin flag to see Draft/Archived
 
-  const cacheKey = `products_${page}_${pageSize}_${keywordString}_${category}_${minPrice}_${maxPrice}_${sort}`;
+  const cacheKey = `products_${page}_${pageSize}_${keywordString}_${category}_${minPrice}_${maxPrice}_${sort}_${showAll}`;
   if (myCache.has(cacheKey)) {
     return res.json(myCache.get(cacheKey));
   }
 
   const query = {};
+
+  // Public API only shows Published products; admin can see all with ?showAll=true
+  if (!showAll) {
+    query.$or = [
+      { status: 'Published' },
+      { status: { $exists: false } },  // backwards compat: old products without status field
+    ];
+  }
 
   if (keywordString) {
     query.name = {
@@ -98,11 +111,24 @@ const deleteProduct = async (req, res) => {
 // @route   POST /api/products
 // @access  Private/Admin
 const createProduct = async (req, res) => {
-  const { name, price, description, image, images, category, countInStock } = req.body;
+  const {
+    name, price, description, image, images, category, countInStock,
+    sku, tagline, tags, origin, benefits, discount, baseUnit, sizes,
+    mrp, status, nutrition, ingredients, storageInstructions, shelfLife,
+    fssaiLicense, hsnCode, metaTitle, metaDescription,
+  } = req.body;
+
+  // Auto-compute discount from MRP vs price
+  const numericMrp = Number(mrp) || 0;
+  const numericPrice = Number(price) || 0;
+  const autoDiscount = numericMrp > numericPrice && numericPrice > 0
+    ? Math.round(((numericMrp - numericPrice) / numericMrp) * 100)
+    : (Number(discount) || 0);
 
   const product = new Product({
     name: name || 'Sample name',
-    price: price || 0,
+    price: numericPrice,
+    mrp: numericMrp,
     user: req.user._id,
     image: image || 'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=800',
     images: images || [],
@@ -110,6 +136,23 @@ const createProduct = async (req, res) => {
     countInStock: countInStock || 0,
     numReviews: 0,
     description: description || 'Sample description',
+    sku: sku || '',
+    tagline: tagline || '',
+    tags: tags || '',
+    origin: origin || '',
+    benefits: benefits || '',
+    discount: autoDiscount,
+    baseUnit: baseUnit || '',
+    sizes: sizes || [],
+    status: status || 'Published',
+    nutrition: nutrition || [],
+    ingredients: ingredients || '',
+    storageInstructions: storageInstructions || '',
+    shelfLife: shelfLife || '',
+    fssaiLicense: fssaiLicense || '',
+    hsnCode: hsnCode || '',
+    metaTitle: metaTitle || '',
+    metaDescription: metaDescription || '',
   });
 
   const createdProduct = await product.save();
@@ -121,7 +164,12 @@ const createProduct = async (req, res) => {
 // @route   PUT /api/products/:id
 // @access  Private/Admin
 const updateProduct = async (req, res) => {
-  const { name, price, description, image, images, category, countInStock } = req.body;
+  const {
+    name, price, description, image, images, category, countInStock,
+    sku, tagline, tags, origin, benefits, discount, baseUnit, sizes,
+    mrp, status, nutrition, ingredients, storageInstructions, shelfLife,
+    fssaiLicense, hsnCode, metaTitle, metaDescription,
+  } = req.body;
 
   const product = await Product.findById(req.params.id);
 
@@ -135,6 +183,34 @@ const updateProduct = async (req, res) => {
     if (images !== undefined) product.images = images;
     product.category = category;
     product.countInStock = countInStock;
+
+    // Auto-compute discount from MRP vs price
+    const numericMrp = Number(mrp) || 0;
+    const numericPrice = Number(price) || 0;
+    if (mrp !== undefined) product.mrp = numericMrp;
+    if (numericMrp > numericPrice && numericPrice > 0) {
+      product.discount = Math.round(((numericMrp - numericPrice) / numericMrp) * 100);
+    } else if (discount !== undefined) {
+      product.discount = Number(discount) || 0;
+    }
+
+    // Extended fields
+    if (sku !== undefined) product.sku = sku;
+    if (tagline !== undefined) product.tagline = tagline;
+    if (tags !== undefined) product.tags = tags;
+    if (origin !== undefined) product.origin = origin;
+    if (benefits !== undefined) product.benefits = benefits;
+    if (baseUnit !== undefined) product.baseUnit = baseUnit;
+    if (sizes !== undefined) product.sizes = sizes;
+    if (status !== undefined) product.status = status;
+    if (nutrition !== undefined) product.nutrition = nutrition;
+    if (ingredients !== undefined) product.ingredients = ingredients;
+    if (storageInstructions !== undefined) product.storageInstructions = storageInstructions;
+    if (shelfLife !== undefined) product.shelfLife = shelfLife;
+    if (fssaiLicense !== undefined) product.fssaiLicense = fssaiLicense;
+    if (hsnCode !== undefined) product.hsnCode = hsnCode;
+    if (metaTitle !== undefined) product.metaTitle = metaTitle;
+    if (metaDescription !== undefined) product.metaDescription = metaDescription;
 
     const updatedProduct = await product.save();
 
@@ -180,10 +256,48 @@ const createProductReview = async (req, res) => {
       product.reviews.length;
 
     await product.save();
+    myCache.flushAll(); // Clear cache so getProducts reflects the new review and rating
     res.status(201).json({ message: 'Review added' });
   } else {
     res.status(404).json({ message: 'Product not found' });
   }
 };
 
-export { getProducts, getProductById, deleteProduct, createProduct, updateProduct, createProductReview };
+// @desc    Delete a review
+// @route   DELETE /api/products/:id/reviews/:reviewId
+// @access  Private
+const deleteProductReview = async (req, res) => {
+  const product = await Product.findById(req.params.id);
+
+  if (product) {
+    const review = product.reviews.find(r => r._id.toString() === req.params.reviewId.toString());
+
+    if (!review) {
+      res.status(404).json({ message: 'Review not found' });
+      return;
+    }
+
+    // Only allow the user who created the review or an admin to delete it
+    if (review.user.toString() !== req.user._id.toString() && !req.user.isAdmin) {
+      res.status(401).json({ message: 'Not authorized to delete this review' });
+      return;
+    }
+
+    product.reviews = product.reviews.filter(r => r._id.toString() !== req.params.reviewId.toString());
+    product.numReviews = product.reviews.length;
+
+    if (product.numReviews > 0) {
+      product.rating = product.reviews.reduce((acc, item) => item.rating + acc, 0) / product.reviews.length;
+    } else {
+      product.rating = 0;
+    }
+
+    await product.save();
+    myCache.flushAll(); // Clear cache
+    res.json({ message: 'Review removed' });
+  } else {
+    res.status(404).json({ message: 'Product not found' });
+  }
+};
+
+export { getProducts, getProductById, deleteProduct, createProduct, updateProduct, createProductReview, deleteProductReview };

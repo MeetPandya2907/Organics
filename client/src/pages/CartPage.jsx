@@ -212,7 +212,7 @@ const CartPage = () => {
                   </div>
                 </div>
                 
-                <button onClick={() => navigate('/shipping')} className="btn btn-primary w-full py-4 text-[15px] uppercase tracking-wider flex justify-center items-center gap-3 group relative z-10 rounded-xl">
+                <button onClick={() => navigate('/placeorder')} className="btn btn-primary w-full py-4 text-[15px] uppercase tracking-wider flex justify-center items-center gap-3 group relative z-10 rounded-xl">
                   Proceed to Checkout
                   <ArrowRight size={17} strokeWidth={2.5} className="group-hover:translate-x-1 transition-transform" />
                 </button>
